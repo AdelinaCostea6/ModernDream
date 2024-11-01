@@ -5,9 +5,11 @@ class Player
 {
 private:
 	std::string name; 
-	Weapon weapon; 
+	Weapon *weapon; 
 	int points;
 	int lives;
 	std::pair<int, int> position;
+public:
+	Player(std::string name, Weapon *weapon, std::pair<int,int>position);
 };
 
