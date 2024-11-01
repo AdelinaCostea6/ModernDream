@@ -9,5 +9,6 @@ private:
 	float speed;
 public:
 	Bullet();
+	Bullet(std::pair<int, int> startPos, std::pair<int, int> endPos, int directionBullet, int speedBullet);
 };
 
