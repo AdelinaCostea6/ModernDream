@@ -9,5 +9,5 @@ private:
     int dimColoane;
     std::vector<std::vector<int>> matrix;
 
-    Map(int linii, int coloane);
+    Map(int linii, int coloane, std::vector<std::vector<int>> matrix);
 };
