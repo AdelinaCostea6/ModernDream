@@ -8,3 +8,10 @@ void Player::login()
 	std::cout << "Player" << name << "logged in" << std::endl;
 }
 
+void Player::movement(int dx, int dy)
+{
+	position.first += dx;
+	position.second += dy;
+	std::cout << "Player" << name << "moved to position(" << position.first << ", " << position.second << ")" << std::endl;
+}
+

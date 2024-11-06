@@ -11,5 +11,7 @@ private:
 	std::pair<int, int> position;
 public:
 	Player(std::string name, Weapon *weapon, std::pair<int,int>position);
+	void login();
+	void movement(int dx,int dy);
 };
 
