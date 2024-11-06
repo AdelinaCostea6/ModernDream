@@ -15,6 +15,7 @@ public:
 	void movement();
 	void shoot();
 	void resetPosition();
+	int getLifes()const;
 
 };
 

@@ -34,3 +34,8 @@ void Player::resetPosition()
 		std::cout << "Game over for player" << name << "No more lifes " << std::endl;
 }
 
+int Player::getLifes() const
+{
+	return lifes;
+}
+
