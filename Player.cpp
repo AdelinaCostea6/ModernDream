@@ -39,3 +39,8 @@ int Player::getLifes() const
 	return lifes;
 }
 
+int Player::getPoints() const
+{
+	return points;
+}
+

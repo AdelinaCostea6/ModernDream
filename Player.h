@@ -16,6 +16,7 @@ public:
 	void shoot();
 	void resetPosition();
 	int getLifes()const;
+	int getPoints()const;
 
 };
 
