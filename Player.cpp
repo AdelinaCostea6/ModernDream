@@ -44,3 +44,8 @@ int Player::getPoints() const
 	return points;
 }
 
+std::pair<int, int> Player::getPosition() const
+{
+	return position;
+}
+

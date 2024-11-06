@@ -17,6 +17,7 @@ public:
 	void resetPosition();
 	int getLifes()const;
 	int getPoints()const;
+	std::pair<int, int>getPosition()const;
 
 };
 
