@@ -7,12 +7,14 @@ private:
 	std::string name; 
 	Weapon *weapon; 
 	int points;
-	int lives;
+	int lifes;
 	std::pair<int, int> position;
 public:
 	Player(std::string name, Weapon *weapon, std::pair<int,int>position);
 	void login();
 	void movement();
 	void shoot();
+	void resetPosition();
+
 };
 
