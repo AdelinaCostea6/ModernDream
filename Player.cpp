@@ -8,10 +8,16 @@ void Player::login()
 	std::cout << "Player" << name << "logged in" << std::endl;
 }
 
-void Player::movement(int dx, int dy)
+void Player::movement()
 {
-	position.first += dx;
-	position.second += dy;
+	position.first += 1;
+	position.second += 1;
 	std::cout << "Player" << name << "moved to position(" << position.first << ", " << position.second << ")" << std::endl;
+}
+
+void Player::shoot()
+{
+	weapon->shoot();
+	std::cout << "Player" << name << "shoot with weapon:" << weapon;
 }
 
