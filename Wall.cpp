@@ -30,7 +30,7 @@ bool getDestructible()
 
 void reduceDurability(int amount)
 {
-    if (this.type == 1) // 1 = indistructibil
+    if (isDestructible() == false)
     {
         return;
     }
@@ -41,5 +41,17 @@ void reduceDurability(int amount)
     if (this.durablility < 0)
     {
         this.durability = 0;
+    }
+}
+
+bool isDestructible()
+{
+    if (this.type == 0) // destructibil
+    {
+        return true;
+    }
+    else // indestructibil
+    {
+        return false;
     }
 }
