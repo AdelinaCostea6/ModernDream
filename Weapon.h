@@ -6,5 +6,6 @@ private:
 	float speed;
 public:
 	Weapon();
+	void shoot();
 };
 

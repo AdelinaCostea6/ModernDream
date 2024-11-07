@@ -49,3 +49,8 @@ std::pair<int, int> Player::getPosition() const
 	return position;
 }
 
+const std::string Player::getName()
+{
+	return name;
+}
+

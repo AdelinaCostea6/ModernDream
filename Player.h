@@ -18,6 +18,8 @@ public:
 	int getLifes()const;
 	int getPoints()const;
 	std::pair<int, int>getPosition()const;
+	const std::string getName();
+
 
 };
 
