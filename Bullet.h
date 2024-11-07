@@ -1,14 +1,20 @@
 #pragma once
 #include<iostream>
+
+using Coordinates = std::pair<int, int>;
+
 class Bullet
 {
 private:
-	std::pair<int, int>startPosition;
-	std::pair<int, int>endPosition;
-	int direction;
+	Coordinates position;
 	float speed;
+	bool isActive;
+
 public:
 	Bullet();
-	Bullet(std::pair<int, int> startPos, std::pair<int, int> endPos, int directionBullet, int speedBullet);
+	Bullet(Coordinates position);
+	void setIsInactive();
+	void setPosition(const Coordinates& pos);
+	float getSpeed() const;
 };
 

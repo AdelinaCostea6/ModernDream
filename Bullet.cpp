@@ -1,6 +1,21 @@
 #include "Bullet.h"
 
-Bullet::Bullet() :startPosition({ 0,0 }), endPosition({0,0}),direction({0}),speed({0}) {}
+Bullet::Bullet() :position({ 0,0 }), speed(0.25), isActive(true) {}
 
-Bullet::Bullet(std::pair<int, int> startPos, std::pair<int, int> endPos, int directionBullet, int speedBullet):
-startPosition(startPos),endPosition(endPos),direction(directionBullet),speed(speedBullet){}
+Bullet::Bullet(Coordinates position)
+	: position(position), speed(0.25), isActive(true){}
+
+void Bullet::setIsInactive()
+{
+	isActive = false;
+}
+
+void Bullet::setPosition(const Coordinates& pos)
+{
+	position = pos;
+}
+
+float Bullet::getSpeed() const
+{
+	return speed;
+}
