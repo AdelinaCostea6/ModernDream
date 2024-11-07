@@ -1,52 +1,53 @@
 #include "Wall.h"
 
-Wall::Wall(std::pair<int, int> position, int type, int durability, bool destructible)
+Wall::Wall(std::pair<int, int> position, int type, int durability, bool destructible, Bomb* bomb=nullptr)
 {
-    this.position = position;
-    this.type = type;
-    this.durability = durability;
-    this.destructible = destructible;
+    this->position = position;
+    this->type = type;
+    this->durability = durability;
+    this->destructible = destructible;
+    this->bomb = bomb;
 }
 
-std::pair<int, int> getPosition()
+std::pair<int, int> Wall::getPosition()
 {
     return position;
 }
 
-int getType()
+int Wall::getType()
 {
     return type;
 }
 
-int getDurability()
+int Wall::getDurability()
 {
     return durability;
 }
 
-bool getDestructible()
+bool Wall::getDestructible()
 {
     return destructible;
 }
 
-void reduceDurability(int amount)
+void Wall::reduceDurability(int amount)
 {
     if (isDestructible() == false)
     {
         return;
     }
-    if (this.destructible)
+    if (destructible)
     {
-        this.durability = this.durablility - amount;
+        durability = durability - amount;
     }
-    if (this.durablility < 0)
+    if (durability < 0)
     {
-        this.durability = 0;
+        durability = 0;
     }
 }
 
-bool isDestructible()
+bool Wall::isDestructible()
 {
-    if (this.type == 0) // destructibil
+    if (type == 0 && !destructible) // destructibil
     {
         return true;
     }
@@ -56,9 +57,17 @@ bool isDestructible()
     }
 }
 
-void destroy()
+void Wall::destroy()
 {
     if (isDestructible() == true)
     {
+        destructible = true;
+        std::cout << "Wall at (" << position.first << ", " << position.second << ") was destroyed.\n";
+        if (bomb) 
+        {
+            std::cout << "A bomb was triggered at (" << position.first << ", " << position.second << ")!\n";
+            //bomb->triggerBomb()
+        }
+
     }
 }
