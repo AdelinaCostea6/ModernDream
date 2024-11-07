@@ -5,11 +5,15 @@
 #include "Wall.h"
 #include "Map.h"
 
+using Coordinates = std::pair<int, int>;
 class Bomb
 {
 private:
-	int radius;
-	std::pair<int, int>position;
+	static const int radius = 10;
+	Coordinates position;
+	bool isActive;
 public:
-	Bomb(int x, int y);
+	Bomb(Coordinates position);
+	Coordinates getPosition() const;
+	bool getStatus() const;
 };

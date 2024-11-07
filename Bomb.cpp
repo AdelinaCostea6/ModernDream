@@ -1,12 +1,17 @@
 #include "Bomb.h"
 
 
-Bomb::Bomb(int x, int y)
+Bomb::Bomb(Coordinates position)
+	:position(position), isActive(true) {}
+
+Coordinates Bomb::getPosition() const
 {
-	position.first = x;
-	position.second = y;
+	return position;
 }
 
-
+bool Bomb::getStatus() const
+{
+	return isActive;
+}
 
 
