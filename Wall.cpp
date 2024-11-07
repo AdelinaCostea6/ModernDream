@@ -55,3 +55,10 @@ bool isDestructible()
         return false;
     }
 }
+
+void destroy()
+{
+    if (isDestructible() == true)
+    {
+    }
+}

@@ -15,7 +15,6 @@ public:
     int getDurability();
     bool getDestructible();
     void reduceDurability();
-    void getPosition();
     bool isDestructible();
     void destroy();
 };
