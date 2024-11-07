@@ -1,5 +1,13 @@
 #include "Wall.h"
 
+Wall::Wall(std::pair<int, int> position, int type, int durability, bool destructible)
+{
+    this.position = position;
+    this.type = type;
+    this.durability = durability;
+    this.destructible = destructible;
+}
+
 std::pair<int, int> getPosition()
 {
     return position;
