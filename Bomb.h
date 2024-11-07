@@ -16,4 +16,5 @@ public:
 	Bomb(Coordinates position);
 	Coordinates getPosition() const;
 	bool getStatus() const;
+	void triggerBomb(int width, int height, const std::vector<Player*>& players, const std::vector<Wall*>& walls);
 };
