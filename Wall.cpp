@@ -1,6 +1,6 @@
 #include "Wall.h"
 
-Wall::Wall(std::pair<int, int> position, int type, int durability, bool destructible, Bomb* bomb=nullptr)
+Wall::Wall(std::pair<int, int> position, WallType type, int durability, bool destructible, Bomb* bomb=nullptr)
 {
     this->position = position;
     this->type = type;
@@ -14,7 +14,7 @@ std::pair<int, int> Wall::getPosition()
     return position;
 }
 
-int Wall::getType()
+WallType Wall::getType() 
 {
     return type;
 }
@@ -29,7 +29,7 @@ bool Wall::getDestructible()
     return destructible;
 }
 
-void Wall::reduceDurability(int amount)
+void Wall::reduceDurability()
 {
     if (isDestructible() == false)
     {
@@ -37,7 +37,7 @@ void Wall::reduceDurability(int amount)
     }
     if (destructible)
     {
-        durability = durability - amount;
+        durability--;
     }
     if (durability < 0)
     {
@@ -47,14 +47,7 @@ void Wall::reduceDurability(int amount)
 
 bool Wall::isDestructible()
 {
-    if (type == 0 && !destructible) // destructibil
-    {
-        return true;
-    }
-    else // indestructibil
-    {
-        return false;
-    }
+    return type == WallType::Destructible;
 }
 
 void Wall::destroy()
