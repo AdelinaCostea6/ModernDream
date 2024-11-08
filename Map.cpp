@@ -1,8 +1,17 @@
 #include "Map.h"
+ 
 
-Map::Map(int dimLinii, int dimColoane, std::vector<std::vector<int>> matrix)
+std::vector<Wall>& Map::getWalls()
 {
-    this->dimLinii = dimLinii;
-    this->dimColoane = dimColoane;
-    this->matrix = matrix;
-};
+    return walls;
+}
+
+std::vector<Bomb>& Map::getBombs()
+{
+    return bombs; 
+}
+
+std::pair<int, int> Map::getSize()
+{
+    return size;
+}
