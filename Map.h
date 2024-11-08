@@ -16,7 +16,7 @@ private:
 public:
     Map(std::pair<int, int> size) :size(size) {}
     void generateMap(int numPlayers);
-    bool isPositionFree(Coordinates position);
+   // bool isPositionFree(Coordinates position);
     std::vector<Wall>& getWalls();
     std::vector<Bomb>& getBombs();
     std::pair<int, int> getSize();

@@ -25,7 +25,7 @@ Coordinates Bullet::getPosition() const
 	return position;
 }
 
-float Bullet::setDoubleSpeed()
+void Bullet::setDoubleSpeed()
 {
 	speed *= 2;
 }
