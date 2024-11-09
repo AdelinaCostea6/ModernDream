@@ -2,8 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "Player.h"
-#include "Wall.h"
-#include "Map.h"
+//#include "Wall.h"
 
 using Coordinates = std::pair<int, int>;
 class Bomb
@@ -16,5 +15,5 @@ public:
 	Bomb(Coordinates position);
 	Coordinates getPosition() const;
 	bool getStatus() const;
-	void triggerBomb(int width, int height, const std::vector<Player*>& players, const std::vector<Wall*>& walls);
+	//void triggerBomb(int width, int height, std::vector<Player*> players, std::vector<Wall*> walls);
 };
