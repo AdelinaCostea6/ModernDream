@@ -11,7 +11,7 @@ enum class WallType
 class Wall
 {
 private:
-    std::pair<int, int> position;
+    std::pair<int,int> position;
     WallType type;
     int durability;
     bool destructible;
@@ -21,7 +21,7 @@ private:
 public:
     Wall(std::pair<int, int> position, WallType type, int durability, bool destructible, Bomb* bomb=nullptr);
     WallType getType();
-    std::pair<int, int> getPosition();
+    std::pair<int,int> getPosition();
     int getDurability();
     bool getDestructible();
     void reduceDurability();

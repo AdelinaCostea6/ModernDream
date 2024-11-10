@@ -1,4 +1,4 @@
-#include "Map.h"
+﻿#include "Map.h"
 
 
 void Map::generateMap(int numPlayers)
@@ -52,6 +52,16 @@ void Map::generateMap(int numPlayers)
         }
         std::cout << std::endl;
     }
+}
+
+bool Map::isPositionFree(std::pair<int,int> position)
+{
+    for ( auto wall : walls) {
+        if (wall.getPosition() == position && wall.getDurability() < 0) {
+            return false;
+        }
+    }
+    return true;
 }
 
 std::vector<Wall>& Map::getWalls()
