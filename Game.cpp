@@ -7,6 +7,21 @@ Game::Game(Map map, std::vector<Player> players, std::vector<Bomb> bombs)
     this->bombs = bombs;
 }
 
+Map Game::GetMap()
+{
+    return map;
+}
+
+std::vector<Player> Game::GetPlayers()
+{
+    return players;
+}
+
+std::vector<Bomb> Game::GetBombs()
+{
+    return bombs;
+}
+
 void Game::DetermineWinner()
 {
 
