@@ -11,7 +11,7 @@ private:
 	float lastShot;
 public:
 	Weapon(float speed);
-	void shoot(/*std::vector<Bullet*>& playerBullets*/);
+	void Shoot(/*std::vector<Bullet*>& playerBullets*/);
 	bool CanShoot();
 	void UpgradeWaitingTime(float reduction);
 	void UpgradeSpeed(float increase);

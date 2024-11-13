@@ -9,29 +9,29 @@ Wall::Wall(std::pair<int, int> position, WallType type, int durability, bool des
     this->bomb = bomb;
 }
 
-std::pair<int, int> Wall::getPosition()
+std::pair<int, int> Wall::GetPosition()
 {
     return position;
 }
 
-WallType Wall::getType() 
+WallType Wall::GetType() 
 {
     return type;
 }
 
-int Wall::getDurability()
+int Wall::GetDurability()
 {
     return durability;
 }
 
-bool Wall::getDestructible()
+bool Wall::GetDestructible()
 {
     return destructible;
 }
 
-void Wall::reduceDurability()
+void Wall::ReduceDurability()
 {
-    if (isDestructible() == false)
+    if (IsDestructible() == false)
     {
         return;
     }
@@ -45,14 +45,14 @@ void Wall::reduceDurability()
     }
 }
 
-bool Wall::isDestructible()
+bool Wall::IsDestructible()
 {
     return type == WallType::Destructible;
 }
 
-void Wall::destroy()
+void Wall::Destroy()
 {
-    if (isDestructible() == true)
+    if (IsDestructible() == true)
     {
         destructible = true;
         std::cout << "Wall at (" << position.first << ", " << position.second << ") was destroyed.\n";

@@ -1,7 +1,7 @@
 ﻿#include "Map.h"
 
 
-void Map::generateMap(int numPlayers)
+void Map::GenerateMap(int numPlayers)
 {
     std::vector<std::vector<int>> mapMatrix(size.second, std::vector<int>(size.first, 1));
 
@@ -54,27 +54,27 @@ void Map::generateMap(int numPlayers)
     }
 }
 
-bool Map::isPositionFree(std::pair<int,int> position)
+bool Map::IsPositionFree(std::pair<int,int> position)
 {
     for ( auto wall : walls) {
-        if (wall.getPosition() == position && wall.getDurability() < 0) {
+        if (wall.GetPosition() == position && wall.GetDurability() < 0) {
             return false;
         }
     }
     return true;
 }
 
-std::vector<Wall>& Map::getWalls()
+std::vector<Wall>& Map::GetWalls()
 {
     return walls;
 }
 
-std::vector<Bomb>& Map::getBombs()
+std::vector<Bomb>& Map::GetBombs()
 {
     return bombs; 
 }
 
-std::pair<int, int> Map::getSize()
+std::pair<int, int> Map::GetSize()
 {
     return size;
 }

@@ -5,20 +5,28 @@ class Player
 {
 private:
 	std::string name; 
-	Weapon *weapon; 
+	Weapon weapon; 
 	int points;
 	int lifes;
 	std::pair<int, int> position;
+	int score;
+	bool speedBoostUsed;
 public:
 	Player(std::string name, Weapon *weapon, std::pair<int,int>position);
-	void login();
-	void movement();
-	void shoot();
-	void resetPosition();
-	int getLifes()const;
-	int getPoints()const;
-	std::pair<int, int>getPosition()const;
-	const std::string getName();
+	void Login();
+	void Movement();
+	void Shoot();
+	void ResetPosition();
+	int GetLifes()const;
+	int GetPoints()const;
+	std::pair<int, int>GetPosition()const;
+	const std::string GetName();
+	int GetScore();
+	void SetScore(int newScore);
+	void SetPoints(int newPoints);
+	bool IsSpeedBoostUsed()const;
+	void SetSpeedBoostUsed(bool used);
+	Weapon GetWeapon();
 
 
 };

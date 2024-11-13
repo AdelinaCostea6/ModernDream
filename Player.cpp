@@ -3,25 +3,25 @@
 Player::Player(std::string name, Weapon* weapon, std::pair<int, int>position) :
 	name(name), weapon(weapon), position(position), points(0), lifes(3){}
 
-void Player::login()
+void Player::Login()
 {
 	std::cout << "Player" << name << "logged in" << std::endl;
 }
 
-void Player::movement()
+void Player::Movement()
 {
 	position.first += 1;
 	position.second += 1;
 	std::cout << "Player" << name << "moved to position(" << position.first << ", " << position.second << ")" << std::endl;
 }
 
-void Player::shoot()
+void Player::Shoot() 
 {
 	weapon->shoot();
-	std::cout << "Player" << name << "shoot with weapon:" << weapon;
+	std::cout << "Player" << name << "shoot with weapon:" << weapon; 
 }
 
-void Player::resetPosition()
+void Player::ResetPosition()
 {
 	if (lifes > 0)
 	{
@@ -34,23 +34,53 @@ void Player::resetPosition()
 		std::cout << "Game over for player" << name << "No more lifes " << std::endl;
 }
 
-int Player::getLifes() const
+int Player::GetLifes() const
 {
 	return lifes;
 }
 
-int Player::getPoints() const
+int Player::GetPoints() const
 {
 	return points;
 }
 
-std::pair<int, int> Player::getPosition() const
+std::pair<int, int> Player::GetPosition() const
 {
 	return position;
 }
 
-const std::string Player::getName()
+const std::string Player::GetName()
 {
 	return name;
+}
+
+int Player::GetScore()  
+{
+	return score;
+}
+
+void Player::SetScore(int newScore) 
+{
+	score = newScore;
+}
+
+void Player::SetPoints(int newPoints)
+{
+	points = newPoints;
+}
+
+bool Player::IsSpeedBoostUsed() const 
+{
+	return speedBoostUsed;
+}
+
+void Player::SetSpeedBoostUsed(bool used) 
+{
+	speedBoostUsed = used;
+}
+
+Weapon Player::GetWeapon()
+{
+	return weapon; 
 }
 

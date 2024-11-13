@@ -16,14 +16,15 @@ private:
 public:
 	Bullet();
 	Bullet(Coordinates position);
-	void setIsInactive();
-	void setPosition(const Coordinates& pos);
-	float getSpeed() const;
-	Coordinates getPosition() const;
-	void setDoubleSpeed();
-	void movement();
-	bool checkCollisionWithPlayers(std::vector<Player*>& players);
-	bool checkCollisionwithWalls(std::vector<Wall*>& walls);
-	void checkCollisionwithBullets(std::vector<Bullet*>& bullets);
+	void SetIsInactive();
+	void SetPosition(const Coordinates& pos);
+	float GetSpeed() const;
+	Coordinates GetPosition() const;
+	void GetIsInactive();
+	void SetDoubleSpeed();
+	void Movement();
+	bool CheckCollisionWithPlayers(std::vector<Player*>& players);
+	bool CheckCollisionwithWalls(std::vector<Wall*>& walls);
+	void CheckCollisionwithBullets(std::vector<Bullet*>& bullets);
 };
 

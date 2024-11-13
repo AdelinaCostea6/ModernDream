@@ -3,7 +3,7 @@
 Weapon::Weapon(float speed):speed(speed),waitingTime(4.0f),lastShot(0.0f)
 {}
 
-void Weapon::shoot(/*std::vector<Bullet*>& playerBullets*/)
+void Weapon::Shoot(/*std::vector<Bullet*>& playerBullets*/)
 {
 	if (CanShoot())
 	{

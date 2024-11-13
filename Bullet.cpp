@@ -5,33 +5,33 @@ Bullet::Bullet() :position({ 0,0 }), speed(0.25), isActive(true) {}
 Bullet::Bullet(Coordinates position)
 	: position(position), speed(0.25), isActive(true){}
 
-void Bullet::setIsInactive()
+void Bullet::GetIsInactive()
 {
 	isActive = false;
 }
 
-void Bullet::setPosition(const Coordinates& pos)
+void Bullet::SetPosition(const Coordinates& pos)
 {
 	position = pos;
 }
 
-float Bullet::getSpeed() const
+float Bullet::GetSpeed() const
 {
 	return speed;
 }
 
-Coordinates Bullet::getPosition() const
+Coordinates Bullet::GetPosition() const
 {
 	return position;
 }
 
-void Bullet::setDoubleSpeed()
+void Bullet::SetDoubleSpeed()
 {
 	speed *= 2;
 }
 
 
-void Bullet::movement()
+void Bullet::Movement()
 {
 	position.first += 1;
 	position.second += 1;
@@ -40,16 +40,16 @@ void Bullet::movement()
 
 }
 
-bool Bullet::checkCollisionWithPlayers(std::vector<Player*>& players)
+bool Bullet::CheckCollisionWithPlayers(std::vector<Player*>& players)
 {
 	if (!isActive) return false;
 
 		for (auto& player : players)
 		{
-			if (player->getPosition() == position)
+			if (player->GetPosition() == position)
 			{
-				player->resetPosition();
-				std::cout << "Player " << player->getName() << " has been shoot\\n";
+				player->ResetPosition();
+				std::cout << "Player " << player->GetName() << " has been shoot\\n";
 				isActive = false;
 				return true;
 			}
@@ -59,18 +59,18 @@ bool Bullet::checkCollisionWithPlayers(std::vector<Player*>& players)
 
 }
 
-bool Bullet::checkCollisionwithWalls(std::vector<Wall*>& walls)
+bool Bullet::CheckCollisionwithWalls(std::vector<Wall*>& walls)
 {
 	if (!isActive) return false;
 
 		for (auto& wall : walls)
 		{
-			if (wall->getPosition() == position)
+			if (wall->GetPosition() == position)
 			{
-				if (wall->isDestructible())
+				if (wall->IsDestructible())
 				{
-					wall->destroy();
-					std::cout << "The wall at (" << wall->getPosition().first <<" , "<< wall->getPosition().second <<") has been destroyed\\n";
+					wall->Destroy();
+					std::cout << "The wall at (" << wall->GetPosition().first <<" , "<< wall->GetPosition().second <<") has been destroyed\\n";
 					isActive = false;
 					return true;
 				}
@@ -81,17 +81,17 @@ bool Bullet::checkCollisionwithWalls(std::vector<Wall*>& walls)
 
 }
 
-void Bullet::checkCollisionwithBullets(std::vector<Bullet*>& bullets)
+void Bullet::CheckCollisionwithBullets(std::vector<Bullet*>& bullets)
 {
 	for (int i = 0; i < bullets.size() - 1; i++)
 	{
 		for (int j = i + 1; j < bullets.size(); j++)
 		{
-			if (bullets[i]->isActive && bullets[j]->isActive && bullets[i]->getPosition() == bullets[j]->getPosition())
+			if (bullets[i]->isActive && bullets[j]->isActive && bullets[i]->GetPosition() == bullets[j]->GetPosition())
 			{
 				std::cout << "Two bullets collided\n";
-				bullets[i]->setIsInactive();
-				bullets[j]->setIsInactive();
+				bullets[i]->SetIsInactive(); 
+				bullets[j]->SetIsInactive(); 
 			}
 
 		}

@@ -13,7 +13,7 @@ private:
 	bool isActive;
 public:
 	Bomb(Coordinates position);
-	Coordinates getPosition() const;
-	bool getStatus() const;
+	Coordinates GetPosition() const;
+	bool GetStatus() const;
 	//void triggerBomb(int width, int height, std::vector<Player*> players, std::vector<Wall*> walls);
 };

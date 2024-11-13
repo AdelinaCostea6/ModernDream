@@ -4,12 +4,12 @@
 Bomb::Bomb(Coordinates position)
 	:position(position), isActive(true) {}
 
-Coordinates Bomb::getPosition() const
+Coordinates Bomb::GetPosition() const
 {
 	return position;
 }
 
-bool Bomb::getStatus() const
+bool Bomb::GetStatus() const
 {
 	return isActive;
 }
