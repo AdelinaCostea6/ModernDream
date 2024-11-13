@@ -1,11 +1,31 @@
 #include "Weapon.h"
 
-Weapon::Weapon()
+Weapon::Weapon(float speed):speed(speed),waitingTime(4.0f),lastShot(0.0f)
+{}
+
+void Weapon::shoot(/*std::vector<Bullet*>& playerBullets*/)
 {
-	this->waitingTime = 4;
+	if (CanShoot())
+	{
+		lastShot = (float)std::time(nullptr);
+		//playerBullets.emplace_back(new Bullet(position));
+	}
 }
 
-void Weapon::shoot()
+bool Weapon::CanShoot()
 {
-	//TODO: implement this
+	return (lastShot + waitingTime) <= (float)std::time(nullptr);
+}
+
+void Weapon::UpgradeWaitingTime(float reduction)
+{
+	waitingTime -= reduction;
+	if (waitingTime < 1.0f)
+	{
+		waitingTime = 1.0f;
+	}
+}
+void Weapon::UpgradeSpeed(float increase)
+{
+	speed += increase;
 }
