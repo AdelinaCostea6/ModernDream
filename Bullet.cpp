@@ -5,7 +5,7 @@ Bullet::Bullet() :position({ 0,0 }), speed(0.25), isActive(true) {}
 Bullet::Bullet(Coordinates position)
 	: position(position), speed(0.25), isActive(true){}
 
-void Bullet::GetIsInactive()
+void Bullet::SetIsInactive()
 {
 	isActive = false;
 }
@@ -23,6 +23,11 @@ float Bullet::GetSpeed() const
 Coordinates Bullet::GetPosition() const
 {
 	return position;
+}
+
+bool Bullet::GetIsInactive()
+{
+	return isActive;
 }
 
 void Bullet::SetDoubleSpeed()

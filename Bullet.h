@@ -20,7 +20,7 @@ public:
 	void SetPosition(const Coordinates& pos);
 	float GetSpeed() const;
 	Coordinates GetPosition() const;
-	void GetIsInactive();
+	bool GetIsInactive();
 	void SetDoubleSpeed();
 	void Movement();
 	bool CheckCollisionWithPlayers(std::vector<Player*>& players);

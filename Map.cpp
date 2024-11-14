@@ -1,6 +1,11 @@
 ﻿#include "Map.h"
 
 
+Map::Map()
+    :size({0,0})
+{
+}
+
 void Map::GenerateMap(int numPlayers)
 {
     std::vector<std::vector<int>> mapMatrix(size.second, std::vector<int>(size.first, 1));
@@ -77,4 +82,28 @@ std::vector<Bomb>& Map::GetBombs()
 std::pair<int, int> Map::GetSize()
 {
     return size;
+}
+
+Wall* Map::GetWallAt(int x, int y)
+{
+    for (auto& wall : walls)
+    {
+        if (wall.GetPosition() == std::make_pair(x, y))
+        {
+            return& wall;
+        }
+    }
+    return nullptr;
+}
+
+Bomb* Map::GetBombAt(int x, int y)
+{
+    for (auto& bomb : bombs)
+    {
+        if (bomb.GetPosition() == std::make_pair(x, y))
+        {
+            return& bomb;
+        }
+    }
+    return nullptr;
 }
