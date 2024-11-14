@@ -1,7 +1,7 @@
 #include "Player.h"
 
-Player::Player(std::string name, Weapon weapon, std::pair<int, int>position) :
-	name(name), weapon(weapon), position(position), points(0), lifes(3){}
+Player::Player(std::string name, std::shared_ptr<class Weapon> weapon, std::pair<int, int>position) :  
+	name(name), weapon(std::move(weapon)), position(position), points(0), lifes(3){}
 
 void Player::Login()
 {
@@ -17,7 +17,7 @@ void Player::Movement()
 
 void Player::Shoot() 
 {
-	weapon.Shoot();
+	weapon->Shoot(); 
 	std::cout << "Player" << name << "shoot with weapon\n"; 
 }
 
@@ -49,7 +49,7 @@ std::pair<int, int> Player::GetPosition() const
 	return position;
 }
 
-const std::string Player::GetName()
+const std::string& Player::GetName()
 {
 	return name;
 }
@@ -79,8 +79,8 @@ void Player::SetSpeedBoostUsed(bool used)
 	speedBoostUsed = used;
 }
 
-Weapon Player::GetWeapon()
-{
-	return weapon; 
+Weapon& Player::GetWeapon() 
+{ 
+	return *weapon; 
 }
 

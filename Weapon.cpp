@@ -29,3 +29,18 @@ void Weapon::UpgradeSpeed(float increase)
 {
 	speed += increase;
 }
+
+float Weapon::GetSpeed()
+{
+	return speed;
+}
+
+float Weapon::GetWaitingTime()
+{
+	return waitingTime;
+}
+
+float Weapon::GetLastShot()
+{
+	return lastShot;
+}

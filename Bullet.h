@@ -1,8 +1,10 @@
 #pragma once
-#include<iostream>
+#include <iostream>
 #include <vector>
+#include <utility>
 #include "Player.h"
 #include "Wall.h"
+#include "Bullet.h"
 
 using Coordinates = std::pair<int, int>;
 
@@ -23,8 +25,8 @@ public:
 	bool GetIsInactive();
 	void SetDoubleSpeed();
 	void Movement();
-	bool CheckCollisionWithPlayers(std::vector<Player*>& players);
-	bool CheckCollisionwithWalls(std::vector<Wall*>& walls);
-	void CheckCollisionwithBullets(std::vector<Bullet*>& bullets);
+	bool CheckCollisionWithPlayers(std::vector<class Player>& players);
+	bool CheckCollisionwithWalls(std::vector<class Wall>& walls);
+	void CheckCollisionwithBullets(std::vector<class Bullet>& bullets);
 };
 

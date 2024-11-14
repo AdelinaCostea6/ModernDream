@@ -1,9 +1,10 @@
 #pragma once
 #include <iostream>
-#include <vector>
-#include "Player.h"
+#include <utility>
+//#include "Player.h"
 
 using Coordinates = std::pair<int, int>;
+
 class Bomb
 {
 private:
@@ -15,7 +16,7 @@ public:
 	Bomb(Coordinates position);
 	Coordinates GetPosition() const;
 	bool GetStatus() const;
-	bool SetStatus(bool status);
+	void SetStatus(bool status); 
 
 
 };

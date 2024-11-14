@@ -14,7 +14,7 @@ bool Bomb::GetStatus() const
 	return isActive;
 }
 
-bool Bomb::SetStatus(bool status)
+void Bomb::SetStatus(bool status)
 {
 	isActive = status;
 }

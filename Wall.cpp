@@ -1,13 +1,8 @@
 #include "Wall.h"
 
-Wall::Wall(std::pair<int, int> position, WallType type, int durability, bool destructible, Bomb* bomb=nullptr)
-{
-    this->position = position;
-    this->type = type;
-    this->durability = durability;
-    this->destructible = destructible;
-    this->bomb = bomb;
-}
+Wall::Wall(std::pair<int, int> position, WallType type, int durability, bool destructible, Bomb* bomb)
+    : position(position), type(type), durability(durability), destructible(destructible), bomb(bomb) {}
+
 
 std::pair<int, int> Wall::GetPosition()
 {

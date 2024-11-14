@@ -45,16 +45,16 @@ void Bullet::Movement()
 
 }
 
-bool Bullet::CheckCollisionWithPlayers(std::vector<Player*>& players)
+bool Bullet::CheckCollisionWithPlayers(std::vector<Player>& players) 
 {
 	if (!isActive) return false;
 
 		for (auto& player : players)
 		{
-			if (player->GetPosition() == position)
+			if (player.GetPosition() == position)
 			{
-				player->ResetPosition();
-				std::cout << "Player " << player->GetName() << " has been shoot\\n";
+				player.ResetPosition();
+				std::cout << "Player " << player.GetName() << " has been shoot\\n"; 
 				isActive = false;
 				return true;
 			}
@@ -64,18 +64,18 @@ bool Bullet::CheckCollisionWithPlayers(std::vector<Player*>& players)
 
 }
 
-bool Bullet::CheckCollisionwithWalls(std::vector<Wall*>& walls)
+bool Bullet::CheckCollisionwithWalls(std::vector<Wall>& walls)
 {
 	if (!isActive) return false;
 
 		for (auto& wall : walls)
 		{
-			if (wall->GetPosition() == position)
+			if (wall.GetPosition() == position)
 			{
-				if (wall->IsDestructible())
+				if (wall.IsDestructible())
 				{
-					wall->Destroy();
-					std::cout << "The wall at (" << wall->GetPosition().first <<" , "<< wall->GetPosition().second <<") has been destroyed\\n";
+					wall.Destroy();
+					std::cout << "The wall at (" << wall.GetPosition().first <<" , "<< wall.GetPosition().second <<") has been destroyed\\n";
 					isActive = false;
 					return true;
 				}
@@ -86,17 +86,17 @@ bool Bullet::CheckCollisionwithWalls(std::vector<Wall*>& walls)
 
 }
 
-void Bullet::CheckCollisionwithBullets(std::vector<Bullet*>& bullets)
+void Bullet::CheckCollisionwithBullets(std::vector<Bullet>& bullets)
 {
 	for (int i = 0; i < bullets.size() - 1; i++)
 	{
 		for (int j = i + 1; j < bullets.size(); j++)
 		{
-			if (bullets[i]->isActive && bullets[j]->isActive && bullets[i]->GetPosition() == bullets[j]->GetPosition())
+			if (bullets[i].isActive && bullets[j].isActive && bullets[i].GetPosition() == bullets[j].GetPosition())
 			{
 				std::cout << "Two bullets collided\n";
-				bullets[i]->SetIsInactive(); 
-				bullets[j]->SetIsInactive(); 
+				bullets[i].SetIsInactive(); 
+				bullets[j].SetIsInactive(); 
 			}
 
 		}
