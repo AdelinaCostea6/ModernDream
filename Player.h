@@ -12,7 +12,7 @@ private:
 	int score;
 	bool speedBoostUsed;
 public:
-	Player(std::string name, Weapon *weapon, std::pair<int,int>position);
+	Player(std::string name, Weapon weapon, std::pair<int,int>position);
 	void Login();
 	void Movement();
 	void Shoot();

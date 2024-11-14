@@ -52,15 +52,5 @@ bool Wall::IsDestructible()
 
 void Wall::Destroy()
 {
-    if (IsDestructible() == true)
-    {
-        destructible = true;
-        std::cout << "Wall at (" << position.first << ", " << position.second << ") was destroyed.\n";
-        if (bomb) 
-        {
-            std::cout << "A bomb was triggered at (" << position.first << ", " << position.second << ")!\n";
-            //bomb->triggerBomb()
-        }
-
-    }
+    std::cout << "The wall at (" << position.first << " , " << position.second << ")" << "was destroyed\n";
 }

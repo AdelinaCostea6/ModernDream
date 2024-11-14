@@ -64,3 +64,36 @@ void Game::CheckAndApplyWeaponUpgrade()
         }
     }
 }
+
+void Game::TriggerBomb(int x, int y)
+{
+    Wall* wall = map.GetWallAt(x, y);
+    if (wall != nullptr && wall->IsDestructible())
+    {
+        Bomb* bomb = map.GetBombAt(x, y);
+        if (bomb != nullptr && !bomb->GetStatus())
+        {
+            bomb->SetStatus(true);
+            std::cout << "A bomb was triggered at (" << x << " , " << y << ")" << std::endl;
+        }
+        for (Wall& otherWall : map.GetWalls())
+        {
+            double distance = std::sqrt(std::pow(otherWall.GetPosition().first - x, 2) + std::pow(otherWall.GetPosition().second - y, 2));
+            if (distance <= 10.0 && otherWall.IsDestructible())
+            {
+                otherWall.Destroy();
+                map.SetFreePosition(otherWall.GetPosition().first, otherWall.GetPosition().second);
+            
+            }
+        }
+        for (Player& player : players)
+        {
+            double distance = std::sqrt(std::pow(player.GetPosition().first - x, 2) + std::pow(player.GetPosition().second - y, 2));
+            if (distance <= 10.0)
+            {
+                player.ResetPosition();
+                std::cout << "The player " << player.GetName() << "was hit by the explosion\n";
+            }
+        }
+    }
+}

@@ -8,7 +8,8 @@ Map::Map()
 
 void Map::GenerateMap(int numPlayers)
 {
-    std::vector<std::vector<int>> mapMatrix(size.second, std::vector<int>(size.first, 1));
+   // std::vector<std::vector<int>> mapMatrix(size.second, std::vector<int>(size.first, 1));
+    mapMatrix.resize(size.second, std::vector<int>(size.first, 1));
 
     std::vector<std::pair<int, int>> startPositions = {
         {0, 0}, {0, size.first - 1}, {size.second - 1, 0}, {size.second - 1, size.first - 1}
@@ -107,3 +108,9 @@ Bomb* Map::GetBombAt(int x, int y)
     }
     return nullptr;
 }
+
+void Map::SetFreePosition(int x, int y)
+{
+    mapMatrix[x][y] = 1;
+}
+

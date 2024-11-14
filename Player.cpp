@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player(std::string name, Weapon* weapon, std::pair<int, int>position) :
+Player::Player(std::string name, Weapon weapon, std::pair<int, int>position) :
 	name(name), weapon(weapon), position(position), points(0), lifes(3){}
 
 void Player::Login()
@@ -17,8 +17,8 @@ void Player::Movement()
 
 void Player::Shoot() 
 {
-	weapon->shoot();
-	std::cout << "Player" << name << "shoot with weapon:" << weapon; 
+	weapon.Shoot();
+	std::cout << "Player" << name << "shoot with weapon\n"; 
 }
 
 void Player::ResetPosition()

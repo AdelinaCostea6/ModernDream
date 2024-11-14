@@ -17,5 +17,6 @@ public:
     void WinGame(Player *player);
     void FinishSecond(Player *player);
     void CheckAndApplyWeaponUpgrade();
+    void TriggerBomb(int x, int y);
 
 };
