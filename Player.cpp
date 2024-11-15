@@ -5,20 +5,20 @@ Player::Player(std::string name, std::shared_ptr<class Weapon> weapon, std::pair
 }
 void Player::Login()
 {
-	std::cout << "Player" << name << "logged in" << std::endl;
+	std::cout << "Player :" << name << "logged in" << std::endl;
 }
 
 void Player::Movement()
 {
 	position.first += 1;
 	position.second += 1;
-	std::cout << "Player" << name << "moved to position(" << position.first << ", " << position.second << ")" << std::endl;
+	std::cout << "Player " << name << " moved to position(" << position.first << ", " << position.second << ")" << std::endl;
 }
 
 void Player::Shoot() 
 {
 	weapon->Shoot(); 
-	std::cout << "Player" << name << "shoot with weapon\n"; 
+	std::cout << "Player :" << name << "shoot with weapon\n"; 
 }
 
 void Player::ResetPosition()
@@ -29,7 +29,7 @@ void Player::ResetPosition()
 void Player::hit()
 {
 	lifes--;
-	std::cout << "Player" << name << "Was hit and lost a life.Lifes remaining:" << lifes << std::endl;
+	std::cout << "Player :" << name << "Was hit and lost a life.Lifes remaining:" << lifes << std::endl;
 	if (lifes > 0)
 	{
 		ResetPosition();
