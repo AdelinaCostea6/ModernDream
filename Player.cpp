@@ -1,8 +1,8 @@
 #include "Player.h"
 
-Player::Player(std::string name, std::shared_ptr<class Weapon> weapon, std::pair<int, int>position) :  
-	name(name), weapon(std::move(weapon)), position(position), points(0), lifes(3){}
-
+Player::Player(std::string name, std::shared_ptr<class Weapon> weapon, std::pair<int, int> position)
+	: name(name), weapon(std::move(weapon)), position(position), initialPosition(position), points(0), lifes(3) {
+}
 void Player::Login()
 {
 	std::cout << "Player" << name << "logged in" << std::endl;
@@ -23,15 +23,23 @@ void Player::Shoot()
 
 void Player::ResetPosition()
 {
+	position = initialPosition;
+}
+
+void Player::hit()
+{
+	lifes--;
+	std::cout << "Player" << name << "Was hit and lost a life.Lifes remaining:" << lifes << std::endl;
 	if (lifes > 0)
 	{
-		lifes--;
-		position = { 0,0 };
-		std::cout << "Player" << name << "Was hit and lost a life.Lifes remaining:" << lifes << std::endl;
+		ResetPosition();
 		std::cout << "Position was reseted" << std::endl;
 	}
 	else
+	{
 		std::cout << "Game over for player" << name << "No more lifes " << std::endl;
+
+	}
 }
 
 int Player::GetLifes() const

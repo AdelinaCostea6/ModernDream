@@ -19,6 +19,7 @@ public:
 	void Movement();
 	void Shoot();
 	void ResetPosition();
+	void hit();
 	int GetLifes()const;
 	int GetPoints()const;
 	std::pair<int, int>GetPosition()const;
