@@ -47,6 +47,7 @@ int main()
 	std::cout << "After upgrade - Speed: " << weapon.GetSpeed()
 		<< ", Waiting time: " << weapon.GetWaitingTime() << "\n\n";
 
+
 	//Player test
 	std::cout << "--- PLAYER TEST ---\n";
 	auto playerWeapon = std::make_shared<Weapon>(1.0f);
@@ -54,19 +55,21 @@ int main()
 	std::cout << "Player was created: " << player1.GetName() << "\n";
 	std::cout << "Initial position: (" << player1.GetPosition().first
 		<< ", " << player1.GetPosition().second << ")\n";
-	player1.Movement();
+	player1.Movement(); 
 	player1.Shoot();
 	std::cout << "Remaining lifes: " << player1.GetLifes() << "\n\n";
 
-
+	
 	//Map Test
-	std::cout << "--- MAP TEST ---\n";
-	Map gameMap({ 10, 10 });
-	gameMap.GenerateMap(2);
-	std::cout << "Map size: (" << gameMap.GetSize().first
-		<< ", " << gameMap.GetSize().second << ")\n";
-	std::cout << "Number of walls: " << gameMap.GetWalls().size() << "\n";
-	std::cout << "Number of bombs: " << gameMap.GetBombs().size() << "\n\n";
+	std::cout << "--- MAP TEST ---\n";  
+	Map gameMap({ 10, 10 });  
+	gameMap.GenerateMap(2);  
+	std::cout << "Map size: (" << gameMap.GetSize().first  
+		<< ", " << gameMap.GetSize().second << ")\n"; 
+	std::cout << "Number of walls: " << gameMap.GetWalls().size() << "\n";  
+	std::cout << "Number of bombs: " << gameMap.GetBombs().size() << "\n\n";  
+
+	
 
 	// Game Test
 	std::cout << "--- GAME TEST ---\n";

@@ -26,7 +26,7 @@ public:
 	void SetDoubleSpeed();
 	void Movement();
 	bool CheckCollisionWithPlayers(std::vector<class Player>& players);
-	bool CheckCollisionwithWalls(std::vector<class Wall>& walls);
-	void CheckCollisionwithBullets(std::vector<class Bullet>& bullets);
+	bool CheckCollisionwithWalls(std::vector<Wall>& walls);
+	void CheckCollisionwithBullets(std::vector<Bullet>& bullets);
 };
 

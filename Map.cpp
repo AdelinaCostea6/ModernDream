@@ -1,37 +1,106 @@
 ﻿#include "Map.h"
 
 
-Map::Map()
-    :size({0,0})
+Map::Map():size({0,0})
 {
 }
 
-void Map::GenerateMap(int numPlayers)
-{
-   // std::vector<std::vector<int>> mapMatrix(size.second, std::vector<int>(size.first, 1));
+void Map::GenerateMap(int numPlayers) {
     mapMatrix.resize(size.second, std::vector<int>(size.first, 1));
 
-    std::vector<std::pair<int, int>> startPositions = {
-        {0, 0}, {0, size.first - 1}, {size.second - 1, 0}, {size.second - 1, size.first - 1}
-    };
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::shuffle(startPositions.begin(), startPositions.end(), gen);
-    for (int i = 0; i < numPlayers; i++) {
-        mapMatrix[startPositions[i].first][startPositions[i].second] = 0;
+
+    int numClusters = std::uniform_int_distribution<>(4, 8)(gen);
+    std::uniform_int_distribution<> clusterSizeDist(3, 4);
+    std::uniform_int_distribution<> wallTypeDist(0, 1);
+
+    for (int cluster = 0; cluster < numClusters; cluster++)
+    {
+        int startX = std::uniform_int_distribution<>(2, size.first - 4)(gen);
+        int startY = std::uniform_int_distribution<>(2, size.second - 4)(gen);
+
+        int clusterWidth = clusterSizeDist(gen);
+        int clusterHeight = clusterSizeDist(gen);
+
+        bool canPlace = true;
+
+        for (int y = startY - 1; y <= startY + clusterHeight && canPlace; y++) {
+            for (int x = startX - 1; x <= startX + clusterWidth && canPlace; x++) {
+                if (y >= 0 && y < size.second && x >= 0 && x < size.first) {
+                    if (mapMatrix[y][x] != 1) {
+                        canPlace = false;
+                    }
+                }
+            }
+        }
+        if (canPlace) 
+        {
+            bool isHollow = std::uniform_int_distribution<>(0, 1)(gen);
+            for (int y = startY; y < startY + clusterHeight && y < size.second - 1; y++) {
+                for (int x = startX; x < startX + clusterWidth && x < size.first - 1; x++) {
+                    if (!isHollow || y == startY || y == startY + clusterHeight - 1 ||
+                        x == startX || x == startX + clusterWidth - 1) {
+                        mapMatrix[y][x] = 2;
+                        bool isDestructible = (wallTypeDist(gen) == 1);
+                        WallType type = isDestructible ? WallType::Destructible : WallType::NonDestructible;
+                        walls.emplace_back(std::make_pair(y, x), type, 1, isDestructible, nullptr);
+                    }
+                }
+            }
+        }
     }
 
-    std::uniform_int_distribution<> wallChance(0, 10);
-    std::uniform_int_distribution<> wallType(0, 1);
-    std::uniform_int_distribution<> wallDurability(1, 1);
-    for (int i = 0; i < size.second; i++) {
-        for (int j = 0; j < size.first; j++) {
-            if (mapMatrix[i][j] == 1 && wallChance(gen) < 2) {
-                mapMatrix[i][j] = 2;
-                WallType type = (wallType(gen) == 0) ? WallType::NonDestructible : WallType::Destructible;
-                int durability = wallDurability(gen);
-                bool destructible = (type == WallType::Destructible);
-                walls.emplace_back(std::make_pair(i, j), type, durability, destructible);
+    std::uniform_int_distribution<> connectorDist(0, 3);
+    for (int y = 1; y < size.second - 1; y++) {
+        for (int x = 1; x < size.first - 1; x++) {
+            if (mapMatrix[y][x] == 1) {
+                bool hasNearbyWalls = false;
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        if (mapMatrix[y + dy][x + dx] == 2) {
+                            hasNearbyWalls = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (hasNearbyWalls && connectorDist(gen) == 0) {
+                    mapMatrix[y][x] = 2;
+                    bool isDestructible = (wallTypeDist(gen) == 1);
+                    WallType type = isDestructible ? WallType::Destructible : WallType::NonDestructible;
+                    walls.emplace_back(std::make_pair(y, x), type, 1, isDestructible, nullptr);
+                }
+            }
+        }
+    }
+
+    std::vector<std::pair<int, int>> startPositions = {
+        {0, 0}, {0, size.first - 1},
+        {size.second - 1, 0}, {size.second - 1, size.first - 1}
+    };
+    std::shuffle(startPositions.begin(), startPositions.end(), gen);
+
+    for (int i = 0; i < numPlayers; i++) {
+        int py = startPositions[i].first;
+        int px = startPositions[i].second;
+        mapMatrix[py][px] = 0;
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                int ny = py + dy;
+                int nx = px + dx;
+                if (ny >= 0 && ny < size.second && nx >= 0 && nx < size.first) {
+                    if (mapMatrix[ny][nx] == 2) { 
+                        mapMatrix[ny][nx] = 1; 
+                        walls.erase(
+                            std::remove_if(walls.begin(), walls.end(),
+                                [ny, nx]( Wall& wall) {
+                                    return wall.GetPosition() == std::make_pair(ny, nx);
+                                }),
+                            walls.end()
+                        );
+                    }
+                }
             }
         }
     }
@@ -39,15 +108,21 @@ void Map::GenerateMap(int numPlayers)
     std::uniform_int_distribution<> bombCountDist(0, 3);
     int bombCount = bombCountDist(gen);
 
-    std::uniform_int_distribution<> bombChance(0, 20);
-    int bombsAdded = 0;
+    std::vector<size_t> eligibleWalls;
+    for (size_t i = 0; i < walls.size(); i++) {
+        if (walls[i].IsDestructible()) { 
+            eligibleWalls.push_back(i);
+        }
+    }
 
-    for (int i = 0; i < size.second; i++) {
-        for (int j = 0; j < size.first; j++) {
-            if (mapMatrix[i][j] == 1 && bombChance(gen) < 1 && bombsAdded < bombCount) {
-                bombs.emplace_back(std::make_pair(i, j));
-                bombsAdded++;
-            }
+    if (!eligibleWalls.empty()) {
+        std::shuffle(eligibleWalls.begin(), eligibleWalls.end(), gen);
+        int actualBombCount = std::min(bombCount, static_cast<int>(eligibleWalls.size()));
+
+        for (int i = 0; i < actualBombCount; i++) {
+            size_t wallIndex = eligibleWalls[i];
+            auto position = walls[wallIndex].GetPosition();
+            bombs.emplace_back(position);
         }
     }
 
@@ -59,7 +134,6 @@ void Map::GenerateMap(int numPlayers)
         std::cout << std::endl;
     }
 }
-
 bool Map::IsPositionFree(std::pair<int,int> position)
 {
     for ( auto wall : walls) {

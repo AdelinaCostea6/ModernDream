@@ -1,7 +1,7 @@
 #include "Player.h"
 
 Player::Player(std::string name, std::shared_ptr<class Weapon> weapon, std::pair<int, int> position)
-	: name(name), weapon(std::move(weapon)), position(position), initialPosition(position), points(0), lifes(3) {
+	: name(name), weapon(std::move(weapon)), position(position), initialPosition(position), points(0), lifes(3),score(0) {
 }
 void Player::Login()
 {
