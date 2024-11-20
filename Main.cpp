@@ -48,6 +48,15 @@ int main()
 	std::cout << "After upgrade - Speed: " << weapon.GetSpeed()
 		<< ", Waiting time: " << weapon.GetWaitingTime() << "\n\n";
 
+    //Map Test
+	std::cout << "--- MAP TEST ---\n";  
+	Map gameMap({ 10, 10 });  
+	gameMap.GenerateMap(2);  
+	std::cout << "Map size: (" << gameMap.GetSize().first  
+		<< ", " << gameMap.GetSize().second << ")\n"; 
+	std::cout << "Number of walls: " << gameMap.GetWalls().size() << "\n";  
+	std::cout << "Number of bombs: " << gameMap.GetBombs().size() << "\n\n";  
+
 
 	//Player test
 	std::cout << "--- PLAYER TEST ---\n";
@@ -60,22 +69,12 @@ int main()
 	std::cout << "Testing movement: Use W, A, S, D to move the player (press 'q' to exit)\n";
 	while (true)
 	{
-		player1.Movement();
+		player1.Movement(gameMap);
 		if (_kbhit() && _getch() == 'q') break;
 	}
 
 	player1.Shoot();
 	std::cout << "Remaining lifes: " << player1.GetLifes() << "\n\n";
-
-	
-	//Map Test
-	std::cout << "--- MAP TEST ---\n";  
-	Map gameMap({ 10, 10 });  
-	gameMap.GenerateMap(2);  
-	std::cout << "Map size: (" << gameMap.GetSize().first  
-		<< ", " << gameMap.GetSize().second << ")\n"; 
-	std::cout << "Number of walls: " << gameMap.GetWalls().size() << "\n";  
-	std::cout << "Number of bombs: " << gameMap.GetBombs().size() << "\n\n";  
 
 	
 

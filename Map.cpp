@@ -6,7 +6,7 @@ Map::Map():size({0,0})
 }
 
 void Map::GenerateMap(int numPlayers) {
-    mapMatrix.resize(size.second, std::vector<int>(size.first, 1));
+    mapMatrix.resize(size.first, std::vector<int>(size.second, 1));
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -17,54 +17,53 @@ void Map::GenerateMap(int numPlayers) {
 
     for (int cluster = 0; cluster < numClusters; cluster++)
     {
-        int startX = std::uniform_int_distribution<>(2, size.first - 4)(gen);
-        int startY = std::uniform_int_distribution<>(2, size.second - 4)(gen);
+        int startY = std::uniform_int_distribution<>(2, size.first - 4)(gen);
+        int startX = std::uniform_int_distribution<>(2, size.second - 4)(gen);
 
-        int clusterWidth = clusterSizeDist(gen);
         int clusterHeight = clusterSizeDist(gen);
+        int clusterWidth = clusterSizeDist(gen);
 
         bool canPlace = true;
 
-        for (int y = startY - 1; y <= startY + clusterHeight && canPlace; y++) {
-            for (int x = startX - 1; x <= startX + clusterWidth && canPlace; x++) {
-                if (y >= 0 && y < size.second && x >= 0 && x < size.first) {
-                    if (mapMatrix[y][x] != 1) {
+        for (int x = startX - 1; x <= startX + clusterWidth && canPlace; x++) {
+            for (int y = startY - 1; y <= startY + clusterHeight && canPlace; y++) {
+                if (x >= 0 && x < size.first && y >= 0 && y < size.second) {
+                    if (mapMatrix[x][y] != 1) {
                         canPlace = false;
                     }
                 }
             }
         }
-        if (canPlace) 
+
+        if (canPlace)
         {
             bool isHollow = std::uniform_int_distribution<>(0, 1)(gen);
-            for (int y = startY; y < startY + clusterHeight && y < size.second - 1; y++) {
-                for (int x = startX; x < startX + clusterWidth && x < size.first - 1; x++) {
-                    if (!isHollow || y == startY || y == startY + clusterHeight - 1 ||
-                        x == startX || x == startX + clusterWidth - 1) {
-                        mapMatrix[y][x] = 2;
+            for (int x = startX; x < startX + clusterWidth && x < size.first - 1; x++) {
+                for (int y = startY; y < startY + clusterHeight && y < size.second - 1; y++) {
+                    if (!isHollow || x == startX || x == startX + clusterWidth - 1 ||
+                        y == startY || y == startY + clusterHeight - 1) {
+                        mapMatrix[x][y] = 2;
                         bool isDestructible = (wallTypeDist(gen) == 1);
                         WallType type = isDestructible ? WallType::Destructible : WallType::NonDestructible;
-                        walls.emplace_back(std::make_pair(y, x), type, 1, isDestructible, nullptr);
+                        walls.emplace_back(std::make_pair(x, y), type, 1, isDestructible, nullptr);
                     }
                 }
             }
         }
     }
-
-    std::uniform_int_distribution<> connectorDist(0, 3);
-    for (int y = 1; y < size.second - 1; y++) {
-        for (int x = 1; x < size.first - 1; x++) {
-            if (mapMatrix[y][x] == 1) {
+    std::uniform_int_distribution<> connectorDist(0, 3); 
+    for (int x = 1; x < size.first - 1; x++) {
+        for (int y = 1; y < size.second - 1; y++) {
+            if (mapMatrix[x][y] == 1) {
                 bool hasNearbyWalls = false;
-                for (int dy = -1; dy <= 1; dy++) {
-                    for (int dx = -1; dx <= 1; dx++) {
-                        if (mapMatrix[y + dy][x + dx] == 2) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        if (mapMatrix[x + dx][y + dy] == 2) {
                             hasNearbyWalls = true;
                             break;
                         }
                     }
                 }
-
                 if (hasNearbyWalls && connectorDist(gen) == 0) {
                     mapMatrix[y][x] = 2;
                     bool isDestructible = (wallTypeDist(gen) == 1);
@@ -76,26 +75,27 @@ void Map::GenerateMap(int numPlayers) {
     }
 
     std::vector<std::pair<int, int>> startPositions = {
-        {0, 0}, {0, size.first - 1},
-        {size.second - 1, 0}, {size.second - 1, size.first - 1}
+        {0, 0}, {size.first - 1, 0},
+        {0, size.second - 1}, {size.first - 1, size.second - 1}
     };
     std::shuffle(startPositions.begin(), startPositions.end(), gen);
 
     for (int i = 0; i < numPlayers; i++) {
-        int py = startPositions[i].first;
-        int px = startPositions[i].second;
-        mapMatrix[py][px] = 0;
-        for (int dy = -1; dy <= 1; dy++) {
-            for (int dx = -1; dx <= 1; dx++) {
-                int ny = py + dy;
+        int px = startPositions[i].first;
+        int py = startPositions[i].second;
+        mapMatrix[px][py] = 0;
+
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
                 int nx = px + dx;
-                if (ny >= 0 && ny < size.second && nx >= 0 && nx < size.first) {
-                    if (mapMatrix[ny][nx] == 2) { 
-                        mapMatrix[ny][nx] = 1; 
+                int ny = py + dy;
+                if (nx >= 0 && nx < size.first && ny >= 0 && ny < size.second) {
+                    if (mapMatrix[nx][ny] == 2) {
+                        mapMatrix[nx][ny] = 1;
                         walls.erase(
                             std::remove_if(walls.begin(), walls.end(),
-                                [ny, nx]( Wall& wall) {
-                                    return wall.GetPosition() == std::make_pair(ny, nx);
+                                [nx, ny](Wall& wall) {
+                                    return wall.GetPosition() == std::make_pair(nx, ny);
                                 }),
                             walls.end()
                         );
@@ -142,6 +142,17 @@ bool Map::IsPositionFree(std::pair<int,int> position)
         }
     }
     return true;
+}
+bool Map::IsMovable(int x, int y)
+{
+    if (x < 0 || x >= size.first || y < 0 || y >= size.second) {
+        return false;
+    }
+    if (!IsPositionFree({ x, y })) {
+        return false;
+    }
+
+    return mapMatrix[x][y] == 1;
 }
 
 std::vector<Wall>& Map::GetWalls()

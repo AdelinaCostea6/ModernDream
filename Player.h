@@ -3,6 +3,7 @@
 #include <string>
 #include <utility>
 #include "Weapon.h"
+#include "Map.h" 
 class Player
 {
 private:
@@ -17,7 +18,7 @@ private:
 public:
 	Player(std::string name, std::shared_ptr<class Weapon> weapon, std::pair<int, int> position);
 	void Login();
-	void Movement();
+	void Movement( Map& mapMatrix);
 	void Shoot();
 	void ResetPosition();
 	void hit();

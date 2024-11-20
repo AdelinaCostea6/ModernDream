@@ -9,39 +9,54 @@ void Player::Login()
 	std::cout << "Player :" << name << "logged in" << std::endl;
 }
 
-void Player::Movement()
+void Player::Movement(Map& mapMatrix)
 {
-	if (_kbhit())
-	{
-		char key = _getch();
+    if (_kbhit())
+    {
+        char key = _getch();
+        int newX = position.first;
+        int newY = position.second;
 
-		switch (key)
-		{
-			case 'w':
-				position.second -= 1;
-				break;
+        switch (key)
+        {
+        case 'w':
+            newX -= 1;
+            break;
+        case 's':
+            newX += 1;
+            break;
+        case 'a':
+            newY -= 1;
+            break;
+        case 'd':
+            newY += 1;
+            break;
+        default:
+            std::cout << "WRONG! USE W, A, S, D FOR MOVEMENT.\n";
+            return;
+        }
 
-			case 's':
-				position.second += 1;
-				break;
-
-			case 'a':
-				position.first -= 1;
-				break;
-
-			case 'd':
-				position.first += 1;
-				break;
-
-			default:
-				std::cout << "WRONG! USE W, A, S, D FOR MOVEMENT.\n";
-				break;
-		}
-		std::cout << "Player " << name << " moved to position(" << position.first << ", " << position.second << ")" << std::endl;
-	}
-	
+        if (newX >= 0 && newX < mapMatrix.GetSize().first &&
+            newY >= 0 && newY < mapMatrix.GetSize().second)
+        {
+            if (mapMatrix.IsMovable(newX, newY))
+            {
+                position.first = newX;
+                position.second = newY;
+                std::cout << "Player " << name << " moved to position("
+                    << position.first << ", " << position.second << ")" << std::endl;
+            }
+            else
+            {
+                std::cout << "Cannot move to wall or occupied space!\n";
+            }
+        }
+        else
+        {
+            std::cout << "Cannot move outside map boundaries!\n";
+        }
+    }
 }
-
 void Player::Shoot() 
 {
 	weapon->Shoot(); 
