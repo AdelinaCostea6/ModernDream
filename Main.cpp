@@ -1,4 +1,5 @@
 #include <iostream>
+#include <conio.h>
 #include "Bomb.h"
 #include "Bullet.h"
 #include "Wall.h"
@@ -55,7 +56,14 @@ int main()
 	std::cout << "Player was created: " << player1.GetName() << "\n";
 	std::cout << "Initial position: (" << player1.GetPosition().first
 		<< ", " << player1.GetPosition().second << ")\n";
-	player1.Movement(); 
+	
+	std::cout << "Testing movement: Use W, A, S, D to move the player (press 'q' to exit)\n";
+	while (true)
+	{
+		player1.Movement();
+		if (_kbhit() && _getch() == 'q') break;
+	}
+
 	player1.Shoot();
 	std::cout << "Remaining lifes: " << player1.GetLifes() << "\n\n";
 

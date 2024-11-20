@@ -1,4 +1,5 @@
 #include "Player.h"
+#include <conio.h>
 
 Player::Player(std::string name, std::shared_ptr<class Weapon> weapon, std::pair<int, int> position)
 	: name(name), weapon(std::move(weapon)), position(position), initialPosition(position), points(0), lifes(3),score(0) {
@@ -10,9 +11,35 @@ void Player::Login()
 
 void Player::Movement()
 {
-	position.first += 1;
-	position.second += 1;
-	std::cout << "Player " << name << " moved to position(" << position.first << ", " << position.second << ")" << std::endl;
+	if (_kbhit())
+	{
+		char key = _getch();
+
+		switch (key)
+		{
+			case 'w':
+				position.second -= 1;
+				break;
+
+			case 's':
+				position.second += 1;
+				break;
+
+			case 'a':
+				position.first -= 1;
+				break;
+
+			case 'd':
+				position.first += 1;
+				break;
+
+			default:
+				std::cout << "WRONG! USE W, A, S, D FOR MOVEMENT.\n";
+				break;
+		}
+		std::cout << "Player " << name << " moved to position(" << position.first << ", " << position.second << ")" << std::endl;
+	}
+	
 }
 
 void Player::Shoot() 
