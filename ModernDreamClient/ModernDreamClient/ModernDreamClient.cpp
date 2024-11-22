@@ -62,5 +62,11 @@ public:
         usernameEdit = new QLineEdit(this);
         layout->addWidget(usernameLabel);
         layout->addWidget(usernameEdit);
+
+        Qlabel *passwordLabel = new QLabel("Password:", this);
+        passwordEdit = new QLineEdit(this);
+        passwordEdit->setEchoMode(QLineEdit::Password);
+        layout->addWidget(passwordLabel);
+        layout->addWidget(passwordEdit);
     }
 }
