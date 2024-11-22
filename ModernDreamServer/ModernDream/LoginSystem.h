@@ -10,15 +10,20 @@ struct UserData
 	int totalScore = 0;
 	int totalPoints = 0;
 	int gamesPlayed = 0;
+
+	auto operator==(const UserData& other) const {
+		return username == other.username;
+	}
 };
 class LoginSystem
 {
 private:
-	auto createStorage();
-	bool validateUsername(const std::string& username);
+	auto CreateStorage();
+	bool ValidateUsername(const std::string& username);
 
 public:
-	void updatePlayerStats(const std::vector<Player>& players); 
+	void UpdatePlayerStats(const std::vector<Player>& players); 
+	std::vector<Player> RegisterPlayersForGame();
 
 };
 

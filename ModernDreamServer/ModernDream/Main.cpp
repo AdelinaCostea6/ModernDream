@@ -104,8 +104,8 @@ int main()
 	std::cout << "\n";
 	std::cout << "\n";
 	std::cout << "\n";
-	std::cout << "GIRL,U CAN MODIFY ANYTHING YOU WANT,OR WRITE MORE TESTING THINGS FOR YOUR CLASS";
-	std::cout << "\nHAVE FUN WITH TESTING <3";
+	std::cout << "\n";
+	std::cout << "\n";
 	std::cout << "\n";
 	std::cout << "\n";
 	std::cout << "\n";
