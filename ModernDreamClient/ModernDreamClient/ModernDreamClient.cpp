@@ -57,5 +57,10 @@ public:
 
         titleLabel->setStyleSheet("font-size: 20px; font-weight: bold;");
         layout->addWidget(titleLabel);
+
+        QLabel *usernameLabel = new QLabel("Username:", this);
+        usernameEdit = new QLineEdit(this);
+        layout->addWidget(usernameLabel);
+        layout->addWidget(usernameEdit);
     }
 }
