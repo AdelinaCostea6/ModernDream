@@ -45,4 +45,17 @@ private:
         std::string username;
         std::string password;
     };
+
+public:
+    LoginDialog(QWidget *parent = nullptr) : QDialog(parent)
+    {
+        setWindowTitle("Battle City - Login");
+
+        QVBoxLayout *layout = new QVBoxLayout(this);
+
+        QLabel *titleLabel = new QLabel("Battle City Login", this);
+
+        titleLabel->setStyleSheet("font-size: 20px; font-weight: bold;");
+        layout->addWidget(titleLabel);
+    }
 }
