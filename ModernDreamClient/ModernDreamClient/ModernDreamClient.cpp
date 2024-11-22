@@ -68,5 +68,13 @@ public:
         passwordEdit->setEchoMode(QLineEdit::Password);
         layout->addWidget(passwordLabel);
         layout->addWidget(passwordEdit);
+
+        QHBoxLayout *buttonLayout = new QHBoxLayout();
+        loginButton = new QPushButton("Login", this);
+        registerButton = new QPushButton("Register", this);
+
+        buttonLayout->addWidget(loginButton);
+        buttonLayout->addWidget(registerButton);
+        layout->addLayout(buttonLayout);
     }
 }
