@@ -76,5 +76,8 @@ public:
         buttonLayout->addWidget(loginButton);
         buttonLayout->addWidget(registerButton);
         layout->addLayout(buttonLayout);
+
+        connect(loginButton, &QPushButton::clicked, this, &LoginDialog::onLogin);
+        connect(registerButton, &QPushButton::clicked, this, &LoginDialog::onRegister);
     }
 }
