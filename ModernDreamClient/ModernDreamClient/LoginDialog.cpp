@@ -1,86 +1,99 @@
-#include "ModernDreamClient.h"
-#include <QApplication>
-#include <QMainWindow>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QMessageBox>
-#include <QTabWidget>
-#include <sqlite_orm/sqlite_orm.h>
+#include "LoginDialog.h"
 
-ModernDreamClient::ModernDreamClient(QWidget *parent)
-    : QMainWindow(parent)
+auto LoginDialog::createStorage()
 {
-    ui.setupUi(this);
+
+    using namespace sqlite_orm;
+    return make_storage("battle_city_users.sqlite",
+                        make_table("users",
+                                   make_column("username", &UserData::username,
+                                               primary_key()),
+                                   make_column("password", &UserData::password)));
 }
 
-ModernDreamClient::~ModernDreamClient()
+LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
 {
+
+    setWindowTitle("Battle City - Login");
+
+    QVBoxLayout *layout = new QVBoxLayout(this);
+
+    QLabel *titleLabel = new QLabel("Battle City Login", this);
+    titleLabel->setStyleSheet("font-size: 20px; font-weight: bold;");
+    layout->addWidget(titleLabel);
+
+    QLabel *usernameLabel = new QLabel("Username:", this);
+    usernameEdit = new QLineEdit(this);
+    layout->addWidget(usernameLabel);
+    layout->addWidget(usernameEdit);
+
+    QLabel *passwordLabel = new QLabel("Password:", this);
+    passwordEdit = new QLineEdit(this);
+    passwordEdit->setEchoMode(QLineEdit::Password);
+    layout->addWidget(passwordLabel);
+    layout->addWidget(passwordEdit);
+
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    loginButton = new QPushButton("Login", this);
+    registerButton = new QPushButton("Register", this);
+
+    buttonLayout->addWidget(loginButton);
+    buttonLayout->addWidget(registerButton);
+    layout->addLayout(buttonLayout);
+
+    connect(loginButton, &QPushButton::clicked, this, &LoginDialog::onLogin);
+    connect(registerButton, &QPushButton::clicked, this, &LoginDialog::onRegister);
 }
 
-class LoginDialog : public QDiaglog
+void LoginDialog::onLogin()
 {
-    Q_OBJECT
 
-private:
-    QLineEdit *usernameEdit;
-    QLineEdit *passwordEdit;
-    QPushButton *loginButton;
-    QPushButton *registerButton;
+    QString username = usernameEdit->text();
+    QString password = passwordEdit->text();
 
-    auto createStorage()
+    if (username.isEmpty() || password.isEmpty())
     {
-        using namespace sqlite_orm;
-        return make_storage("battle_city_users.sqlite",
-                            make_table("users",
-                                       make_column("username", &UserData::username,
-                                                   primary_key()),
-                                       make_column("password",
-                                                   &UserData::password)));
+
+        QMessageBox::warning(this, "Login Error", "Username and password cannot be empty");
+        return;
     }
 
-    struct UserData
+    auto storage = createStorage();
+    storage.sync_schema();
+
+    auto user = storage.get_pointer<UserData>(username.toStdString());
+    if (user && user->password == password.toStdString())
     {
-        std::string username;
-        std::string password;
-    };
 
-public:
-    LoginDialog(QWidget *parent = nullptr) : QDialog(parent)
+        QMessageBox::information(this, "Login Error", "Invalid username or password");
+    }
+}
+
+void LoginDialog::onRegister()
+{
+
+    QString username = usernameEdit->text();
+    QString password = passwordEdit->text();
+
+    if (username.isEmpty() || password.isEmpty())
     {
-        setWindowTitle("Battle City - Login");
 
-        QVBoxLayout *layout = new QVBoxLayout(this);
-
-        QLabel *titleLabel = new QLabel("Battle City Login", this);
-
-        titleLabel->setStyleSheet("font-size: 20px; font-weight: bold;");
-        layout->addWidget(titleLabel);
-
-        QLabel *usernameLabel = new QLabel("Username:", this);
-        usernameEdit = new QLineEdit(this);
-        layout->addWidget(usernameLabel);
-        layout->addWidget(usernameEdit);
-
-        Qlabel *passwordLabel = new QLabel("Password:", this);
-        passwordEdit = new QLineEdit(this);
-        passwordEdit->setEchoMode(QLineEdit::Password);
-        layout->addWidget(passwordLabel);
-        layout->addWidget(passwordEdit);
-
-        QHBoxLayout *buttonLayout = new QHBoxLayout();
-        loginButton = new QPushButton("Login", this);
-        registerButton = new QPushButton("Register", this);
-
-        buttonLayout->addWidget(loginButton);
-        buttonLayout->addWidget(registerButton);
-        layout->addLayout(buttonLayout);
-
-        connect(loginButton, &QPushButton::clicked, this, &LoginDialog::onLogin);
-        connect(registerButton, &QPushButton::clicked, this, &LoginDialog::onRegister);
+        QMessageBox::warning(this, "Registration Error", "Username and password cannot be empty");
+        return;
     }
 
-private slots:
-    void onLogin()
+    auto storage = createStorage();
+    storage.sync_schema();
+
+    if (storage.get_pointer<UserData>(username.toStdString()))
+    {
+
+        QMessageBox::warning(this, "Registration Error", "Username already exists");
+        return;
+    }
+
+    UserData newUser{username.toStdDtring(), password.toStdString()};
+    storage.insert(newUser);
+
+    QMessageBox::information(this, "Registration", "Successfully registered!");
 }
