@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34408.163
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModernDream", "ModernDream\ModernDream.vcxproj", "{4C58F77A-2E67-4FCA-84AA-D1C1AB1D44CF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ModernDreamClient", "..\ModernDreamClient\ModernDreamClient\ModernDreamClient.vcxproj", "{91DA4712-A3E0-4CA0-93C2-B5E0F952A75B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{4C58F77A-2E67-4FCA-84AA-D1C1AB1D44CF}.Release|x64.Build.0 = Release|x64
 		{4C58F77A-2E67-4FCA-84AA-D1C1AB1D44CF}.Release|x86.ActiveCfg = Release|Win32
 		{4C58F77A-2E67-4FCA-84AA-D1C1AB1D44CF}.Release|x86.Build.0 = Release|Win32
+		{91DA4712-A3E0-4CA0-93C2-B5E0F952A75B}.Debug|x64.ActiveCfg = Debug|x64
+		{91DA4712-A3E0-4CA0-93C2-B5E0F952A75B}.Debug|x64.Build.0 = Debug|x64
+		{91DA4712-A3E0-4CA0-93C2-B5E0F952A75B}.Debug|x86.ActiveCfg = Debug|x64
+		{91DA4712-A3E0-4CA0-93C2-B5E0F952A75B}.Debug|x86.Build.0 = Debug|x64
+		{91DA4712-A3E0-4CA0-93C2-B5E0F952A75B}.Release|x64.ActiveCfg = Release|x64
+		{91DA4712-A3E0-4CA0-93C2-B5E0F952A75B}.Release|x64.Build.0 = Release|x64
+		{91DA4712-A3E0-4CA0-93C2-B5E0F952A75B}.Release|x86.ActiveCfg = Release|x64
+		{91DA4712-A3E0-4CA0-93C2-B5E0F952A75B}.Release|x86.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
