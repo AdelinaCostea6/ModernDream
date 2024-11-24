@@ -95,14 +95,14 @@
     <QtRcc Include="ModernDreamClient.qrc" />
     <QtUic Include="ModernDreamClient.ui" />
     <ClCompile Include="GameLobby.cpp" />
-    <ClCompile Include="LoginDialog.cpp" />
+    <ClCompile Include="ModernDreamClient.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="GameLobby.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="LoginDialog.h" />
+    <QtMoc Include="ModernDreamClient.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

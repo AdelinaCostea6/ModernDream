@@ -37,7 +37,7 @@
     <ClCompile Include="GameLobby.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LoginDialog.cpp">
+    <ClCompile Include="ModernDreamClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -45,7 +45,7 @@
     <QtMoc Include="GameLobby.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="LoginDialog.h">
+    <QtMoc Include="ModernDreamClient.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
