@@ -1,34 +1,26 @@
 #pragma once
 
-#include <QtWidgets/QMainWindow>
-#include "ui_ModernDreamClient.h"
-#include <QlineEdit>
-#include <QPushbutton>
+#include <QMainWindow>
+#include <QTabWidget>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QSpinBox>
+#include <QComboBox>
+#include <QPushButton>
 
 class ModernDreamClient : public QMainWindow
 {
     Q_OBJECT
 
-public:
-    ModernDreamClient(QWidget *parent = nullptr);
-    ~ModernDreamClient();
-
-    LoginDialog(QWidget *parent = nullptr);
-
 private:
-    Ui::ModernDreamClientClass ui;
-    QLineEdit *usernameEdit;
-    QLineEdit *passwordEdit;
-    QPushButton *loginButton;
-    QPushButton *registerButton;
-    auto CreateStorage();
-    struct UserData
-    {
-        std::string username;
-        std::string password;
-    };
+    QTabWidget* tabWidget;
+    QSpinBox* playerCountSpinBox;
+    QComboBox* mapComboBox;
+    QPushButton* startGameButton;
+
+public:
+   ModernDreamClient(QWidget* parent = nullptr);
 
 private slots:
-    void OnLogin();
-    void OnRegister();
+    void onStartGame();
 };
