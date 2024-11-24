@@ -1,4 +1,5 @@
 #include "ModernDreamClient.h"
+#include <QMessageBox.h>
 
 ModernDreamClient::ModernDreamClient(QWidget* parent)
 {
@@ -29,5 +30,18 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     tabWidget->addTab(gameSetupTab, "Game Setup");
     setCentralWidget(tabWidget);
 
-    connect(startGameButton, &QPushButton::clicked, this, &ModernDreamClient::onStartGame);
+    connect(startGameButton, &QPushButton::clicked, this, &ModernDreamClient::OnStartGame);
+}
+
+void ModernDreamClient::OnStartGame()
+{
+    int playerCount = playerCountSpinBox->value();
+    QString selectedMap = mapComboBox->currentText();
+
+
+    QMessageBox::information(this, "Game Start", 
+        QString("Starting game with %1 players on map: %2")
+        .arg(playerCount)
+        .arg(selectedMap));
+
 }
