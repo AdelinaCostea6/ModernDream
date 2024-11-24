@@ -23,9 +23,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="ModernDreamClient.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
     <QtUic Include="ModernDreamClient.ui">
       <Filter>Form Files</Filter>
     </QtUic>
@@ -34,7 +31,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameLobby.cpp">
+    <ClCompile Include="LoginDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ModernDreamClient.cpp">
@@ -42,11 +39,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="GameLobby.h">
+    <QtMoc Include="LoginDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="ModernDreamClient.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="ModernDreamClient.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

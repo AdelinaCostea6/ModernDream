@@ -94,12 +94,12 @@
   <ItemGroup>
     <QtRcc Include="ModernDreamClient.qrc" />
     <QtUic Include="ModernDreamClient.ui" />
-    <ClCompile Include="GameLobby.cpp" />
+    <ClCompile Include="LoginDialog.cpp" />
     <ClCompile Include="ModernDreamClient.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="GameLobby.h" />
+    <QtMoc Include="LoginDialog.h" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ModernDreamClient.h" />
