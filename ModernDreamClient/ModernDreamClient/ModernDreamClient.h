@@ -19,7 +19,7 @@ private:
     QPushButton* startGameButton;
 
 public:
-   ModernDreamClient(QWidget* parent = nullptr);
+    ModernDreamClient(QWidget* parent = nullptr);
 
 private slots:
     void onStartGame();
