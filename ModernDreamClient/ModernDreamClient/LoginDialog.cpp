@@ -43,3 +43,53 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
     connect(loginButton, &QPushButton::clicked, this, &LoginDialog::onLogin);
     connect(registerButton, &QPushButton::clicked, this, &LoginDialog::onRegister);
 }
+
+void LoginDialog::onLogin()
+{
+
+    QString username = usernameEdit->text();
+    QString password = passwordEdit->text();
+
+    if (username.isEmpty() || password.isEmpty()) {
+        QMessageBox::warning(this, "Login Error", "Username and password cannot be empty");
+        return;
+    }
+
+    auto storage = createStorage();
+    storage.sync_schema();
+
+    auto user = storage.get_pointer<UserData>(username.toStdString());
+    if (user && user->password == password.toStdString()) {
+        QMessageBox::information(this, "Login", "Successfully logged in!");
+        accept();
+    }
+    else {
+        QMessageBox::warning(this, "Login Error", "Invalid username or password");
+    }
+}
+
+void LoginDialog::onRegister()
+{
+
+    QString username = usernameEdit->text();
+    QString password = passwordEdit->text();
+
+    if (username.isEmpty() || password.isEmpty()) {
+        QMessageBox::warning(this, "Registration Error", "Username and password cannot be empty");
+        return;
+    }
+
+    auto storage = createStorage();
+    storage.sync_schema();
+
+    if (storage.get_pointer<UserData>(username.toStdString())) {
+        QMessageBox::warning(this, "Registration Error", "Username already exists");
+        return;
+    }
+
+    UserData newUser{ username.toStdString(), password.toStdString() };
+    storage.insert(newUser);
+
+    QMessageBox::information(this, "Registration", "Successfully registered!");
+}
+
