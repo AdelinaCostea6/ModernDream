@@ -34,5 +34,19 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GameLobby.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LoginDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="GameLobby.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LoginDialog.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
 </Project>

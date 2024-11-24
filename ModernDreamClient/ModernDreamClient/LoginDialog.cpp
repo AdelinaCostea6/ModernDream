@@ -92,7 +92,7 @@ void LoginDialog::onRegister()
         return;
     }
 
-    UserData newUser{username.toStdDtring(), password.toStdString()};
+    UserData newUser{username.toStdString(), password.toStdString()};
     storage.insert(newUser);
 
     QMessageBox::information(this, "Registration", "Successfully registered!");
