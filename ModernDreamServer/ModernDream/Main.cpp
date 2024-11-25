@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Map.h"
 #include "Game.h"
+#include "LoginSystem.h"
 
 int main()
 {
@@ -58,7 +59,30 @@ int main()
 	std::cout << "Number of bombs: " << gameMap.GetBombs().size() << "\n\n";  
 
 
-	//Player test
+	/*
+	LoginSystem loginSystem;
+	// Register players
+	std::vector<Player> players = loginSystem.RegisterPlayersForGame();
+	loginSystem.UpdatePlayerStats(players); 
+	// Start testing movement for each player
+	for (auto& player : players) {
+		std::cout << "\nTesting movement for " << player.GetName() << ": Use W, A, S, D to move the player (press 'q' to exit)\n";
+
+			if (_kbhit()) {
+				char ch = _getch();
+				if (ch == 'q') {
+					std::cout << "Exiting movement test for " << player.GetName() << "\n";
+					break; 
+				}
+				player.Movement(gameMap); 
+			}
+
+			// Optional: you can add a small delay to make the game loop smoother
+			// Sleep(100); // or usleep(100000) in UNIX-like systems
+		
+	}
+	*/
+	
 	std::cout << "--- PLAYER TEST ---\n";
 	auto playerWeapon = std::make_shared<Weapon>(1.0f);
 	Player player1("Player1:", playerWeapon, std::make_pair(0, 0));
@@ -85,12 +109,13 @@ int main()
 	players.push_back(Player("Player1", playerWeapon, std::make_pair(0, 0)));
 	players.push_back(Player("Player2", weapon2, std::make_pair(9, 9)));
 
-	Game game(gameMap, players);
+	
 
 	// Some actions on the game:
 	players[0].SetPoints(100);
 	players[1].SetPoints(50);
-
+	
+	Game game(gameMap, players);
 	std::cout << "Testing winner determination:\n";
 	game.DetermineWinner();
 
