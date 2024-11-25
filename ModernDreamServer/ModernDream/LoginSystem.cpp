@@ -1,7 +1,10 @@
 #include "LoginSystem.h"
-
+#include <filesystem>
 auto LoginSystem::CreateStorage()
 {
+	if (!std::filesystem::exists("data")) {
+		std::filesystem::create_directory("data");
+	}
 	using namespace sqlite_orm;
 	return make_storage("terrain_titans_users.sqlite",
 		make_table("users",
