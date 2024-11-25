@@ -88,7 +88,7 @@ void LoginDialog::onRegister()
     }
 
     UserData newUser{ username.toStdString(), password.toStdString() };
-    storage.insert(newUser);
+    storage.replace(newUser);
 
     QMessageBox::information(this, "Registration", "Successfully registered!");
 }
