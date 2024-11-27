@@ -1,5 +1,7 @@
 #include <iostream>
 #include <conio.h>
+#include <thread>
+#include <chrono>
 #include "Bomb.h"
 #include "Bullet.h"
 #include "Wall.h"
@@ -59,7 +61,7 @@ int main()
 	std::cout << "Number of bombs: " << gameMap.GetBombs().size() << "\n\n";  
 
 
-	/*
+	
 	LoginSystem loginSystem;
 	// Register players
 	std::vector<Player> players = loginSystem.RegisterPlayersForGame();
@@ -67,7 +69,6 @@ int main()
 	// Start testing movement for each player
 	for (auto& player : players) {
 		std::cout << "\nTesting movement for " << player.GetName() << ": Use W, A, S, D to move the player (press 'q' to exit)\n";
-
 			if (_kbhit()) {
 				char ch = _getch();
 				if (ch == 'q') {
@@ -79,9 +80,9 @@ int main()
 
 			// Optional: you can add a small delay to make the game loop smoother
 			// Sleep(100); // or usleep(100000) in UNIX-like systems
+			//std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		
 	}
-	*/
 	
 	std::cout << "--- PLAYER TEST ---\n";
 	auto playerWeapon = std::make_shared<Weapon>(1.0f);
@@ -104,7 +105,7 @@ int main()
 
 	// Game Test
 	std::cout << "--- GAME TEST ---\n";
-	std::vector<Player> players;
+	//std::vector<Player> players;
 	auto weapon2 = std::make_shared<Weapon>(1.0f);
 	players.push_back(Player("Player1", playerWeapon, std::make_pair(0, 0)));
 	players.push_back(Player("Player2", weapon2, std::make_pair(9, 9)));
@@ -136,5 +137,6 @@ int main()
 	std::cout << "\n";
 
 	return 0;
+	
 
 }

@@ -1,4 +1,4 @@
-#include "Player.h"
+﻿#include "Player.h"
 #include <conio.h>
 
 Player::Player(std::string name, std::shared_ptr<class Weapon> weapon, std::pair<int, int> position)
@@ -56,6 +56,7 @@ void Player::Movement(Map& mapMatrix)
             std::cout << "Cannot move outside map boundaries!\n";
         }
     }
+    
 }
 void Player::Shoot() 
 {
