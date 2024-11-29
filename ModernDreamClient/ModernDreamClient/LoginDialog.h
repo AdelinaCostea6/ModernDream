@@ -31,8 +31,8 @@ public:
     LoginDialog(QWidget* parent = nullptr);
 
 private slots:
-    void onLogin();
-    void onRegister();
+    void OnLogin();
+    void OnRegister();
 };
 
 

@@ -40,11 +40,11 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
     buttonLayout->addWidget(registerButton);
     layout->addLayout(buttonLayout);
 
-    connect(loginButton, &QPushButton::clicked, this, &LoginDialog::onLogin);
-    connect(registerButton, &QPushButton::clicked, this, &LoginDialog::onRegister);
+    connect(loginButton, &QPushButton::clicked, this, &LoginDialog::OnLogin);
+    connect(registerButton, &QPushButton::clicked, this, &LoginDialog::OnRegister);
 }
 
-void LoginDialog::onLogin()
+void LoginDialog::OnLogin()
 {
 
     QString username = usernameEdit->text();
@@ -68,7 +68,7 @@ void LoginDialog::onLogin()
     }
 }
 
-void LoginDialog::onRegister()
+void LoginDialog::OnRegister()
 {
 
     QString username = usernameEdit->text();
@@ -86,9 +86,9 @@ void LoginDialog::onRegister()
         QMessageBox::warning(this, "Registration Error", "Username already exists");
         return;
     }
-
+    
     UserData newUser{ username.toStdString(), password.toStdString() };
-    storage.replace(newUser);
+    storage.insert(newUser);
 
     QMessageBox::information(this, "Registration", "Successfully registered!");
 }
