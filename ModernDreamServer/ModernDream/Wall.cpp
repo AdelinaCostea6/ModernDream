@@ -4,7 +4,7 @@ Wall::Wall(std::pair<int, int> position, WallType type, int durability, bool des
     : position(position), type(type), durability(durability), destructible(destructible), bomb(bomb) {}
 
 
-std::pair<int, int> Wall::GetPosition()
+const std::pair<int, int>& Wall::GetPosition() 
 {
     return position;
 }

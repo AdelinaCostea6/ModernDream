@@ -22,7 +22,7 @@ private:
 public:
     Wall(std::pair<int, int> position, WallType type, int durability, bool destructible, Bomb* bomb=nullptr);
     WallType GetType();
-    std::pair<int,int> GetPosition();
+    const std::pair<int,int>& GetPosition();  
     int GetDurability();
     bool GetDestructible();
     void ReduceDurability();

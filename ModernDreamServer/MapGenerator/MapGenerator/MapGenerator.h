@@ -6,7 +6,8 @@
 #define MAPGEN_API __declspec(dllimport)
 #endif
 
-#include "C:/Users/d/OneDrive/Desktop/ModernDream/ModernDreamServer/ModernDream/Map.h" 
+#include "C:/Users/d/OneDrive/Desktop/ModernDream/ModernDreamServer/ModernDream/Map.h"
+
 #include <vector>
 #include <utility>
 
@@ -30,5 +31,5 @@ private:
     void GenerateClusters(std::vector<std::vector<int>>& mapMatrix, std::vector<Wall>& walls, int width, int height);
     void PlaceConnectorWalls(std::vector<std::vector<int>>& mapMatrix, std::vector<Wall>& walls, int width, int height);
     void SetPlayerStartPositions(std::vector<std::vector<int>>& mapMatrix, std::vector<Wall>& walls, int width, int height, int numPlayers);
-    void PlaceBombs(std::vector<std::vector<int>>& mapMatrix, const std::vector<Wall>& walls, std::vector<Bomb>& bombs);
+    void PlaceBombs(std::vector<std::vector<int>>& mapMatrix,  std::vector<Wall>& walls, std::vector<Bomb>& bombs);
 };
