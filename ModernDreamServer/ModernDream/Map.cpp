@@ -4,7 +4,7 @@
 Map::Map():size({0,0})
 {
 }
-
+/*
 void Map::GenerateMap(int numPlayers) {
     mapMatrix.resize(size.first, std::vector<int>(size.second, 1));
 
@@ -134,6 +134,7 @@ void Map::GenerateMap(int numPlayers) {
         std::cout << std::endl;
     }
 }
+*/
 bool Map::IsPositionFree(std::pair<int,int> position)
 {
     for ( auto wall : walls) {
