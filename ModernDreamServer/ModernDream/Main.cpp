@@ -10,6 +10,7 @@
 #include "Game.h"
 #include "LoginSystem.h"
 
+
 int main()
 {
 	std::cout << "===Testing classes===\n\n";
