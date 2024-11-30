@@ -6,7 +6,7 @@ auto LoginSystem::CreateStorage()
 		std::filesystem::create_directory("data");
 	}
 	using namespace sqlite_orm;
-	return make_storage("terrain_titans_users.sqlite",
+	auto storage=make_storage("terrain_titans_users.sqlite",
 		make_table("users",
 			make_column("username", &UserData::username, primary_key()),
 			make_column("total_score", &UserData::totalScore),
@@ -15,6 +15,8 @@ auto LoginSystem::CreateStorage()
 		)
 
 	);
+	storage.sync_schema();
+	return storage;
 }
 
 bool LoginSystem::ValidateUsername(const std::string& username)
@@ -22,6 +24,53 @@ bool LoginSystem::ValidateUsername(const std::string& username)
 	std::regex username_pattern("^[a-zA-Z][a-zA-Z0-9_]{2,19}$");
 	return std::regex_match(username, username_pattern);
 }
+
+bool LoginSystem::IsUsernameUnique(const std::string& username) 
+{
+	auto storage = CreateStorage();
+	auto user = storage.get_pointer<UserData>(username);
+	return user == nullptr; 
+}
+
+bool LoginSystem::RegisterUser(const std::string& username) 
+{
+	if (!ValidateUsername(username)) 
+	{
+		std::cout << "The username is invalid!" << std::endl;
+		return false;
+	}
+
+	if (!IsUsernameUnique(username)) 
+	{
+		std::cout << "The username is already taken!" << std::endl;
+		return false;
+	}
+
+	auto storage = CreateStorage();
+	UserData newUser{ username, 0, 0, 0 }; 
+	storage.replace(newUser);
+	std::cout << "The account was created succesfully!" << std::endl;
+	return true;
+}
+
+
+bool LoginSystem::LoginUser(const std::string& username) 
+{
+	auto storage = CreateStorage();
+	auto userPtr = storage.get_pointer<UserData>(username);
+	if (userPtr) 
+	{
+		std::cout << "Login failed!" << std::endl;
+		return true;
+	}
+	else 
+	{
+		std::cout << "User cannot be found!" << std::endl;
+		return false;
+	}
+}
+
+
 
 void LoginSystem::UpdatePlayerStats(const std::vector<Player>& players)
 {
@@ -40,16 +89,34 @@ void LoginSystem::UpdatePlayerStats(const std::vector<Player>& players)
 	}
 }
 
-std::vector<Player> LoginSystem::RegisterPlayersForGame()
+std::vector<Player> LoginSystem::RegisterPlayersForGame(Map& map)
 {
 	auto storage = CreateStorage();
-	storage.sync_schema();
 	std::vector<Player>players;
 
 	int playerCount;
 	std::cout << "Enter number of players: \n";
 	std::cin >> playerCount;
 	std::cin.ignore();
+
+	if (playerCount > 4)
+	{
+		std::cout << "Maximum 4 players allowed!\n";
+		playerCount = 4;
+	}
+
+	std::vector<std::pair<int, int>> startPositions = {
+		{0, 0}, 
+		{map.GetSize().first - 1, 0}, 
+		{0, map.GetSize().second - 1},
+		{map.GetSize().first - 1, map.GetSize().second - 1}
+	};
+
+
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::shuffle(startPositions.begin(), startPositions.end(), gen);
+
 
 	for (int i = 0; i < playerCount; ++i)
 	{
@@ -78,8 +145,7 @@ std::vector<Player> LoginSystem::RegisterPlayersForGame()
 		}
 
 		auto weapon = std::make_shared<Weapon>(1.0f);
-		std::pair<int, int> startPos = { i * 5, i * 5 };
-		Player player(username, weapon, startPos);
+		Player player(username, weapon, startPositions[i]);
 
 		player.SetScore(userPtr->totalScore);
 		player.SetPoints(userPtr->totalPoints);
@@ -87,3 +153,57 @@ std::vector<Player> LoginSystem::RegisterPlayersForGame()
 	}
 	return players;
 }
+
+//for console test
+void LoginSystem::ShowLoginRegisterMenu()
+{
+	std::cout << "Welcome to Titan Vanguard!" << std::endl;
+	std::cout << "1. Log in" << std::endl;
+	std::cout << "2. Sign up" << std::endl;
+	std::cout << "Choose an option: ";
+
+	int option;
+	std::cin >> option;
+	std::cin.ignore();
+
+	std::string username;
+
+	std::cout << "Username: ";
+	std::getline(std::cin, username);
+
+	if (option == 1)
+	{
+		if (!LoginUser(username))
+		{
+			std::cout << "Try again" << std::endl;
+		}
+		else 
+		{
+			// Start Game 
+			//first check if this function works without game logic
+		}
+	}
+	else if (option == 2)
+	{
+		if (!RegisterUser(username))
+		{
+			std::cout << "Try again!" << std::endl;
+		}
+		else
+		{
+			// Start game
+		}
+	}
+	else
+	{
+		std::cout << "Invalid option!" << std::endl;
+	}
+
+}
+
+void LoginSystem::Run()
+{
+		ShowLoginRegisterMenu();
+}
+
+

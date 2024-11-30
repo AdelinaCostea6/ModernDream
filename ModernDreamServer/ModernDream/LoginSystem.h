@@ -3,6 +3,7 @@
 #include <regex>
 #include <sqlite_orm/sqlite_orm.h>
 #include "Player.h"
+#include "Map.h"
 
 struct UserData
 {
@@ -20,10 +21,15 @@ class LoginSystem
 private:
 	auto CreateStorage();
 	bool ValidateUsername(const std::string& username);
+	bool IsUsernameUnique(const std::string& username);
+	bool RegisterUser(const std::string& username);
+	bool LoginUser(const std::string& username);
 
 public:
 	void UpdatePlayerStats(const std::vector<Player>& players); 
-	std::vector<Player> RegisterPlayersForGame();
+	std::vector<Player> RegisterPlayersForGame(Map& map);
+	void ShowLoginRegisterMenu();
+	void Run();
 
 };
 
