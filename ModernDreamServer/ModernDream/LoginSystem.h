@@ -27,7 +27,7 @@ private:
 
 public:
 	void UpdatePlayerStats(const std::vector<Player>& players); 
-	std::vector<Player> RegisterPlayersForGame(Map& map);
+	std::vector<Player> RegisterPlayersForGame();
 	void ShowLoginRegisterMenu();
 	void Run();
 

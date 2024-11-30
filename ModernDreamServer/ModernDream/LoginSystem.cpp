@@ -89,68 +89,50 @@ void LoginSystem::UpdatePlayerStats(const std::vector<Player>& players)
 	}
 }
 
-std::vector<Player> LoginSystem::RegisterPlayersForGame(Map& map)
+std::vector<Player> LoginSystem::RegisterPlayersForGame()
 {
 	auto storage = CreateStorage();
-	std::vector<Player>players;
+	std::vector<Player> players;
 
 	int playerCount;
-	std::cout << "Enter number of players: \n";
+	std::cout << "Enter number of players (max 4): ";
 	std::cin >> playerCount;
 	std::cin.ignore();
 
-	if (playerCount > 4)
-	{
-		std::cout << "Maximum 4 players allowed!\n";
+	if (playerCount > 4) {
+		std::cout << "Maximum 4 players allowed.\n";
 		playerCount = 4;
 	}
 
-	std::vector<std::pair<int, int>> startPositions = {
-		{0, 0}, 
-		{map.GetSize().first - 1, 0}, 
-		{0, map.GetSize().second - 1},
-		{map.GetSize().first - 1, map.GetSize().second - 1}
-	};
-
-
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::shuffle(startPositions.begin(), startPositions.end(), gen);
-
-
-	for (int i = 0; i < playerCount; ++i)
-	{
+	for (int i = 0; i < playerCount; ++i) {
 		std::string username;
 		std::cout << "Enter username for Player " << (i + 1) << ": ";
 		std::getline(std::cin, username);
 
-		if (!ValidateUsername(username))
-		{
+		if (!ValidateUsername(username)) {
 			std::cout << "Invalid username format\n";
 			i--;
 			continue;
 		}
 
 		auto userPtr = storage.get_pointer<UserData>(username);
-		if (!userPtr)
-		{
+		if (!userPtr) {
 			UserData newUser{ username, 0, 0, 0 };
 			storage.replace(newUser);
 			userPtr = storage.get_pointer<UserData>(username);
-			if (!userPtr)
-			{
+			if (!userPtr) {
 				std::cerr << "Failed to retrieve user data after insertion\n";
 				return {};
 			}
 		}
 
 		auto weapon = std::make_shared<Weapon>(1.0f);
-		Player player(username, weapon, startPositions[i]);
-
+		Player player(username, weapon, { 0, 0 });
 		player.SetScore(userPtr->totalScore);
 		player.SetPoints(userPtr->totalPoints);
 		players.push_back(player);
 	}
+
 	return players;
 }
 
