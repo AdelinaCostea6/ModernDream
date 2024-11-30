@@ -9,7 +9,7 @@
 #include "Map.h"
 #include "Game.h"
 #include "LoginSystem.h"
-
+#include "MapGenerator/MapGenerator.h"
 
 int main()
 {
@@ -53,6 +53,7 @@ int main()
 		<< ", Waiting time: " << weapon.GetWaitingTime() << "\n\n";
 
     //Map Test
+	/*
 	std::cout << "--- MAP TEST ---\n";  
 	Map gameMap({ 10, 10 });  
 	gameMap.GenerateMap(2);  
@@ -60,14 +61,38 @@ int main()
 		<< ", " << gameMap.GetSize().second << ")\n"; 
 	std::cout << "Number of walls: " << gameMap.GetWalls().size() << "\n";  
 	std::cout << "Number of bombs: " << gameMap.GetBombs().size() << "\n\n";  
+    */
+	/*
+	MapGenerator mapGen(std::make_pair(20, 20)); 
+	
+	Map generatedMap = mapGen.GenerateMap(4); 
 
+	generatedMap.DisplayMap();
+	const auto& walls = generatedMap.GetWalls();
+	const auto& bombs = generatedMap.GetBombs();
 
+	std::cout << "\nGenerated " << walls.size() << " walls" << std::endl;
+	std::cout << "Generated " << bombs.size() << " bombs" << std::endl;
+
+	std::cout << "\nWall positions:" << std::endl;
+	for (const auto& wall : walls) {
+		auto pos = wall.GetPosition();
+		std::cout << "Wall at (" << pos.first << ", " << pos.second << ") "
+			<< (wall.IsDestructible() ? "Destructible" : "Non-destructible")
+			<< std::endl;
+	}
+
+	std::cout << "\nBomb positions:" << std::endl;
+	for (const auto& bomb : bombs) {
+		auto pos = bomb.GetPosition();
+		std::cout << "Bomb at (" << pos.first << ", " << pos.second << ")" << std::endl;
+	}
+	*/
 	
 	LoginSystem loginSystem;
-	// Register players
 	std::vector<Player> players = loginSystem.RegisterPlayersForGame();
 	loginSystem.UpdatePlayerStats(players); 
-	// Start testing movement for each player
+	/*
 	for (auto& player : players) {
 		std::cout << "\nTesting movement for " << player.GetName() << ": Use W, A, S, D to move the player (press 'q' to exit)\n";
 			if (_kbhit()) {
@@ -76,29 +101,27 @@ int main()
 					std::cout << "Exiting movement test for " << player.GetName() << "\n";
 					break; 
 				}
-				player.Movement(gameMap); 
+				player.Movement(generatedMap);
 			}
 
-			// Optional: you can add a small delay to make the game loop smoother
-			// Sleep(100); // or usleep(100000) in UNIX-like systems
-			//std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		
 		
 	}
-	
+	*/
 	std::cout << "--- PLAYER TEST ---\n";
 	auto playerWeapon = std::make_shared<Weapon>(1.0f);
 	Player player1("Player1:", playerWeapon, std::make_pair(0, 0));
 	std::cout << "Player was created: " << player1.GetName() << "\n";
 	std::cout << "Initial position: (" << player1.GetPosition().first
 		<< ", " << player1.GetPosition().second << ")\n";
-	
+	/*
 	std::cout << "Testing movement: Use W, A, S, D to move the player (press 'q' to exit)\n";
 	while (true)
 	{
-		player1.Movement(gameMap);
+		player1.Movement(generatedMap);
 		if (_kbhit() && _getch() == 'q') break;
 	}
-
+*/
 	player1.Shoot();
 	std::cout << "Remaining lifes: " << player1.GetLifes() << "\n\n";
 
@@ -116,8 +139,8 @@ int main()
 	// Some actions on the game:
 	players[0].SetPoints(100);
 	players[1].SetPoints(50);
-	
-	Game game(gameMap, players);
+	/*
+	Game game(generatedMap, players);
 	std::cout << "Testing winner determination:\n";
 	game.DetermineWinner();
 
@@ -127,7 +150,7 @@ int main()
 
 	std::cout << "Testing bomb activation:\n";
 	game.TriggerBomb(5, 5);
-
+*/
 	std::cout << "\n";
 	std::cout << "\n";
 	std::cout << "\n";
