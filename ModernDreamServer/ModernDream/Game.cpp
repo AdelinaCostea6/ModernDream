@@ -38,14 +38,14 @@ void Game::DetermineWinner()
     }
 }
 
-void Game::WinGame(Player *player)
+void Game::WinGame()
 {
     player->SetPoints(player->GetPoints() + 200);
     player->SetScore(player->GetScore() + 2);
     std::cout << "Player " << player->GetName() << " won the game and received 200 bonus points and 2 score points. Total points: " << player->GetPoints() << ", Total score: " << player->GetScore() << std::endl;
 }
 
-void Game::FinishSecond(Player *player)
+void Game::FinishSecond()
 {
     player->SetScore(player->GetScore() + 1);
     std::cout << "Player " << player->GetName() << " finished second and received 1 score point. Total score: " << player->GetScore() << std::endl;
@@ -67,26 +67,25 @@ void Game::CheckAndApplyWeaponUpgrade()
 
 void Game::TriggerBomb(int x, int y)
 {
-    Wall* wall = map.GetWallAt(x, y);
+    Wall *wall = map.GetWallAt(x, y);
     if (wall != nullptr && wall->IsDestructible())
     {
-        Bomb* bomb = map.GetBombAt(x, y);
+        Bomb *bomb = map.GetBombAt(x, y);
         if (bomb != nullptr && !bomb->GetStatus())
         {
             bomb->SetStatus(true);
             std::cout << "A bomb was triggered at (" << x << " , " << y << ")" << std::endl;
         }
-        for (Wall& otherWall : map.GetWalls())
+        for (Wall &otherWall : map.GetWalls())
         {
             double distance = std::sqrt(std::pow(otherWall.GetPosition().first - x, 2) + std::pow(otherWall.GetPosition().second - y, 2));
             if (distance <= 10.0 && otherWall.IsDestructible())
             {
                 otherWall.Destroy();
                 map.SetFreePosition(otherWall.GetPosition().first, otherWall.GetPosition().second);
-            
             }
         }
-        for (Player& player : players)
+        for (Player &player : players)
         {
             double distance = std::sqrt(std::pow(player.GetPosition().first - x, 2) + std::pow(player.GetPosition().second - y, 2));
             if (distance <= 10.0)
