@@ -1,8 +1,12 @@
 #include "LoginDialog.h"
+#include <QPixmap>
+#include <QPalette>
+#include <QBrush>
+
 auto LoginDialog::createStorage()
 {
     using namespace sqlite_orm;
-    return make_storage("battle_city_users.sqlite",
+    return make_storage("titan_vanguard_users.sqlite",
         make_table("users",
             make_column("username", &UserData::username, primary_key()),
             make_column("password", &UserData::password)
@@ -15,11 +19,12 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
     setWindowTitle("Titan Vanguard - Login");
 
     QPixmap background("C:/Users/Roxana/Downloads/Titans.jpeg");
-    background = background.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     QPalette palette;
     palette.setBrush(QPalette::Window, QBrush(background));
     setPalette(palette);
     setAutoFillBackground(true);
+
+    showFullScreen();
 
     QVBoxLayout* layout = new QVBoxLayout(this);
 
@@ -50,10 +55,8 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
     connect(registerButton, &QPushButton::clicked, this, &LoginDialog::OnRegister);
 }
 
-
 void LoginDialog::OnLogin()
 {
-
     QString username = usernameEdit->text();
     QString password = passwordEdit->text();
 
@@ -77,7 +80,6 @@ void LoginDialog::OnLogin()
 
 void LoginDialog::OnRegister()
 {
-
     QString username = usernameEdit->text();
     QString password = passwordEdit->text();
 
@@ -93,10 +95,9 @@ void LoginDialog::OnRegister()
         QMessageBox::warning(this, "Registration Error", "Username already exists");
         return;
     }
-    
+
     UserData newUser{ username.toStdString(), password.toStdString() };
-    storage.insert(newUser);
+    storage.replace(newUser);
 
     QMessageBox::information(this, "Registration", "Successfully registered!");
 }
-
