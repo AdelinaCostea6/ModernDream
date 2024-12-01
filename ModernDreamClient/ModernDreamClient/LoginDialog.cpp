@@ -12,12 +12,18 @@ auto LoginDialog::createStorage()
 
 LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
 {
+    setWindowTitle("Titan Vanguard - Login");
 
-    setWindowTitle("Battle City - Login");
+    QPixmap background("C:/Users/Roxana/Downloads/Titans.jpeg");
+    background = background.scaled(size(), Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    QPalette palette;
+    palette.setBrush(QPalette::Window, QBrush(background));
+    setPalette(palette);
+    setAutoFillBackground(true);
 
     QVBoxLayout* layout = new QVBoxLayout(this);
 
-    QLabel* titleLabel = new QLabel("Battle City Login", this);
+    QLabel* titleLabel = new QLabel("Titan Vanguard Login", this);
     titleLabel->setStyleSheet("font-size: 20px; font-weight: bold;");
     layout->addWidget(titleLabel);
 
@@ -43,6 +49,7 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
     connect(loginButton, &QPushButton::clicked, this, &LoginDialog::OnLogin);
     connect(registerButton, &QPushButton::clicked, this, &LoginDialog::OnRegister);
 }
+
 
 void LoginDialog::OnLogin()
 {
