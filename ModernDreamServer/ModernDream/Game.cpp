@@ -62,8 +62,28 @@ void Game::WinGame()
 
 void Game::FinishSecond()
 {
-    player->SetScore(player->GetScore() + 1);
-    std::cout << "Player " << player->GetName() << " finished second and received 1 score point. Total score: " << player->GetScore() << std::endl;
+    std::vector<Player> &players = this->GetPlayers();
+
+    if (players.size() < 2)
+    {
+        std::cout << "Not enough players to determine who finished second!" << std::endl;
+        retrun;
+    }
+
+    auto first = std::max_element(players.begin(), players.end(), [](const Player &a, const Player &b)
+                                  { return a.GetScore() < b.Getscore(); });
+
+    auto second = std::max_element(players.begin(), players.end(), [&](const Player &a, const Player &b)
+                                   {
+        if(&a == &(*first)) return true;
+        if(&b == &(*first)) return false;
+        return a.GetScore() < b.GetScore(); });
+
+    if (second != players.end())
+    {
+        second->SetScore(second->GetScore() + 1);
+        std::cout << "PLayers " << second->GetName() << " finished second and recived 1 score point. Total score: " << second->GetScore() << std::endl;
+    }
 }
 
 void Game::CheckAndApplyWeaponUpgrade()
