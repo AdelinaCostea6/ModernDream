@@ -18,7 +18,7 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
 {
     setWindowTitle("Titan Vanguard - Login");
 
-    QPixmap background("C:/Users/Roxana/Downloads/Titans.jpeg");
+    QPixmap background("C:/Users/Roxana/Desktop/mc/ModernDream/ModernDreamImages/Titans.jpeg");
     QPalette palette;
     palette.setBrush(QPalette::Window, QBrush(background));
     setPalette(palette);
