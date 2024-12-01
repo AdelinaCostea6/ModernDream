@@ -26,10 +26,10 @@ void Game::DetermineWinner()
     }
     std::sort(players.begin(), players.end(), [](Player &a, Player &b)
               { return a.GetPoints() > b.GetPoints(); });
-    WinGame(&players[0]);
+    WinGame();
     if (players.size() > 1)
     {
-        FinishSecond(&players[1]);
+        FinishSecond();
     }
     std::cout << "Game Results:" << std::endl;
     for (auto &player : players)
@@ -40,7 +40,7 @@ void Game::DetermineWinner()
 
 void Game::WinGame()
 {
-    std::vector<Player> &players = this->GetPlayers();
+    std::vector<Player> players = GetPlayers();
 
     if (players.empty())
     {
@@ -48,7 +48,7 @@ void Game::WinGame()
         return;
     }
 
-    auto winner = std::max_elemet(players.begin(), players.end(), [](const Player &a, const Player &b)
+    auto winner = std::max_element(players.begin(), players.end(), [](Player &a,Player &b)
                                   { return a.GetScore() < b.GetScore(); });
 
     if (winner != players.end())
@@ -62,18 +62,18 @@ void Game::WinGame()
 
 void Game::FinishSecond()
 {
-    std::vector<Player> &players = this->GetPlayers();
+    std::vector<Player> players =GetPlayers();
 
     if (players.size() < 2)
     {
         std::cout << "Not enough players to determine who finished second!" << std::endl;
-        retrun;
+        return;
     }
 
-    auto first = std::max_element(players.begin(), players.end(), [](const Player &a, const Player &b)
-                                  { return a.GetScore() < b.Getscore(); });
+    auto first = std::max_element(players.begin(), players.end(), [](Player &a, Player &b)
+                                  { return a.GetScore() < b.GetScore(); });
 
-    auto second = std::max_element(players.begin(), players.end(), [&](const Player &a, const Player &b)
+    auto second = std::max_element(players.begin(), players.end(), [&](Player &a,Player &b)
                                    {
         if(&a == &(*first)) return true;
         if(&b == &(*first)) return false;

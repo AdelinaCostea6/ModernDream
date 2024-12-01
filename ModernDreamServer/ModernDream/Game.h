@@ -14,8 +14,8 @@ public:
     Map GetMap();
     std::vector<Player> GetPlayers();
     void DetermineWinner();
-    void WinGame(Player *player);
-    void FinishSecond(Player *player);
+    void WinGame();
+    void FinishSecond();
     void CheckAndApplyWeaponUpgrade();
     void TriggerBomb(int x, int y);
 

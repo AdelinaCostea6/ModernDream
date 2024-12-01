@@ -9,7 +9,7 @@
 #include "Map.h"
 #include "Game.h"
 #include "LoginSystem.h"
-#include "MapGenerator/MapGenerator.h"
+//#include "MapGenerator/MapGenerator.h"
 
 int main()
 {
