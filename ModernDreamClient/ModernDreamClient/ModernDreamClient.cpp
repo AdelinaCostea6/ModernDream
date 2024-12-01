@@ -1,17 +1,17 @@
-#include "ModernDreamClient.h"
+﻿#include "ModernDreamClient.h"
 #include <QMessageBox.h>
-
+#include "LoginDialog.h"
 ModernDreamClient::ModernDreamClient(QWidget* parent)
 {
-	setWindowTitle("Battle City-Modern Dream");
-	resize(800, 600);
+    setWindowTitle("Battle City-Modern Dream");
+    resize(800, 600);
 
-	tabWidget = new QTabWidget(this);
+    tabWidget = new QTabWidget(this);
 
-	QWidget* gameSetupTab = new QWidget();
-	QVBoxLayout* setupLayout = new QVBoxLayout(gameSetupTab);
+    QWidget* gameSetupTab = new QWidget();
+    QVBoxLayout* setupLayout = new QVBoxLayout(gameSetupTab);
 
-	QLabel* playerCountLabel = new QLabel("Number of Players: ", this);
+    QLabel* playerCountLabel = new QLabel("Number of Players: ", this);
     playerCountSpinBox = new QSpinBox(this);
     playerCountSpinBox->setRange(1, 4);
 
@@ -39,7 +39,7 @@ void ModernDreamClient::OnStartGame()
     QString selectedMap = mapComboBox->currentText();
 
 
-    QMessageBox::information(this, "Game Start", 
+    QMessageBox::information(this, "Game Start",
         QString("Starting game with %1 players on map: %2")
         .arg(playerCount)
         .arg(selectedMap));

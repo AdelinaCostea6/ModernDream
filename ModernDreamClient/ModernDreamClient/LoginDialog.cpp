@@ -1,4 +1,4 @@
-#include "LoginDialog.h"
+﻿#include "LoginDialog.h"
 #include <QPixmap>
 #include <QPalette>
 #include <QBrush>
@@ -17,40 +17,76 @@ auto LoginDialog::createStorage()
 LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
 {
     setWindowTitle("Titan Vanguard - Login");
-
-    QPixmap background("C:/Users/Roxana/Desktop/mc/ModernDream/ModernDreamImages/Titans.jpeg");
+   
+    resize(600, 600);
+   
+    QPixmap background("../ModernDreamImages/Titans1.jpg");
+    if (!background.isNull()) {
+        background = background.scaled(size(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+    }
+    else {
+        QMessageBox::warning(this, "Error", "Failed to load background image");
+    }
+    
     QPalette palette;
     palette.setBrush(QPalette::Window, QBrush(background));
     setPalette(palette);
     setAutoFillBackground(true);
-
-    showFullScreen();
-
-    QVBoxLayout* layout = new QVBoxLayout(this);
+  
+    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    mainLayout->setAlignment(Qt::AlignCenter);
+   
+    QFrame* formFrame = new QFrame(this);
+    formFrame->setFixedSize(350, 250); 
+    formFrame->setStyleSheet(
+        "QFrame {"
+        "    background: qlineargradient("
+        "        spread:pad, x1:0, y1:0, x2:1, y2:1, "
+        "        stop:0 rgba(0, 0, 0, 157), stop:1 rgba(50, 50, 50, 157)"
+        "    );"
+        "    border-radius: 10px;"
+        "    border: 1px solid rgba(255, 255, 255, 50);"
+        "}"
+    );
+    QVBoxLayout* formLayout = new QVBoxLayout(formFrame);
 
     QLabel* titleLabel = new QLabel("Titan Vanguard Login", this);
-    titleLabel->setStyleSheet("font-size: 20px; font-weight: bold;");
-    layout->addWidget(titleLabel);
+    titleLabel->setStyleSheet("font-size: 24px; font-weight: bold; color: white;");
+    titleLabel->setAlignment(Qt::AlignCenter);
+    formLayout->addWidget(titleLabel);
+   
 
-    QLabel* usernameLabel = new QLabel("Username:", this);
+    QVBoxLayout* inputLayout = new QVBoxLayout();
+    QLabel* usernameLabel = new QLabel("USERNAME:", this);
+    usernameLabel->setStyleSheet("font-size: 14px; color: white; font-weight:bold; background: none; border:none; font-style:italic; letter-spacing:2px;");
     usernameEdit = new QLineEdit(this);
-    layout->addWidget(usernameLabel);
-    layout->addWidget(usernameEdit);
-
-    QLabel* passwordLabel = new QLabel("Password:", this);
-    passwordEdit = new QLineEdit(this);
-    passwordEdit->setEchoMode(QLineEdit::Password);
-    layout->addWidget(passwordLabel);
-    layout->addWidget(passwordEdit);
-
+    usernameEdit->setFixedWidth(300);
+   // QLabel* passwordLabel = new QLabel("PASSWORD:", this);
+    //passwordLabel->setStyleSheet("font-size: 14px; color: white;");
+    //passwordEdit = new QLineEdit(this);
+    //passwordEdit->setEchoMode(QLineEdit::Password);
+    //passwordEdit->setFixedWidth(300);
+    inputLayout->addWidget(usernameLabel);
+    inputLayout->addWidget(usernameEdit);
+   // inputLayout->addWidget(passwordLabel);
+    //inputLayout->addWidget(passwordEdit);
+    inputLayout->setSpacing(10);
+    inputLayout->setAlignment(Qt::AlignCenter);
+    formLayout->addLayout(inputLayout);
+ 
     QHBoxLayout* buttonLayout = new QHBoxLayout();
     loginButton = new QPushButton("Login", this);
     registerButton = new QPushButton("Register", this);
-
+    loginButton->setFixedSize(100, 30);
+    registerButton->setFixedSize(100, 30);
     buttonLayout->addWidget(loginButton);
     buttonLayout->addWidget(registerButton);
-    layout->addLayout(buttonLayout);
-
+    buttonLayout->setSpacing(20);
+    buttonLayout->setAlignment(Qt::AlignCenter);
+    formLayout->addLayout(buttonLayout);
+    
+    mainLayout->addWidget(formFrame);
+   
     connect(loginButton, &QPushButton::clicked, this, &LoginDialog::OnLogin);
     connect(registerButton, &QPushButton::clicked, this, &LoginDialog::OnRegister);
 }

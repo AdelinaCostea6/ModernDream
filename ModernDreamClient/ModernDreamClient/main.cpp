@@ -1,4 +1,4 @@
-#include "ModernDreamClient.h"
+﻿#include "ModernDreamClient.h"
 #include "LoginDialog.h"
 #include <QtWidgets/QApplication>
 
