@@ -40,9 +40,24 @@ void Game::DetermineWinner()
 
 void Game::WinGame()
 {
-    player->SetPoints(player->GetPoints() + 200);
-    player->SetScore(player->GetScore() + 2);
-    std::cout << "Player " << player->GetName() << " won the game and received 200 bonus points and 2 score points. Total points: " << player->GetPoints() << ", Total score: " << player->GetScore() << std::endl;
+    std::vector<Player> &players = this->GetPlayers();
+
+    if (players.empty())
+    {
+        std::cout << "No players in the game!" << std::endl;
+        return;
+    }
+
+    auto winner = std::max_elemet(players.begin(), players.end(), [](const Player &a, const Player &b)
+                                  { return a.GetScore() < b.GetScore(); });
+
+    if (winner != players.end())
+    {
+        winner->SetPoints(winner->GetPoints() + 200);
+        winner->SetScore(winner->GetScore() + 2);
+
+        std::cout << "Player " << winner->GetName() << " won the game and recived 200 bonus points and 2 score points. " << "Total points: " << winner->GetPoints() << ", Total score: " << winner->GetScore() << std::endl;
+    }
 }
 
 void Game::FinishSecond()
