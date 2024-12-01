@@ -19,7 +19,9 @@ class LoginDialog : public QDialog
 {
     Q_OBJECT
 
+
 private:
+    QPixmap background;
     QLineEdit* usernameEdit;
     QLineEdit* passwordEdit;
     QPushButton* loginButton;
@@ -29,6 +31,9 @@ private:
 
 public:
     LoginDialog(QWidget* parent = nullptr);
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
 
 private slots:
     void OnLogin();
