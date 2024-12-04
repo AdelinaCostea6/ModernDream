@@ -200,3 +200,13 @@ void Map::SetFreePosition(int x, int y)
     mapMatrix[x][y] = 1;
 }
 
+void Map::SetWalls(const std::vector<Wall>& newWalls)
+{
+    walls = newWalls;
+}
+
+void Map::SetBombs(const std::vector<Bomb>& newBombs)
+{
+    bombs = newBombs;
+}
+

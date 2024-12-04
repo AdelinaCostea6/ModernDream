@@ -9,7 +9,7 @@
 #include "Map.h"
 #include "Game.h"
 #include "LoginSystem.h"
-//#include "MapGenerator/MapGenerator.h"
+#include "MapGenerator/MapGenerator.h"
 
 int main()
 {
@@ -62,20 +62,21 @@ int main()
 	std::cout << "Number of walls: " << gameMap.GetWalls().size() << "\n";  
 	std::cout << "Number of bombs: " << gameMap.GetBombs().size() << "\n\n";  
     */
-	/*
-	MapGenerator mapGen(std::make_pair(20, 20)); 
 	
-	Map generatedMap = mapGen.GenerateMap(4); 
+	MapGenerator mapGen(std::make_pair(20, 20));
+    
+    // Generate a map for 4 players
+    Map generatedMap = mapGen.GenerateMap(4);
 
-	generatedMap.DisplayMap();
-	const auto& walls = generatedMap.GetWalls();
-	const auto& bombs = generatedMap.GetBombs();
+    // Now you can use the generated map
+    auto walls = generatedMap.GetWalls();
+    auto bombs = generatedMap.GetBombs();
 
 	std::cout << "\nGenerated " << walls.size() << " walls" << std::endl;
 	std::cout << "Generated " << bombs.size() << " bombs" << std::endl;
 
 	std::cout << "\nWall positions:" << std::endl;
-	for (const auto& wall : walls) {
+	for (auto& wall : walls) {
 		auto pos = wall.GetPosition();
 		std::cout << "Wall at (" << pos.first << ", " << pos.second << ") "
 			<< (wall.IsDestructible() ? "Destructible" : "Non-destructible")
@@ -87,7 +88,7 @@ int main()
 		auto pos = bomb.GetPosition();
 		std::cout << "Bomb at (" << pos.first << ", " << pos.second << ")" << std::endl;
 	}
-	*/
+	
 	
 	LoginSystem loginSystem;
 	std::vector<Player> players = loginSystem.RegisterPlayersForGame();
@@ -114,14 +115,14 @@ int main()
 	std::cout << "Player was created: " << player1.GetName() << "\n";
 	std::cout << "Initial position: (" << player1.GetPosition().first
 		<< ", " << player1.GetPosition().second << ")\n";
-	/*
+	
 	std::cout << "Testing movement: Use W, A, S, D to move the player (press 'q' to exit)\n";
 	while (true)
 	{
 		player1.Movement(generatedMap);
 		if (_kbhit() && _getch() == 'q') break;
 	}
-*/
+
 	player1.Shoot();
 	std::cout << "Remaining lifes: " << player1.GetLifes() << "\n\n";
 
@@ -139,7 +140,7 @@ int main()
 	// Some actions on the game:
 	players[0].SetPoints(100);
 	players[1].SetPoints(50);
-	/*
+	
 	Game game(generatedMap, players);
 	std::cout << "Testing winner determination:\n";
 	game.DetermineWinner();
@@ -150,7 +151,7 @@ int main()
 
 	std::cout << "Testing bomb activation:\n";
 	game.TriggerBomb(5, 5);
-*/
+
 	std::cout << "\n";
 	std::cout << "\n";
 	std::cout << "\n";

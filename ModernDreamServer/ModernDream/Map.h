@@ -27,4 +27,6 @@ public:
     Wall* GetWallAt(int x, int y);
     Bomb* GetBombAt(int x, int y);
     void SetFreePosition(int x, int y);
+    void SetWalls(const std::vector<Wall>& newWalls);
+    void SetBombs(const std::vector<Bomb>& newBombs);
 };

@@ -181,7 +181,13 @@ void MapGenerator::DisplayMap() {
 #include <algorithm>
 #include <iostream>
 
-void MapGenerator::GenerateMap(int numPlayers)
+
+MapGenerator::MapGenerator():size(10,10)
+{
+}
+MapGenerator::MapGenerator(std::pair<int,int>size):size(size){}
+
+Map MapGenerator::GenerateMap(int numPlayers)
 {
     InitializeMapMatrix();
     GenerateClusters();
@@ -190,12 +196,22 @@ void MapGenerator::GenerateMap(int numPlayers)
     PlaceBombs();
     DisplayMap();
 
-    /*
-    Map map;
-    map.SetWalls(walls);
-    map.SetBombs(bombs); 
+    
+    Map generatedMap(size);
+    generatedMap.SetWalls(walls);
+    generatedMap.SetBombs(bombs); 
 
-    return map;  */ 
+    return generatedMap;  
+}
+
+const std::vector<Wall>& MapGenerator::GetWalls() const
+{
+    return walls;
+}
+
+const std::vector<Bomb>& MapGenerator::GetBombs() const
+{
+    return bombs;
 }
 
 void MapGenerator::InitializeMapMatrix() {
@@ -344,3 +360,5 @@ void MapGenerator::DisplayMap() const {
         std::cout << std::endl;
     }
 }
+
+MapGenerator::~MapGenerator() { /* Destructor implementation */ }

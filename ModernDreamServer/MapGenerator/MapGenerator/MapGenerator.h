@@ -45,9 +45,12 @@ private:
 #endif
 
 #include "C:/Users/d/OneDrive/Desktop/ModernDream/ModernDreamServer/ModernDream/Map.h"
+
 //#include "../ModernDream/Map.h"
 #include <vector>
 #include <random>
+#include <utility> 
+
 
 enum MapTile
 {
@@ -60,13 +63,15 @@ enum MapTile
 
 class MAPGEN_API MapGenerator {
 public:
-    MapGenerator() : size(0, 0) {}
+    MapGenerator();
 
-    MapGenerator(std::pair<int, int> size) : size(size) {}
-
-    void GenerateMap(int numPlayers);
+    MapGenerator(std::pair<int, int> size);
+    ~MapGenerator();
+    Map GenerateMap(int numPlayers);
 
     const std::vector<std::vector<int>>& GetMapMatrix() const { return mapMatrix; }
+    const std::vector<Wall>& GetWalls() const;
+    const std::vector<Bomb>& GetBombs() const;
 
 private:
 
