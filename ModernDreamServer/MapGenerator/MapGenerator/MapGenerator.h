@@ -45,7 +45,8 @@ private:
 #endif
 
 #include "C:/Users/d/OneDrive/Desktop/ModernDream/ModernDreamServer/ModernDream/Map.h"
-
+#include "C:/Users/d/OneDrive/Desktop/ModernDream/ModernDreamServer/ModernDream/Wall.h"
+#include "C:/Users/d/OneDrive/Desktop/ModernDream/ModernDreamServer/ModernDream/Bomb.h"
 //#include "../ModernDream/Map.h"
 #include <vector>
 #include <random>
