@@ -134,6 +134,14 @@ void LoginDialog::switchToMenu()
     {
         QMessageBox::warning(this, "Error", "Failed to load menu background image");
     }
+
+    QLayout *layout = this->layout();
+    QLayoutItem *item;
+    while ((item = layout->takeAt(0)) != nullptr)
+    {
+        delete item->widget();
+        delete item;
+    }
 }
 
 void LoginDialog::paintEvent(QPaintEvent *event)
