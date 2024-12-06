@@ -19,6 +19,11 @@ class LoginDialog : public QDialog
 {
     Q_OBJECT
 
+public:
+    LoginDialog(QWidget* parent = nullptr);
+
+protected:
+    void paintEvent(QPaintEvent* event) override;
 
 private:
     QPixmap background;
@@ -27,17 +32,18 @@ private:
     QPushButton* loginButton;
     QPushButton* registerButton;
 
+    QPixmap currentBackground;
+    QWidget* loginView;
+    QWidget* menuView;
+
     auto createStorage();
 
-public:
-    LoginDialog(QWidget* parent = nullptr);
-
-protected:
-    void paintEvent(QPaintEvent* event) override;
+    void switchToMenu();
 
 private slots:
     void OnLogin();
     void OnRegister();
+
 };
 
 
