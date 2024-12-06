@@ -129,7 +129,7 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
 
 void LoginDialog::switchToMenu()
 {
-    currentBackground = QPixmap("/Users/asd/Git-projects/ModernDream/ModernDreamClient/ModernDreamImages");
+    currentBackground = QPixmap("../ModernDreamImages/meniu.jpg");
     if (currentBackground.isNull())
     {
         QMessageBox::warning(this, "Error", "Failed to load menu background image");
@@ -227,6 +227,11 @@ void LoginDialog::OnRegister()
 }
 
 void LoginDialog::onStartGame()
+{
+    QMessageBox::information(this, "Options", "Opening options menu...");
+}
+
+void LoginDialog::onOptions()
 {
     QMessageBox::information(this, "Options", "Opening options menu...");
 }
