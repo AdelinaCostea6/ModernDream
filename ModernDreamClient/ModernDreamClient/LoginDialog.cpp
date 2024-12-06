@@ -142,6 +142,21 @@ void LoginDialog::switchToMenu()
         delete item->widget();
         delete item;
     }
+
+    QVBoxLayout *menuLayout = new QVBoxLayout(this);
+    menuLayout->setAlignment(Qt::AlignCenter);
+
+    QPushButton *startButton = new QPushButton("Start Game", this);
+    QPushButton *optionButton = new QPushButton("Options", this);
+    QPushButton *exitButton = new QPushButton("Exit", this);
+
+    startButton->setFixedSize(200, 50);
+    optionButton->setFixedSize(200, 50);
+    exitButton->setFixedSize(200, 50);
+
+    menuLayout->addWidget(startButton);
+    menuLayout->addWidget(optionButton);
+    menuLayout->addWidget(exitButton);
 }
 
 void LoginDialog::paintEvent(QPaintEvent *event)
