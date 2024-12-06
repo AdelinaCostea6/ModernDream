@@ -1,3 +1,5 @@
+#ifndef LOGINDIALOG_H
+#define LOGINDIALOG_H
 #pragma once
 
 #include <QDialog>
@@ -7,6 +9,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QStackedWidget> // Include QStackedWidget
 #include <sqlite_orm/sqlite_orm.h>
 
 struct UserData
@@ -35,6 +38,7 @@ private:
     QPixmap currentBackground;
     QWidget* loginView;
     QWidget* menuView;
+    QStackedWidget* stackedWidget; 
 
     auto createStorage();
 
@@ -48,5 +52,4 @@ private slots:
     void onOptions();
 
 };
-
-
+#endif
