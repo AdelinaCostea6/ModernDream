@@ -157,6 +157,14 @@ void LoginDialog::switchToMenu()
     menuLayout->addWidget(startButton);
     menuLayout->addWidget(optionButton);
     menuLayout->addWidget(exitButton);
+
+    connect(startButton, &QPushButton::clicked, this, &LoginDialog::onStartGame);
+    connect(optionButton, &QPushButton::clicked, this, &LoginDialog::onOptions);
+    connect(exitButton, &QPushButton::clicked, this, &QWidget::close);
+
+    setLayout(menuLayout);
+
+    update();
 }
 
 void LoginDialog::paintEvent(QPaintEvent *event)
