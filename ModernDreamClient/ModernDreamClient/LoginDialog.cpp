@@ -129,7 +129,7 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
 
 void LoginDialog::switchToMenu()
 {
-    currentBackground = QPixmap("../path_to_new_background_image.jpg");
+    currentBackground = QPixmap("/Users/asd/Git-projects/ModernDream/ModernDreamClient/ModernDreamImages");
     if (currentBackground.isNull())
     {
         QMessageBox::warning(this, "Error", "Failed to load menu background image");
