@@ -143,6 +143,7 @@
   <ItemGroup>
     <ClInclude Include="Bomb.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="DataUser.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="LoginSystem.h" />
     <ClInclude Include="Map.h" />

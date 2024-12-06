@@ -68,5 +68,8 @@
     <ClInclude Include="LoginSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DataUser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
