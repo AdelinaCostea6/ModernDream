@@ -9,7 +9,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QMessageBox>
-#include <QStackedWidget> // Include QStackedWidget
+#include <QStackedWidget> 
 #include <sqlite_orm/sqlite_orm.h>
 
 struct UserData

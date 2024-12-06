@@ -35,7 +35,7 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
     frame->setFixedSize(350, 120);
     frame->setStyleSheet(
         "QFrame {"
-        "    background-color: rgba(30, 30, 30, 0.8);" // Gri-negru transparent
+        "    background-color: rgba(30, 30, 30, 0.8);" 
         "    border-radius: 15px;"
         "    border: 2px solid rgba(50, 50, 50, 0.9);"
         "}");
