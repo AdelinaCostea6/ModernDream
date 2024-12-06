@@ -44,6 +44,9 @@ private slots:
     void OnLogin();
     void OnRegister();
 
+    void onStartGame();
+    void onOptions();
+
 };
 
 

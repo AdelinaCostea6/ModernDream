@@ -12,14 +12,14 @@ class ModernDreamClient : public QMainWindow
 {
     Q_OBJECT
 
+public:
+    ModernDreamClient(QWidget* parent = nullptr);
+
 private:
     QTabWidget* tabWidget;
     QSpinBox* playerCountSpinBox;
     QComboBox* mapComboBox;
     QPushButton* startGameButton;
-
-public:
-    ModernDreamClient(QWidget* parent = nullptr);
 
 private slots:
     void OnStartGame();

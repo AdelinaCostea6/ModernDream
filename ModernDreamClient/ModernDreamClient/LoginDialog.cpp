@@ -135,8 +135,8 @@ void LoginDialog::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
 
-    if (!background.isNull()) {
-        painter.drawPixmap(0, -90, width(), height()+90, background.scaled(width(), height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+    if (!currentBackground.isNull()) {
+        painter.drawPixmap(0, 0, width(), height(), background.scaled(width(), height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
     }
 }
 
@@ -155,7 +155,7 @@ void LoginDialog::OnLogin()
     auto user = storage.get_pointer<UserData>(username.toStdString());
     if (user) {
         QMessageBox::information(this, "Login", "Successfully logged in!");
-        accept();
+        switchToMenu();
     }
     else {
         QMessageBox::warning(this, "Login Error", "Invalid username");
@@ -182,4 +182,9 @@ void LoginDialog::OnRegister()
     storage.replace(newUser);
 
     QMessageBox::information(this, "Registration", "Successfully registered!");
+}
+
+void LoginDialog::onStartGame()
+{
+    QMessageBox::information(this, "Options", "Opening options menu...");
 }
