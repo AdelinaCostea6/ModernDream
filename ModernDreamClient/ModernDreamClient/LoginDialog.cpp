@@ -9,9 +9,7 @@ auto LoginDialog::createStorage()
     using namespace sqlite_orm;
     return make_storage("titan_vanguard_users.sqlite",
         make_table("users",
-            make_column("username", &UserData::username, primary_key()),
-            make_column("password", &UserData::password)
-        )
+            make_column("username", &UserData::username, primary_key()))
     );
 }
 
@@ -145,10 +143,9 @@ void LoginDialog::paintEvent(QPaintEvent* event)
 void LoginDialog::OnLogin()
 {
     QString username = usernameEdit->text();
-    QString password = passwordEdit->text();
 
-    if (username.isEmpty() || password.isEmpty()) {
-        QMessageBox::warning(this, "Login Error", "Username and password cannot be empty");
+    if (username.isEmpty()) {
+        QMessageBox::warning(this, "Login Error", "Username cannot be empty");
         return;
     }
 
@@ -156,21 +153,20 @@ void LoginDialog::OnLogin()
     storage.sync_schema();
 
     auto user = storage.get_pointer<UserData>(username.toStdString());
-    if (user && user->password == password.toStdString()) {
+    if (user) {
         QMessageBox::information(this, "Login", "Successfully logged in!");
         accept();
     }
     else {
-        QMessageBox::warning(this, "Login Error", "Invalid username or password");
+        QMessageBox::warning(this, "Login Error", "Invalid username");
     }
 }
 void LoginDialog::OnRegister()
 {
     QString username = usernameEdit->text();
-    QString password = passwordEdit->text();
 
-    if (username.isEmpty() || password.isEmpty()) {
-        QMessageBox::warning(this, "Registration Error", "Username and password cannot be empty");
+    if (username.isEmpty()) {
+        QMessageBox::warning(this, "Registration Error", "Username  cannot be empty");
         return;
     }
 
@@ -182,7 +178,7 @@ void LoginDialog::OnRegister()
         return;
     }
 
-    UserData newUser{ username.toStdString(), password.toStdString() };
+    UserData newUser{ username.toStdString()};
     storage.replace(newUser);
 
     QMessageBox::information(this, "Registration", "Successfully registered!");
