@@ -8,30 +8,30 @@ auto LoginDialog::createStorage()
 {
     using namespace sqlite_orm;
     return make_storage("titan_vanguard_users.sqlite",
-        make_table("users",
-            make_column("username", &UserData::username, primary_key()))
-    );
+                        make_table("users",
+                                   make_column("username", &UserData::username, primary_key())));
 }
 
-LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
+LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
 {
     setWindowTitle("Titan Vanguard - Login");
     resize(600, 600);
 
     background = QPixmap("../ModernDreamImages/Titans1.jpg");
-    if (background.isNull()) {
+    if (background.isNull())
+    {
         QMessageBox::warning(this, "Error", "Failed to load background image");
     }
 
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout(this);
 
-    QSpacerItem* topSpacer = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    QSpacerItem *topSpacer = new QSpacerItem(20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
     mainLayout->addSpacerItem(topSpacer);
 
-    QHBoxLayout* centerLayout = new QHBoxLayout();
+    QHBoxLayout *centerLayout = new QHBoxLayout();
     centerLayout->setAlignment(Qt::AlignCenter);
 
-    QFrame* formFrame = new QFrame(this);
+    QFrame *formFrame = new QFrame(this);
     formFrame->setFixedSize(350, 120);
     formFrame->setStyleSheet(
         "QFrame {"
@@ -41,13 +41,12 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
         "    );"
         "    border-radius: 10px;"
         "    border: 1px solid rgba(255, 255, 255, 50);"
-        "}"
-    );
+        "}");
 
-    QVBoxLayout* formLayout = new QVBoxLayout(formFrame);
+    QVBoxLayout *formLayout = new QVBoxLayout(formFrame);
 
-    QVBoxLayout* inputLayout = new QVBoxLayout();
-    QLabel* usernameLabel = new QLabel("USERNAME:", this);
+    QVBoxLayout *inputLayout = new QVBoxLayout();
+    QLabel *usernameLabel = new QLabel("USERNAME:", this);
     usernameLabel->setStyleSheet("font-size: 14px; color: white; font-weight: bold; background: none; border: none; font-style: italic; letter-spacing: 2px;");
     usernameEdit = new QLineEdit(this);
     usernameEdit->setFixedWidth(300);
@@ -61,7 +60,7 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
 
     formLayout->addLayout(inputLayout);
 
-    QHBoxLayout* buttonLayout = new QHBoxLayout();
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
     loginButton = new QPushButton("LOGIN", this);
     registerButton = new QPushButton("REGISTER", this);
     loginButton->setFixedSize(100, 40);
@@ -87,10 +86,9 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
         "    color: black;"
         "    border-color: black;"
         "    font-weight: bold;"
-        "}"
-    );
+        "}");
 
-    registerButton->setStyleSheet( 
+    registerButton->setStyleSheet(
         "QPushButton {"
         "    background-color: black;"
         "    color: purple;"
@@ -110,8 +108,7 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
         "    color: black;"
         "    border-color: black;"
         "    font-weight: bold;"
-        "}"
-    ); 
+        "}");
 
     buttonLayout->addWidget(loginButton);
     buttonLayout->addWidget(registerButton);
@@ -130,12 +127,21 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
     connect(registerButton, &QPushButton::clicked, this, &LoginDialog::OnRegister);
 }
 
+void LoginDialog::switchToMenu()
+{
+    currentBackground = QPixmap("../path_to_new_background_image.jpg");
+    if (currentBackground.isNull())
+    {
+        QMessageBox::warning(this, "Error", "Failed to load menu background image");
+    }
+}
 
-void LoginDialog::paintEvent(QPaintEvent* event) 
+void LoginDialog::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
 
-    if (!currentBackground.isNull()) {
+    if (!currentBackground.isNull())
+    {
         painter.drawPixmap(0, 0, width(), height(), background.scaled(width(), height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
     }
 }
@@ -144,7 +150,8 @@ void LoginDialog::OnLogin()
 {
     QString username = usernameEdit->text();
 
-    if (username.isEmpty()) {
+    if (username.isEmpty())
+    {
         QMessageBox::warning(this, "Login Error", "Username cannot be empty");
         return;
     }
@@ -153,11 +160,13 @@ void LoginDialog::OnLogin()
     storage.sync_schema();
 
     auto user = storage.get_pointer<UserData>(username.toStdString());
-    if (user) {
+    if (user)
+    {
         QMessageBox::information(this, "Login", "Successfully logged in!");
         switchToMenu();
     }
-    else {
+    else
+    {
         QMessageBox::warning(this, "Login Error", "Invalid username");
     }
 }
@@ -165,7 +174,8 @@ void LoginDialog::OnRegister()
 {
     QString username = usernameEdit->text();
 
-    if (username.isEmpty()) {
+    if (username.isEmpty())
+    {
         QMessageBox::warning(this, "Registration Error", "Username  cannot be empty");
         return;
     }
@@ -173,12 +183,13 @@ void LoginDialog::OnRegister()
     auto storage = createStorage();
     storage.sync_schema();
 
-    if (storage.get_pointer<UserData>(username.toStdString())) {
+    if (storage.get_pointer<UserData>(username.toStdString()))
+    {
         QMessageBox::warning(this, "Registration Error", "Username already exists");
         return;
     }
 
-    UserData newUser{ username.toStdString()};
+    UserData newUser{username.toStdString()};
     storage.replace(newUser);
 
     QMessageBox::information(this, "Registration", "Successfully registered!");
