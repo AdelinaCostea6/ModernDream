@@ -64,31 +64,16 @@ int main()
     */
 	
 	MapGenerator mapGen(std::make_pair(20, 20));
-    
-    // Generate a map for 4 players
-    Map generatedMap = mapGen.GenerateMap(4);
 
-    // Now you can use the generated map
-    auto walls = generatedMap.GetWalls();
-    auto bombs = generatedMap.GetBombs();
+	// Generate maps for different numbers of players
+	std::cout << "\n=== Generating Map for 2 Players ===\n";
+	Map map2 = mapGen.GenerateMap(2);
+	mapGen.DisplayMap(); // Using the DisplayMap method here
 
-	std::cout << "\nGenerated " << walls.size() << " walls" << std::endl;
-	std::cout << "Generated " << bombs.size() << " bombs" << std::endl;
-
-	std::cout << "\nWall positions:" << std::endl;
-	for (auto& wall : walls) {
-		auto pos = wall.GetPosition();
-		std::cout << "Wall at (" << pos.first << ", " << pos.second << ") "
-			<< (wall.IsDestructible() ? "Destructible" : "Non-destructible")
-			<< std::endl;
-	}
-
-	std::cout << "\nBomb positions:" << std::endl;
-	for (const auto& bomb : bombs) {
-		auto pos = bomb.GetPosition();
-		std::cout << "Bomb at (" << pos.first << ", " << pos.second << ")" << std::endl;
-	}
-	
+	// Get and display additional map information
+	std::cout << "\n--- Map 2 Players ---\n";
+	std::cout << "Number of Walls: " << map2.GetWalls().size() << std::endl;
+	std::cout << "Number of Bombs: " << map2.GetBombs().size() << std::endl;
 	
 	LoginSystem loginSystem;
 	std::vector<Player> players = loginSystem.RegisterPlayersForGame();
@@ -119,7 +104,7 @@ int main()
 	std::cout << "Testing movement: Use W, A, S, D to move the player (press 'q' to exit)\n";
 	while (true)
 	{
-		player1.Movement(generatedMap);
+		player1.Movement(map2);
 		if (_kbhit() && _getch() == 'q') break;
 	}
 
@@ -141,7 +126,7 @@ int main()
 	players[0].SetPoints(100);
 	players[1].SetPoints(50);
 	
-	Game game(generatedMap, players);
+	Game game(map2, players);
 	std::cout << "Testing winner determination:\n";
 	game.DetermineWinner();
 

@@ -4,6 +4,33 @@
 #include <algorithm>
 #include <iostream>
 
+WallG::WallG(std::pair<int,int> pos, WallTypeG type, int durability, bool destructible)//,BombG* bomb)
+    : position(pos), type(type), durability(durability), isDestructible(destructible){ }//, bomb(bomb) {}
+
+std::pair<int,int> WallG::GetPosition() const { return position; } 
+WallTypeG WallG::GetType() const { return type; }
+int WallG::GetDurability() const { return durability; }
+bool WallG::IsDestructible() const { return isDestructible; }
+void WallG::ReduceDurability() {
+    if (durability > 0) durability--;
+}
+//BombG* WallG::GetBomb()  { 
+   // return bomb; 
+//}
+
+BombG::BombG(std::pair<int,int> pos) : position(pos), status(true) {}
+std::pair<int,int> BombG::GetPosition() const { return position; }
+bool BombG::GetStatus() const { return status; }
+void BombG::SetStatus(bool newStatus) { status = newStatus; }
+
+MapG::MapG(std::pair<int, int> mapSize)
+    : size(mapSize), mapMatrix(mapSize.first, std::vector<int>(mapSize.second, 1)) {
+}
+void MapG::SetWalls(const std::vector<WallG>& newWalls) { walls = newWalls; }
+void MapG::SetBombs(const std::vector<BombG>& newBombs) { bombs = newBombs; }
+std::vector<WallG>& MapG::GetWalls() { return walls; }
+std::vector<BombG>& MapG::GetBombs() { return bombs; }
+std::pair<int, int> MapG::GetSize() const { return size; }
 
 MapGenerator::MapGenerator():size(10,10)
 {
@@ -11,7 +38,7 @@ MapGenerator::MapGenerator():size(10,10)
 MapGenerator::MapGenerator(std::pair<int, int> size) : size(size) {
 }
 
-Map MapGenerator::GenerateMap(int numPlayers)
+MapG MapGenerator::GenerateMap(int numPlayers)
 {
     InitializeMapMatrix();
     GenerateClusters();
@@ -21,19 +48,19 @@ Map MapGenerator::GenerateMap(int numPlayers)
     DisplayMap();
 
     
-    Map generatedMap(size);
+    MapG generatedMap(size);
     generatedMap.SetWalls(walls);
     generatedMap.SetBombs(bombs); 
 
     return generatedMap;  
 }
 
-const std::vector<Wall>& MapGenerator::GetWalls() const
+const std::vector<WallG>& MapGenerator::GetWalls() const
 {
     return walls;
 }
 
-const std::vector<Bomb>& MapGenerator::GetBombs() const
+const std::vector<BombG>& MapGenerator::GetBombs() const
 {
     return bombs;
 }
@@ -76,7 +103,7 @@ void MapGenerator::GenerateClusters() {
                         y == startY || y == startY + clusterHeight - 1) {
                         mapMatrix[x][y] = DestructibleWall;
                         bool isDestructible = (wallTypeDist(gen) == 1);
-                        WallType type = isDestructible ? WallType::Destructible : WallType::NonDestructible;
+                        WallTypeG type = isDestructible ? WallTypeG::Destructible : WallTypeG::NonDestructible;
                         walls.emplace_back(std::make_pair(x, y), type, 1, isDestructible, nullptr);
                     }
                 }
@@ -106,7 +133,7 @@ void MapGenerator::PlaceConnectorWalls() {
                 if (hasNearbyWalls && connectorDist(gen) == 0) {
                     mapMatrix[y][x] = DestructibleWall;
                     bool isDestructible = (wallTypeDist(gen) == 1);
-                    WallType type = isDestructible ? WallType::Destructible : WallType::NonDestructible;
+                    WallTypeG type = isDestructible ? WallTypeG::Destructible : WallTypeG::NonDestructible;
                     walls.emplace_back(std::make_pair(y, x), type, 1, isDestructible, nullptr);
                 }
             }
@@ -137,7 +164,7 @@ void MapGenerator::SetPlayerStartPosition(int numPlayers) {
                         mapMatrix[nx][ny] = FreeSpace;
                         walls.erase(
                             std::remove_if(walls.begin(), walls.end(),
-                                [nx, ny](Wall& wall) {
+                                [nx, ny](WallG& wall) {
                                     return wall.GetPosition() == std::make_pair(nx, ny);
                                 }),
                             walls.end()
@@ -185,4 +212,4 @@ void MapGenerator::DisplayMap() const {
     }
 }
 
-MapGenerator::~MapGenerator() { }
+MapGenerator::~MapGenerator() {}
