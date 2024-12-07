@@ -63,18 +63,24 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
     loginButton->setStyleSheet(
         "QPushButton {"
         "    background-color: black;"
-        "    color: purple;"
-        "    border: 2px solid purple;"
+        "    color: #BF00FF;"
+        "    border: 2px solid #BF00FF;"
         "    border-radius: 5px;"
         "    padding: 5px;"
+        "    font-size: 12px;"
+        "    font-family: 'Italic';"
+        "    font-weight: bold;"
         "}");
     registerButton->setStyleSheet(
         "QPushButton {"
         "    background-color: black;"
-        "    color: purple;"
-        "    border: 2px solid purple;"
+        "    color: #BF00FF;"
+        "    border: 2px solid #BF00FF;"
         "    border-radius: 5px;"
         "    padding: 5px;"
+        "    font-size: 12px;"
+        "    font-family: 'Italic';"
+        "    font-weight: bold;"
         "}");
 
     buttonLayout->addWidget(loginButton);
@@ -93,14 +99,47 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
     QVBoxLayout* menuLayout = new QVBoxLayout();
     menuLayout->setAlignment(Qt::AlignCenter);
 
-    QPushButton* singlePlayer = new QPushButton("Single Player", this);
-    QPushButton* multiPlayer = new QPushButton("MultiPlayer", this);
-    QPushButton* mapOptions = new QPushButton("Map Options", this);
+    QPushButton* singlePlayer = new QPushButton("SINGLE PLAYER", this);
+    QPushButton* multiPlayer = new QPushButton("MULTIPLAYER", this);
+    QPushButton* mapOptions = new QPushButton("MAP OPTIONS", this);
 
     singlePlayer->setFixedSize(200, 50);
     multiPlayer->setFixedSize(200, 50);
     mapOptions->setFixedSize(200, 50);
 
+    singlePlayer->setStyleSheet(
+        "QPushButton {"
+        "    background-color: black;"
+        "    color: #BF00FF;"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 5px;"
+        "    padding: 5px;"
+        "    font-size: 12px;"
+        "    font-family: 'Italic';"
+        "    font-weight: bold;"
+        "}");
+    multiPlayer->setStyleSheet(
+        "QPushButton {"
+        "    background-color: black;"
+        "    color: #BF00FF;"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 5px;"
+        "    padding: 5px;"
+        "    font-size: 12px;"
+        "    font-family: 'Italic';" 
+        "    font-weight: bold;"
+        "}");
+    mapOptions->setStyleSheet(
+        "QPushButton {"
+        "    background-color: black;"
+        "    color: #BF00FF;"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 5px;"
+        "    padding: 5px;"
+        "    font-size: 12px;"
+        "    font-family: 'Italic';" 
+        "    font-weight: bold;"
+        "}");
     menuLayout->addStretch();
     menuLayout->addWidget(singlePlayer, 0, Qt::AlignCenter);
     menuLayout->addWidget(multiPlayer, 0, Qt::AlignCenter);
@@ -136,8 +175,38 @@ void LoginDialog::OnLogin()
 
     if (username.isEmpty())
     {
-        QMessageBox::warning(this, "Login Error", "Username cannot be empty");
-        return;
+        QDialog messageDialog;
+        messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+        messageDialog.setStyleSheet("background-color: black;");
+
+        QHBoxLayout* layout = new QHBoxLayout(&messageDialog);
+
+        QLabel* messageLabel = new QLabel("Username cannot be empty", &messageDialog);
+        messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        messageLabel->setStyleSheet("color: red; font-weight: bold;");
+
+        QPushButton* closeButton = new QPushButton("OK", &messageDialog);
+        closeButton->setStyleSheet(
+            "QPushButton {"
+            "    background-color: white;"
+            "    color: black;"
+            "    border: 2px solid black;"
+            "    border-radius: 5px;"
+            "    padding: 5px;"
+            "    font-family: 'Italic';"
+            "    font-weight: bold;"
+            "}");
+        QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
+
+
+        layout->addWidget(messageLabel);
+        layout->addWidget(closeButton, 0, Qt::AlignCenter);
+
+        messageDialog.setLayout(layout);
+
+        messageDialog.exec();
+
+        return; 
     }
 
     auto storage = createStorage();
@@ -204,6 +273,6 @@ void LoginDialog::paintEvent(QPaintEvent* event)
 
     if (!backgroundImage.isNull())
     {
-        painter.drawPixmap(0, 0, width(), height(), backgroundImage.scaled(width(), height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+        painter.drawPixmap(0, -90, width(), height()+90, backgroundImage.scaled(width(), height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
     }
 }
