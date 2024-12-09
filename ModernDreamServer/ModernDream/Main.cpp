@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <conio.h>
 #include <thread>
 #include <chrono>
@@ -62,23 +62,11 @@ int main()
 	std::cout << "Number of walls: " << gameMap.GetWalls().size() << "\n";  
 	std::cout << "Number of bombs: " << gameMap.GetBombs().size() << "\n\n";  
     */
-	
-	MapGenerator mapGen(std::make_pair(20, 20));
-
-	// Generate maps for different numbers of players
-	std::cout << "\n=== Generating Map for 2 Players ===\n";
-	Map map2 = mapGen.GenerateMap(2);
-	mapGen.DisplayMap(); // Using the DisplayMap method here
-
-	// Get and display additional map information
-	std::cout << "\n--- Map 2 Players ---\n";
-	std::cout << "Number of Walls: " << map2.GetWalls().size() << std::endl;
-	std::cout << "Number of Bombs: " << map2.GetBombs().size() << std::endl;
+	/*
 	
 	LoginSystem loginSystem;
 	std::vector<Player> players = loginSystem.RegisterPlayersForGame();
 	loginSystem.UpdatePlayerStats(players); 
-	/*
 	for (auto& player : players) {
 		std::cout << "\nTesting movement for " << player.GetName() << ": Use W, A, S, D to move the player (press 'q' to exit)\n";
 			if (_kbhit()) {
@@ -94,6 +82,7 @@ int main()
 		
 	}
 	*/
+	/*
 	std::cout << "--- PLAYER TEST ---\n";
 	auto playerWeapon = std::make_shared<Weapon>(1.0f);
 	Player player1("Player1:", playerWeapon, std::make_pair(0, 0));
@@ -127,6 +116,57 @@ int main()
 	players[1].SetPoints(50);
 	
 	Game game(map2, players);
+	std::cout << "Testing winner determination:\n";
+	game.DetermineWinner();
+
+	std::cout << "Testing weapon upgrades:\n";
+	players[0].SetScore(10);
+	game.CheckAndApplyWeaponUpgrade();
+
+	std::cout << "Testing bomb activation:\n";
+	game.TriggerBomb(5, 5);*/
+	// Inițializare harta
+	std::cout << "--- MAP GENERATOR TEST ---\n";
+	MapGenerator generator({ 10, 10 });  // Generăm o hartă de 10x10
+	generator.GenerateMap(2);          // Generează harta cu 2 jucători
+	std::cout << "Map generated successfully.\n";
+
+	// Obținem date brute din MapGenerator
+	auto wallPositions = generator.GetWallPositions();
+	auto bombPositions = generator.GetBombPositions();
+
+	// Creăm un jucător cu o armă
+	std::cout << "--- PLAYER TEST ---\n";
+	auto playerWeapon = std::make_shared<Weapon>(1.0f); // Arma jucătorului
+	Player player1("Player1", playerWeapon, std::make_pair(0, 0));  // Poziția de start
+	std::cout << "Player was created: " << player1.GetName() << "\n";
+	std::cout << "Initial position: (" << player1.GetPosition().first
+		<< ", " << player1.GetPosition().second << ")\n";
+
+	// Testare mișcare
+	std::cout << "Testing movement: Use W, A, S, D to move the player (press 'q' to exit)\n";
+	while (true) {
+		player1.Movement(wallPositions, bombPositions);  // Mișcare pe hartă
+		if (_kbhit() && _getch() == 'q') break;
+	}
+
+	// Testare tragere
+	player1.Shoot();
+	std::cout << "Remaining lifes: " << player1.GetLifes() << "\n\n";
+
+	// Testare joc
+	std::cout << "--- GAME TEST ---\n";
+	// Creăm mai mulți jucători
+	auto weapon2 = std::make_shared<Weapon>(1.0f);
+	std::vector<Player> players;
+	players.push_back(Player("Player1", playerWeapon, std::make_pair(0, 0)));
+	players.push_back(Player("Player2", weapon2, std::make_pair(9, 9)));
+
+	// Some actions on the game:
+	players[0].SetPoints(100);
+	players[1].SetPoints(50);
+
+	Game game(wallPositions, bombPositions, players);  // Jocul cu harta generatăv   
 	std::cout << "Testing winner determination:\n";
 	game.DetermineWinner();
 

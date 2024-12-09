@@ -49,59 +49,7 @@ private:
 #include <utility>
 
 
-enum WallTypeG {
-    NonDestructible = 0,
-    Destructible = 1
-};
-class MAPGEN_API WallG {
-public:
-    WallG(std::pair<int, int> pos, WallTypeG type, int durability, bool destructible);
 
-    std::pair<int, int> GetPosition() const;
-    WallTypeG GetType() const;
-    int GetDurability() const;
-    bool IsDestructible() const;
-    void ReduceDurability();
-    //BombG* GetBomb() ;
-
-private:
-    std::pair<int, int> position;
-    WallTypeG type;
-    int durability;
-    bool isDestructible;
-    //BombG* bomb;
-};
-
-class MAPGEN_API BombG {
-public:
-    BombG(std::pair<int, int>);
-
-    std::pair<int, int> GetPosition() const;
-    bool GetStatus() const;
-    void SetStatus(bool newStatus);
-
-private:
-    std::pair<int, int> position;
-    bool status;
-};
-
-class MAPGEN_API MapG {
-public:
-    MapG(std::pair<int, int> mapSize);
-
-    void SetWalls(const std::vector<WallG>& newWalls);
-    void SetBombs(const std::vector<BombG>& newBombs);
-
-    std::vector<WallG>& GetWalls();
-    std::vector<BombG>& GetBombs();
-    std::pair<int, int> GetSize() const;
-
-private:
-    std::pair<int, int> size;
-    std::vector<WallG> walls;
-    std::vector<BombG> bombs;
-    std::vector<std::vector<int>> mapMatrix;
-};
 enum MapTile
 {
     PlayerPosition = 0,
@@ -117,12 +65,15 @@ public:
     MapGenerator(std::pair<int, int> mapSize);
     ~MapGenerator();
 
-    MapG GenerateMap(int numPlayers);
-
-    //const std::vector<std::vector<int>>& GetMapMatrix() const { return mapMatrix; }
-    const std::vector<WallG>& GetWalls() const;
-    const std::vector<BombG>& GetBombs() const;
+    void GenerateMap(int numPlayers);
     void DisplayMap() const;
+
+    std::vector<std::pair<int, int>> GetWallPositions() const;
+    std::vector<int> GetWallDurabilities() const;
+    std::vector<bool> GetWallDestructibleFlags() const;
+
+    std::vector<std::pair<int, int>> GetBombPositions() const;
+    std::vector<bool> GetBombStatuses() const;
 private:
 
     void InitializeMapMatrix();
@@ -131,10 +82,14 @@ private:
     void SetPlayerStartPosition(int numPlayers);
     void PlaceBombs();
 
-
-
-    std::pair<int, int> size; 
+    std::pair<int, int> size;
     std::vector<std::vector<int>> mapMatrix;
-    std::vector<WallG> walls; 
-    std::vector<BombG> bombs; 
+
+    // Members to hold raw data for walls and bombs
+    std::vector<std::pair<int, int>> wallPositions;        // Wall positions
+    std::vector<int> wallDurabilities;                     // Wall durability
+    std::vector<bool> wallDestructibleFlags;               // Flags for destructibility
+
+    std::vector<std::pair<int, int>> bombPositions;        // Bomb positions
+    std::vector<bool> bombStatuses; 
 };

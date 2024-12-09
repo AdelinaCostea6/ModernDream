@@ -1,11 +1,17 @@
 #include "Game.h"
-
+/*
 Game::Game(Map map, std::vector<Player> players)
 {
     this->map = map;
     this->players = players;
 }
-
+*/
+Game::Game( std::vector<Wall> walls,  std::vector<Bomb> bombs,  std::vector<Player> players) 
+{
+    this->walls = walls;  
+    this->bombs = bombs;  
+    this->players = players; 
+}
 Map Game::GetMap()
 {
     return map;
@@ -14,6 +20,16 @@ Map Game::GetMap()
 std::vector<Player> Game::GetPlayers()
 {
     return players;
+}
+
+std::vector<Wall> Game::GetWalls()
+{
+    return walls;
+}
+
+std::vector<Bomb> Game::GetBombs()
+{
+    return bombs;
 }
 
 void Game::DetermineWinner()
