@@ -50,17 +50,17 @@ private:
 
 
 
-enum MapTile
-{
-    PlayerPosition = 0,
-    FreeSpace = 1,
-    DestructibleWall = 2,
-    DestructibleWallWithBomb = 3,
-    NonDestructibleWall = 4
-};
-
 class MAPGEN_API MapGenerator {
 public:
+    enum MapTile
+    {
+        PlayerPosition = 0,
+        FreeSpace = 1,
+        DestructibleWall = 2,
+        DestructibleWallWithBomb = 3,
+        NonDestructibleWall = 4
+    };
+
     MapGenerator();
     MapGenerator(std::pair<int, int> mapSize);
     ~MapGenerator();

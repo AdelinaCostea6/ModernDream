@@ -8,7 +8,7 @@ DatabaseManager::DatabaseManager()
 void DatabaseManager::AddUser(const DataUser& user)
 {
 
-	m_db.insert(user);
+	//m_db.insert(user);
 }
 
 std::optional<DataUser> DatabaseManager::GetUser(const std::string& username)

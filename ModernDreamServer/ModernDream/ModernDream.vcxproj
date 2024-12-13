@@ -155,6 +155,11 @@
     <ClInclude Include="Wall.h" />
     <ClInclude Include="Weapon.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MapGenerator\MapGenerator\MapGenerator.vcxproj">
+      <Project>{1b2bad55-172e-4067-bfcd-7348b3bd558b}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

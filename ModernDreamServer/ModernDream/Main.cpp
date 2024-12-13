@@ -144,11 +144,11 @@ int main()
 		<< ", " << player1.GetPosition().second << ")\n";
 
 	// Testare mișcare
-	std::cout << "Testing movement: Use W, A, S, D to move the player (press 'q' to exit)\n";
-	while (true) {
-		player1.Movement(wallPositions, bombPositions);  // Mișcare pe hartă
-		if (_kbhit() && _getch() == 'q') break;
-	}
+	//std::cout << "Testing movement: Use W, A, S, D to move the player (press 'q' to exit)\n";
+	//while (true) {
+	//	player1.Movement(wallPositions, bombPositions);  // Mișcare pe hartă
+	//	if (_kbhit() && _getch() == 'q') break;
+	//}
 
 	// Testare tragere
 	player1.Shoot();
@@ -166,16 +166,16 @@ int main()
 	players[0].SetPoints(100);
 	players[1].SetPoints(50);
 
-	Game game(wallPositions, bombPositions, players);  // Jocul cu harta generatăv   
-	std::cout << "Testing winner determination:\n";
-	game.DetermineWinner();
+	//Game game(wallPositions, bombPositions, players);  // Jocul cu harta generatăv   
+	//std::cout << "Testing winner determination:\n";
+	//game.DetermineWinner();
 
-	std::cout << "Testing weapon upgrades:\n";
-	players[0].SetScore(10);
-	game.CheckAndApplyWeaponUpgrade();
+	//std::cout << "Testing weapon upgrades:\n";
+	//players[0].SetScore(10);
+	//game.CheckAndApplyWeaponUpgrade();
 
-	std::cout << "Testing bomb activation:\n";
-	game.TriggerBomb(5, 5);
+	//std::cout << "Testing bomb activation:\n";
+	//game.TriggerBomb(5, 5);
 
 	std::cout << "\n";
 	std::cout << "\n";
