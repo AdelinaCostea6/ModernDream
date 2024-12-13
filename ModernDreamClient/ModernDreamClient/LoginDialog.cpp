@@ -216,6 +216,8 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
 
     connect(loginButton, &QPushButton::clicked, this, &LoginDialog::OnLogin);
     connect(registerButton, &QPushButton::clicked, this, &LoginDialog::OnRegister);
+    connect(singlePlayer, &QPushButton::clicked, this, &LoginDialog::onStartGame);
+    connect(multiPlayer, &QPushButton::clicked, this, &LoginDialog::onOptions);
     connect(mapOptions, &QPushButton::clicked, [=]() { stackedWidget->setCurrentIndex(2); });
     connect(planeButton, &QPushButton::clicked, this, &LoginDialog::onPlaneSelected);
     connect(boatButton, &QPushButton::clicked, this, &LoginDialog::onBoatSelected);
