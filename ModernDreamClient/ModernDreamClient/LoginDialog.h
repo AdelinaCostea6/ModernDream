@@ -29,13 +29,15 @@ protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
-    QPixmap background;
+   
     QLineEdit* usernameEdit;
     QLineEdit* passwordEdit;
     QPushButton* loginButton;
     QPushButton* registerButton;
 
+    QPixmap background;
     QPixmap currentBackground;
+
     QWidget* loginView;
     QWidget* menuView;
     QStackedWidget* stackedWidget; 
@@ -47,9 +49,11 @@ private:
 private slots:
     void OnLogin();
     void OnRegister();
-
     void onStartGame();
     void onOptions();
+    void onPlaneSelected();
+    void onBoatSelected();
+    void onCarSelected();
 
 };
 #endif
