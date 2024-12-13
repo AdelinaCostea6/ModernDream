@@ -542,6 +542,12 @@ void LoginDialog::onBoatSelected()
     stackedWidget->setCurrentIndex(1);
 }
 
+void LoginDialog::onCarSelected()
+{
+    QMessageBox::information(this, "Map Selection", "You selected: Car Map");
+    stackedWidget->setCurrentIndex(1);
+}
+
 void LoginDialog::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
