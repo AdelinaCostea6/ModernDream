@@ -557,9 +557,13 @@ void LoginDialog::paintEvent(QPaintEvent *event)
     {
         backgroundImage.load("../ModernDreamImages/Titans1.jpg");
     }
-    else
+    else if (stackedWidget->currentIndex() == 1)
     {
         backgroundImage.load("../ModernDreamImages/meniu1.jpeg");
+    }
+    else if (stackedWidget->currentIndex() == 2)
+    {
+        backgroundImage.load("../ModernDreamImages/mapOptions.jpg");
     }
 
     if (!backgroundImage.isNull())
