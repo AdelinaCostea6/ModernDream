@@ -21,8 +21,10 @@ auto LoginDialog::createStorage()
 
 LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
 {
+    
     setWindowTitle("Titan Vanguard - Login");
-    resize(600, 600);
+    resize(800, 800);
+    
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setAlignment(Qt::AlignBottom);
@@ -102,14 +104,6 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
     menuLayout->setAlignment(Qt::AlignCenter);
 
     QFrame *menuFrame = new QFrame(this);
-    menuFrame->setFixedSize(400, 250);
-    menuFrame->setStyleSheet(
-        "QFrame {"
-        "    background-color: rgba(30, 30, 30, 0.8);"
-        "    border-radius: 15px;"
-        "    border: 2px solid rgba(50, 50, 50, 0.9);"
-        "}");
-
     QVBoxLayout *menuFrameLayout = new QVBoxLayout(menuFrame);
     menuFrameLayout->setAlignment(Qt::AlignCenter);
 
@@ -157,36 +151,44 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
     mapOptionsLayout->setAlignment(Qt::AlignCenter);
 
     QFrame *mapOptionsFrame = new QFrame(this);
-    mapOptionsFrame->setFixedSize(400, 250);
-    mapOptionsFrame->setStyleSheet(
-        "QFrame {"
-        "    background-color: rgba(30, 30, 30, 0.8);"
-        "    border-radius: 15px;"
-        "    border: 2px solid rgba(50, 50, 50, 0.9);"
-        "}");
-
     QVBoxLayout *mapOptionsFrameLayout = new QVBoxLayout(mapOptionsFrame);
     mapOptionsFrameLayout->setAlignment(Qt::AlignCenter);
 
-    QPushButton *planeButton = new QPushButton("PLANE", this);
+    //Exemplu
+    QPushButton* planeButton = new QPushButton(this);
+
     QPushButton *boatButton = new QPushButton("BOAT", this);
     QPushButton *carButton = new QPushButton("CARS", this);
 
-    planeButton->setFixedSize(200, 50);
-    boatButton->setFixedSize(200, 50);
+    planeButton->setFixedSize(480, 250);
+    boatButton->setFixedSize(300, 50);
     carButton->setFixedSize(200, 50);
 
+    
+    //Exemplu
     planeButton->setStyleSheet(
         "QPushButton {"
-        "    background-color: black;"
-        "    color: #BF00FF;"
+        "    background-image: url(../ModernDreamImages/helicopterMap.jpeg);"
+        "    background-color: transparent;"
         "    border: 2px solid #BF00FF;"
         "    border-radius: 5px;"
-        "    padding: 5px;"
         "    font-size: 14px;"
         "    font-family: 'Italic';"
         "    font-weight: bold;"
-        "}");
+        "    text-align: center;"
+        "    color: #BF00FF;"
+        "    background-size: contain;"  
+        "    background-repeat: no-repeat;"
+        "    background-position: center;"  
+        "} "
+        "QPushButton:hover {"
+        "    background-color: rgba(191, 0, 255, 0.2);"
+        "} "
+        "QPushButton:pressed {"
+        "    background-color: rgba(191, 0, 255, 0.4);"
+        "}"
+    );
+
     boatButton->setStyleSheet(
         "QPushButton {"
         "    background-color: black;"
@@ -546,19 +548,19 @@ void LoginDialog::onOptions()
 void LoginDialog::onPlaneSelected()
 {
     QMessageBox::information(this, "Map Selection", "You selected: Plane Map");
-    stackedWidget->setCurrentIndex(1);
+    //stackedWidget->setCurrentIndex(1);
 }
 
 void LoginDialog::onBoatSelected()
 {
     QMessageBox::information(this, "Map Selection", "You selected: Boat Map");
-    stackedWidget->setCurrentIndex(1);
+    //stackedWidget->setCurrentIndex(1);
 }
 
 void LoginDialog::onCarSelected()
 {
     QMessageBox::information(this, "Map Selection", "You selected: Car Map");
-    stackedWidget->setCurrentIndex(1);
+    //stackedWidget->setCurrentIndex(1);
 }
 
 void LoginDialog::paintEvent(QPaintEvent *event)
