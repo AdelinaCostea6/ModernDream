@@ -148,6 +148,63 @@ LoginDialog::LoginDialog(QWidget* parent) : QDialog(parent)
 
     menuPage->setLayout(menuLayout);
 
+
+    QWidget* mapOptionsPage = new QWidget();
+    QVBoxLayout* mapOptionsLayout = new QVBoxLayout();
+    mapOptionsLayout->setAlignment(Qt::AlignCenter);
+
+
+    QPushButton* planeButton = new QPushButton("PLANE", this);
+    QPushButton* boatButton = new QPushButton("BOAT", this);
+    QPushButton* carButton = new QPushButton("CARS", this);
+
+    planeButton->setFixedSize(200, 50);
+    boatButton->setFixedSize(200, 50);
+    carButton->setFixedSize(200, 50);
+
+    planeButton->setStyleSheet(
+        "QPushButton {"
+        "    background-color: black;"
+        "    color: #BF00FF;"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 5px;"
+        "    padding: 5px;"
+        "    font-size: 14px;"
+        "    font-family: 'Italic';"
+        "    font-weight: bold;"
+        "}");
+    boatButton->setStyleSheet(
+        "QPushButton {"
+        "    background-color: black;"
+        "    color: #BF00FF;"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 5px;"
+        "    padding: 5px;"
+        "    font-size: 14px;"
+        "    font-family: 'Italic';"
+        "    font-weight: bold;"
+        "}");
+    carButton->setStyleSheet(
+        "QPushButton {"
+        "    background-color: black;"
+        "    color: #BF00FF;"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 5px;"
+        "    padding: 5px;"
+        "    font-size: 14px;"
+        "    font-family: 'Italic';"
+        "    font-weight: bold;"
+        "}");
+
+
+    mapOptionsLayout->addStretch();
+    mapOptionsLayout->addWidget(planeButton);
+    mapOptionsLayout->addWidget(boatButton);
+    mapOptionsLayout->addWidget(carButton);
+    mapOptionsLayout->addStretch();
+
+    mapOptionsPage->setLayout(mapOptionsLayout);
+
     stackedWidget = new QStackedWidget(this);
     stackedWidget->addWidget(loginPage);
     stackedWidget->addWidget(menuPage);
