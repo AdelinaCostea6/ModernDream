@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
+#include "HttpClient.h"
 
 auto LoginDialog::createStorage()
 {
@@ -25,6 +26,7 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent), httpClient(new Http
     setWindowTitle("Titan Vanguard - Login");
     resize(850, 600);
     
+
 
     QVBoxLayout *mainLayout = new QVBoxLayout(this);
     mainLayout->setAlignment(Qt::AlignTop);  
@@ -275,7 +277,22 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent), httpClient(new Http
     mainLayout->addWidget(stackedWidget);
     setLayout(mainLayout);
 
-    connect(loginButton, &QPushButton::clicked, this, &LoginDialog::OnLogin);
+    connect(loginButton, &QPushButton::clicked, this, &LoginDialog::OnLogin); 
+    //connect(loginButton, &QPushButton::clicked, this, [this]() { 
+    //    QString username = usernameEdit->text();  // Get the username from the QLineEdit
+    //    if (!username.isEmpty()) {
+    //        httpClient->login(username);  // Call the HttpClient's login function 
+    //        qDebug() << "Attempting to log in with username:" << username; 
+    //    }
+    //    else {
+    //        qDebug() << "Username cannot be empty!";
+    //        QMessageBox::warning(this, "Login Failed", "Please enter a username.");
+    //    }
+    //    });
+    connect(httpClient, &HttpClient::loginSuccess, this, &LoginDialog::onLoginSuccess);
+    connect(httpClient, &HttpClient::loginFailure, this, &LoginDialog::onLoginFailure); 
+
+
     connect(registerButton, &QPushButton::clicked, this, &LoginDialog::OnRegister);
     connect(singlePlayer, &QPushButton::clicked, [=]()
             { stackedWidget->setCurrentIndex(2); });
@@ -742,3 +759,6 @@ void LoginDialog::showMessageDialog(const QString& message, const QString& color
 
     messageDialog.exec();
 }
+
+
+

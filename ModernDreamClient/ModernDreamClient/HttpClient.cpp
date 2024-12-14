@@ -1,5 +1,10 @@
 #include "HttpClient.h"
 #include <QDebug>
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+
+
 
 HttpClient::HttpClient(QObject* parent)
     : QObject(parent), manager(new QNetworkAccessManager(this))
@@ -31,19 +36,50 @@ void HttpClient::registerUser(const QString& username)
     connect(reply, &QNetworkReply::finished, this, &HttpClient::onRegisterResponse);
 }
 
+//void HttpClient::onLoginResponse()
+//{
+//    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+//
+//    if (reply->error() == QNetworkReply::NoError) {
+//        QByteArray responseData = reply->readAll();
+//        QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+//        if (jsonDoc.isObject()) {
+//            QJsonObject jsonObj = jsonDoc.object();
+//            emit loginSuccess(jsonObj["username"].toString(), jsonObj["score"].toInt());
+//        }
+//    }
+//    else {
+//        emit loginFailure(reply->errorString());
+//    }
+//
+//    reply->deleteLater();
+//}
+
 void HttpClient::onLoginResponse()
 {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
+    qDebug() << "Login Response Status:" << reply->error();
+    qDebug() << "Response Body:" << reply->readAll();
+
     if (reply->error() == QNetworkReply::NoError) {
         QByteArray responseData = reply->readAll();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
+
         if (jsonDoc.isObject()) {
             QJsonObject jsonObj = jsonDoc.object();
+            qDebug() << "Username:" << jsonObj["username"].toString();
+            qDebug() << "Score:" << jsonObj["score"].toInt();
+
             emit loginSuccess(jsonObj["username"].toString(), jsonObj["score"].toInt());
+        }
+        else {
+            qDebug() << "Invalid JSON response";
+            emit loginFailure("Invalid server response");
         }
     }
     else {
+        qDebug() << "Login Error:" << reply->errorString();
         emit loginFailure(reply->errorString());
     }
 

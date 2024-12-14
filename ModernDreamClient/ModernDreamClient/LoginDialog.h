@@ -48,6 +48,7 @@ private:
 
     void switchToMenu();
 
+
 private slots:
     void OnLogin();
     void OnRegister();
