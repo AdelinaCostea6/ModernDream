@@ -51,7 +51,7 @@ private slots:
     void OnRegister();
     void onStartGame();
     void onOptions();
-    void onPlaneSelected();
+    void onHelicopterSelected(); 
     void onBoatSelected();
     void onCarSelected();
 
