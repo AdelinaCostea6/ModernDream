@@ -11,7 +11,7 @@
 #include "LoginSystem.h"
 #include "DatabaseManager.h"
 #include "Routing.h"
-//#include "MapGenerator/MapGenerator.h"
+#include "../MapGenerator/MapGenerator/MapGenerator.h"
 
 int main()
 {
@@ -132,14 +132,14 @@ int main()
 
 	// Inițializare harta
 	std::cout << "--- MAP GENERATOR TEST ---\n";
-	/*MapGenerator generator({10, 10});  // Generăm o hartă de 10x10
+	MapGenerator generator({10, 10});  // Generăm o hartă de 10x10
 	generator.GenerateMap(2);          // Generează harta cu 2 jucători
 	std::cout << "Map generated successfully.\n";
 
 	// Obținem date brute din MapGenerator
 	auto wallPositions = generator.GetWallPositions();
 	auto bombPositions = generator.GetBombPositions();
-	*/
+	
 	// Creăm un jucător cu o armă
 	std::cout << "--- PLAYER TEST ---\n";
 	auto playerWeapon = std::make_shared<Weapon>(1.0f); // Arma jucătorului

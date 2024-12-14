@@ -1,4 +1,4 @@
-#include "HttpClient.h"
+﻿#include "HttpClient.h"
 #include <QDebug>
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -13,7 +13,12 @@ HttpClient::HttpClient(QObject* parent)
 
 void HttpClient::login(const QString& username)
 {
-    QUrl url("http://localhost:8080/login/" + username);
+    // Codifică username-ul pentru a fi valid într-un URL
+    //QString encodedUsername = QUrl::toPercentEncoding(username);
+
+    // Construiește URL-ul folosind username-ul codificat
+    //QUrl url("http://localhost:8080/login/" + encodedUsername);
+    QUrl url("http://localhost:8080/login/" + QString::fromUtf8(username.toUtf8().toPercentEncoding()));
     QNetworkRequest request(url);
     QNetworkReply* reply = manager->get(request);
 

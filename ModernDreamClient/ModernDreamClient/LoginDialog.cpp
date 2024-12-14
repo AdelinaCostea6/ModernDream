@@ -277,7 +277,7 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent), httpClient(new Http
     mainLayout->addWidget(stackedWidget);
     setLayout(mainLayout);
 
-    connect(loginButton, &QPushButton::clicked, this, &LoginDialog::OnLogin); 
+    connect(loginButton, &QPushButton::clicked, this, &LoginDialog::OnLogin);
     //connect(loginButton, &QPushButton::clicked, this, [this]() { 
     //    QString username = usernameEdit->text();  // Get the username from the QLineEdit
     //    if (!username.isEmpty()) {
@@ -289,8 +289,8 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent), httpClient(new Http
     //        QMessageBox::warning(this, "Login Failed", "Please enter a username.");
     //    }
     //    });
-    connect(httpClient, &HttpClient::loginSuccess, this, &LoginDialog::onLoginSuccess);
-    connect(httpClient, &HttpClient::loginFailure, this, &LoginDialog::onLoginFailure); 
+    //connect(httpClient, &HttpClient::loginSuccess, this, &LoginDialog::onLoginSuccess);
+   // connect(httpClient, &HttpClient::loginFailure, this, &LoginDialog::onLoginFailure); 
 
 
     connect(registerButton, &QPushButton::clicked, this, &LoginDialog::OnRegister);
