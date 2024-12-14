@@ -13,14 +13,25 @@ http::Routing::Routing()
 
 void http::Routing::Run(DatabaseManager& storage)
 {
+	
+	CROW_ROUTE(m_app, "/cors")
+		.methods(crow::HTTPMethod::OPTIONS)
+		([](const crow::request& req) {
+		crow::response res;
+		res.set_header("Access-Control-Allow-Origin", "*");
+		res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+		res.set_header("Access-Control-Allow-Headers", "Content-Type");
+		return res;
+			});
+
 	CROW_ROUTE(m_app, "/login/<string>")([this](const crow::request& req, std::string username) {
 		return LoginRoute(req, username);
 		});
 
-	CROW_ROUTE(m_app, "/register").methods("POST"_method)([this](const crow::request& req) {
+	CROW_ROUTE(m_app, "/register")
+		.methods("POST"_method)([this](const crow::request& req) {
 		return RegisterRoute(req);
-		});
-
+			});
 
 	m_app.port(8080).multithreaded().run();
 }

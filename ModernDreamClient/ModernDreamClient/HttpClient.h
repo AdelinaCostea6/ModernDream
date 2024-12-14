@@ -18,6 +18,12 @@ public:
 
     void registerUser(const QString& username);
 
+signals:
+    void loginSuccess(const QString& username, int score);  // Signal for successful login
+    void registerSuccess();  // Signal for successful registration
+    void loginFailure(const QString& error);  // Signal for failed login
+    void registerFailure(const QString& error);  // Signal for failed registration
+
 private slots:
     void onLoginResponse();
     void onRegisterResponse();

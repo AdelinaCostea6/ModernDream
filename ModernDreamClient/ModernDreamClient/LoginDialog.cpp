@@ -19,7 +19,7 @@ auto LoginDialog::createStorage()
                                    make_column("username", &UserData::username, primary_key())));
 }
 
-LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
+LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent), httpClient(new HttpClient(this))
 {
     
     setWindowTitle("Titan Vanguard - Login");
@@ -290,6 +290,11 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent)
     connect(backToMenuButton, &QPushButton::clicked, [=]() { 
         stackedWidget->setCurrentWidget(menuPage);
         });
+
+    connect(httpClient, &HttpClient::loginSuccess, this, &LoginDialog::onLoginSuccess);
+    connect(httpClient, &HttpClient::registerSuccess, this, &LoginDialog::onRegisterSuccess);
+    connect(httpClient, &HttpClient::loginFailure, this, &LoginDialog::onLoginFailure);
+    connect(httpClient, &HttpClient::registerFailure, this, &LoginDialog::onRegisterFailure);
 }
 
 void LoginDialog::switchToMenu()
@@ -336,7 +341,7 @@ void LoginDialog::OnLogin()
         return;
     }
 
-    auto storage = createStorage();
+    /*auto storage = createStorage();
     storage.sync_schema();
 
     auto user = storage.get_pointer<UserData>(username.toStdString());
@@ -407,14 +412,19 @@ void LoginDialog::OnLogin()
         messageDialog.exec();
 
         return;
-    }
+    }*/
+    httpClient->login(username);
 }
 
 void LoginDialog::OnRegister()
 {
     QString username = usernameEdit->text();
 
-    if (username.isEmpty())
+    if (username.isEmpty()) {
+        showMessageDialog("Username cannot be empty", "red");
+        return;
+    }
+    /*if (username.isEmpty())
     {
         QDialog messageDialog(this);
         messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
@@ -519,6 +529,14 @@ void LoginDialog::OnRegister()
 
     messageDialog.exec();
     return;
+    */
+
+  if (username.isEmpty()) {
+      showMessageDialog("Username cannot be empty", "red");
+    return;
+  }
+
+    httpClient->registerUser(username);
 }
 
 void LoginDialog::onStartGame()
@@ -665,4 +683,62 @@ void LoginDialog::paintEvent(QPaintEvent *event)
     {
         painter.drawPixmap(0, -90, width(), height() + 90, backgroundImage.scaled(width(), height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
     }
+}
+
+
+
+void LoginDialog::onLoginSuccess(const QString& username, int score)
+{
+    showMessageDialog("Welcome back!", "#7fff00");
+    switchToMenu();
+}
+
+void LoginDialog::onRegisterSuccess()
+{
+    showMessageDialog("Successfully registered!", "#7fff00");
+}
+
+
+void LoginDialog::onLoginFailure(const QString& error)
+{
+    showMessageDialog("Login failed: " + error, "red");
+}
+
+void LoginDialog::onRegisterFailure(const QString& error)
+{
+    showMessageDialog("Registration failed: " + error, "red");
+}
+
+void LoginDialog::showMessageDialog(const QString& message, const QString& color)
+{
+    QDialog messageDialog(this);
+    messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+    messageDialog.setStyleSheet("background-color: black;");
+
+    QHBoxLayout* layout = new QHBoxLayout(&messageDialog);
+
+    QLabel* messageLabel = new QLabel(message, &messageDialog);
+    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    messageLabel->setStyleSheet("color: " + color + "; font-weight: bold; font-size: 14px;");
+
+    QPushButton* closeButton = new QPushButton("OK", &messageDialog);
+    closeButton->setStyleSheet(
+        "QPushButton {"
+        "    background-color: white;"
+        "    color: black;"
+        "    border: 2px solid black;"
+        "    border-radius: 5px;"
+        "    padding: 5px;"
+        "    font-family: 'Italic';"
+        "    font-weight: bold;"
+        "}");
+
+    QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
+
+    layout->addWidget(messageLabel);
+    layout->addWidget(closeButton, 0, Qt::AlignCenter);
+
+    messageDialog.setLayout(layout);
+
+    messageDialog.exec();
 }

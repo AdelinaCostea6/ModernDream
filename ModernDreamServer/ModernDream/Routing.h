@@ -15,6 +15,7 @@ namespace http
 
 	private:
 		DatabaseManager m_db;
+		//crow::SimpleApp m_app;
 		crow::SimpleApp m_app;
 	};
 }

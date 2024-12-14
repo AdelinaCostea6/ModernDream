@@ -8,7 +8,7 @@ HttpClient::HttpClient(QObject* parent)
 
 void HttpClient::login(const QString& username)
 {
-    QUrl url("http://127.0.0.1:8080/login/" + username);
+    QUrl url("http://localhost:8080/login/" + username);
     QNetworkRequest request(url);
     QNetworkReply* reply = manager->get(request);
 
@@ -17,7 +17,7 @@ void HttpClient::login(const QString& username)
 
 void HttpClient::registerUser(const QString& username)
 {
-    QUrl url("http://127.0.0.1:8080/register");
+    QUrl url("http://localhost:8080/register");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
@@ -40,14 +40,11 @@ void HttpClient::onLoginResponse()
         QJsonDocument jsonDoc = QJsonDocument::fromJson(responseData);
         if (jsonDoc.isObject()) {
             QJsonObject jsonObj = jsonDoc.object();
-            qDebug() << "Login successful:";
-            qDebug() << "Username:" << jsonObj["username"].toString();
-            qDebug() << "Score:" << jsonObj["score"].toInt();
+            emit loginSuccess(jsonObj["username"].toString(), jsonObj["score"].toInt());
         }
     }
-    else 
-    {
-        qDebug() << "Login failed:" << reply->errorString();
+    else {
+        emit loginFailure(reply->errorString());
     }
 
     reply->deleteLater();
@@ -58,10 +55,10 @@ void HttpClient::onRegisterResponse()
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
 
     if (reply->error() == QNetworkReply::NoError) {
-        qDebug() << "User registered successfully.";
+        emit registerSuccess();
     }
     else {
-        qDebug() << "Registration failed:" << reply->errorString();
+        emit registerFailure(reply->errorString());
     }
 
     reply->deleteLater();

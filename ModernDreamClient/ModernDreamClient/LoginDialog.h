@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QStackedWidget> 
 #include <sqlite_orm/sqlite_orm.h>
+#include "HttpClient.h"
 
 struct UserData
 {
@@ -30,6 +31,7 @@ protected:
 
 private:
    
+    HttpClient* httpClient;
     QLineEdit* usernameEdit;
     QLineEdit* passwordEdit;
     QPushButton* loginButton;
@@ -54,6 +56,11 @@ private slots:
     void onHelicopterSelected(); 
     void onBoatSelected();
     void onCarSelected();
+    void onLoginSuccess(const QString& username, int score);
+    void onRegisterSuccess();
+    void onLoginFailure(const QString& error);
+    void onRegisterFailure(const QString& error);
+    void showMessageDialog(const QString& message, const QString& color);
 
 };
 #endif
