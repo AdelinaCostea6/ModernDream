@@ -20,7 +20,8 @@ auto LoginDialog::createStorage()
                                    make_column("username", &UserData::username, primary_key())));
 }
 
-LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent), httpClient(new HttpClient(this))
+LoginDialog::LoginDialog(QWidget* parent)
+    : QDialog(parent), httpClient(new HttpClient(this))
 {
     
     setWindowTitle("Titan Vanguard - Login");
@@ -278,29 +279,16 @@ LoginDialog::LoginDialog(QWidget *parent) : QDialog(parent), httpClient(new Http
     setLayout(mainLayout);
 
     connect(loginButton, &QPushButton::clicked, this, &LoginDialog::OnLogin);
-    //connect(loginButton, &QPushButton::clicked, this, [this]() { 
-    //    QString username = usernameEdit->text();  // Get the username from the QLineEdit
-    //    if (!username.isEmpty()) {
-    //        httpClient->login(username);  // Call the HttpClient's login function 
-    //        qDebug() << "Attempting to log in with username:" << username; 
-    //    }
-    //    else {
-    //        qDebug() << "Username cannot be empty!";
-    //        QMessageBox::warning(this, "Login Failed", "Please enter a username.");
-    //    }
-    //    });
-    //connect(httpClient, &HttpClient::loginSuccess, this, &LoginDialog::onLoginSuccess);
-   // connect(httpClient, &HttpClient::loginFailure, this, &LoginDialog::onLoginFailure); 
-
-
     connect(registerButton, &QPushButton::clicked, this, &LoginDialog::OnRegister);
+
     connect(singlePlayer, &QPushButton::clicked, [=]()
             { stackedWidget->setCurrentIndex(2); });
     connect(multiPlayer, &QPushButton::clicked, [=]()
             { stackedWidget->setCurrentIndex(2); });
     connect(backToLoginButton, &QPushButton::clicked, [=]() { 
         stackedWidget->setCurrentWidget(loginPage);
-        });  
+        });
+
     connect(helicopterButton, &QPushButton::clicked, this, &LoginDialog::onHelicopterSelected);  
     connect(boatButton, &QPushButton::clicked, this, &LoginDialog::onBoatSelected);
     connect(carButton, &QPushButton::clicked, this, &LoginDialog::onCarSelected);
