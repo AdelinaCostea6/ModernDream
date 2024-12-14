@@ -60,6 +60,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <IncludePath>C:\Qt\6.7.3\msvc2022_64\include\QtNetwork;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Qt\6.7.3\msvc2022_64\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
   </PropertyGroup>
@@ -68,6 +70,9 @@
       <AdditionalOptions>/D _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
+    <Link>
+      <AdditionalDependencies>Qt6Network.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>
@@ -100,6 +105,7 @@
   <ItemGroup>
     <QtRcc Include="ModernDreamClient.qrc" />
     <QtUic Include="ModernDreamClient.ui" />
+    <ClCompile Include="HttpClient.cpp" />
     <ClCompile Include="LoginDialog.cpp" />
     <ClCompile Include="ModernDreamClient.cpp" />
     <ClCompile Include="main.cpp" />
@@ -109,6 +115,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ModernDreamClient.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="HttpClient.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

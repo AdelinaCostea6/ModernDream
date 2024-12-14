@@ -37,12 +37,18 @@
     <ClCompile Include="ModernDreamClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HttpClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="LoginDialog.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="ModernDreamClient.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="HttpClient.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
