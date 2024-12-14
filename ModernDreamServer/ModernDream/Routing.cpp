@@ -1,4 +1,4 @@
-#include "Routing.h"
+﻿#include "Routing.h"
 
 #include "DatabaseManager.h"
 #include <vector>
@@ -14,7 +14,7 @@ http::Routing::Routing()
 void http::Routing::Run(DatabaseManager& storage)
 {
 	
-	CROW_ROUTE(m_app, "/cors")
+	/*CROW_ROUTE(m_app, "/cors")
 		.methods(crow::HTTPMethod::OPTIONS)
 		([](const crow::request& req) {
 		crow::response res;
@@ -30,6 +30,48 @@ void http::Routing::Run(DatabaseManager& storage)
 
 	CROW_ROUTE(m_app, "/register")
 		.methods("POST"_method)([this](const crow::request& req) {
+		return RegisterRoute(req);
+			});
+
+	m_app.port(8080).multithreaded().run();
+	*/
+	CROW_ROUTE(m_app, "/cors")
+		.methods(crow::HTTPMethod::OPTIONS)
+		([](const crow::request& req) {
+		crow::response res;
+		res.set_header("Access-Control-Allow-Origin", "*");  // Permite accesul din orice sursă
+		res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");  // Permite GET, POST și OPTIONS
+		res.set_header("Access-Control-Allow-Headers", "Content-Type");  // Permite Content-Type
+		return res;
+			});
+
+	// Adăugarea CORS pe ruta de login
+	CROW_ROUTE(m_app, "/login/<string>")
+		.methods("GET"_method, "OPTIONS"_method)
+		([this](const crow::request& req, std::string username) {
+		// Verificăm cererea OPTIONS înainte de a procesa GET
+		if (req.method == crow::HTTPMethod::OPTIONS) {
+			crow::response res;
+			res.set_header("Access-Control-Allow-Origin", "*");
+			res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+			res.set_header("Access-Control-Allow-Headers", "Content-Type");
+			return res;
+		}
+		return LoginRoute(req, username);
+			});
+
+	// Adăugarea CORS pe ruta de înregistrare
+	CROW_ROUTE(m_app, "/register")
+		.methods("POST"_method, "OPTIONS"_method)
+		([this](const crow::request& req) {
+		// Verificăm cererea OPTIONS înainte de a procesa POST
+		if (req.method == crow::HTTPMethod::OPTIONS) {
+			crow::response res;
+			res.set_header("Access-Control-Allow-Origin", "*");
+			res.set_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+			res.set_header("Access-Control-Allow-Headers", "Content-Type");
+			return res;
+		}
 		return RegisterRoute(req);
 			});
 
