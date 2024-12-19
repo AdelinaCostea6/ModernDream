@@ -20,6 +20,7 @@ auto LoginDialog::createStorage()
                                    make_column("username", &UserData::username, primary_key())));
 }
 
+
 LoginDialog::LoginDialog(QWidget* parent)
     : QDialog(parent), httpClient(new HttpClient(this))
 {
@@ -313,111 +314,10 @@ void LoginDialog::OnLogin()
 
     if (username.isEmpty())
     {
-        QDialog messageDialog(this);
-        messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-        messageDialog.setStyleSheet("background-color: black;");
-
-        QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
-
-        QLabel *messageLabel = new QLabel("Username cannot be empty", &messageDialog);
-        messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        messageLabel->setStyleSheet("color: red; font-weight: bold;font-size: 14px;");
-
-        QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-        closeButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: white;"
-            "    color: black;"
-            "    border: 2px solid black;"
-            "    border-radius: 5px;"
-            "    padding: 5px;"
-            "    font-family: 'Italic';"
-            "    font-weight: bold;"
-            "}");
-        QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
-
-        layout->addWidget(messageLabel);
-        layout->addWidget(closeButton, 0, Qt::AlignCenter);
-
-        messageDialog.setLayout(layout);
-
-        messageDialog.exec();
-
+        showMessageDialog("Username cannot be empty", "red");
         return;
     }
 
-    /*auto storage = createStorage();
-    storage.sync_schema();
-
-    auto user = storage.get_pointer<UserData>(username.toStdString());
-    if (user)
-    {
-        QDialog messageDialog(this);
-        messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-        messageDialog.setStyleSheet("background-color: black;");
-
-        QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
-
-        QLabel *messageLabel = new QLabel("Welcome back!", &messageDialog);
-        messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        messageLabel->setStyleSheet("color: #7fff00; font-weight: bold;font-size: 14px;");
-
-        QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-        closeButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: white;"
-            "    color: black;"
-            "    border: 2px solid black;"
-            "    border-radius: 5px;"
-            "    padding: 5px;"
-            "    font-family: 'Italic';"
-            "    font-weight: bold;"
-            "}");
-        QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
-
-        layout->addWidget(messageLabel);
-        layout->addWidget(closeButton, 0, Qt::AlignCenter);
-
-        messageDialog.setLayout(layout);
-
-        messageDialog.exec();
-
-        switchToMenu();
-    }
-    else
-    {
-        QDialog messageDialog(this);
-        messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-        messageDialog.setStyleSheet("background-color: black;");
-
-        QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
-
-        QLabel *messageLabel = new QLabel("Invalid username", &messageDialog);
-        messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        messageLabel->setStyleSheet("color: red; font-weight: bold;font-size: 14px;");
-
-        QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-        closeButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: white;"
-            "    color: black;"
-            "    border: 2px solid black;"
-            "    border-radius: 5px;"
-            "    padding: 5px;"
-            "    font-family: 'Italic';"
-            "    font-weight: bold;"
-            "}");
-        QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
-
-        layout->addWidget(messageLabel);
-        layout->addWidget(closeButton, 0, Qt::AlignCenter);
-
-        messageDialog.setLayout(layout);
-
-        messageDialog.exec();
-
-        return;
-    }*/
     httpClient->login(username);
 }
 
@@ -425,121 +325,11 @@ void LoginDialog::OnRegister()
 {
     QString username = usernameEdit->text();
 
-    if (username.isEmpty()) {
+    if (username.isEmpty()) 
+    {
         showMessageDialog("Username cannot be empty", "red");
         return;
     }
-    /*if (username.isEmpty())
-    {
-        QDialog messageDialog(this);
-        messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-        messageDialog.setStyleSheet("background-color: black;");
-
-        QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
-
-        QLabel *messageLabel = new QLabel("Username cannot be empty", &messageDialog);
-        messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        messageLabel->setStyleSheet("color: red; font-weight: bold;font-size: 14px;");
-
-        QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-        closeButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: white;"
-            "    color: black;"
-            "    border: 2px solid black;"
-            "    border-radius: 5px;"
-            "    padding: 5px;"
-            "    font-family: 'Italic';"
-            "    font-weight: bold;"
-            "}");
-        QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
-
-        layout->addWidget(messageLabel);
-        layout->addWidget(closeButton, 0, Qt::AlignCenter);
-
-        messageDialog.setLayout(layout);
-
-        messageDialog.exec();
-
-        return;
-    }
-
-    auto storage = createStorage();
-    storage.sync_schema();
-
-    if (storage.get_pointer<UserData>(username.toStdString()))
-    {
-        QDialog messageDialog(this);
-        messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-        messageDialog.setStyleSheet("background-color: black;");
-
-        QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
-
-        QLabel *messageLabel = new QLabel("Username already exists", &messageDialog);
-        messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-        messageLabel->setStyleSheet("color: red; font-weight: bold;font-size: 14px;");
-
-        QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-        closeButton->setStyleSheet(
-            "QPushButton {"
-            "    background-color: white;"
-            "    color: black;"
-            "    border: 2px solid black;"
-            "    border-radius: 5px;"
-            "    padding: 5px;"
-            "    font-family: 'Italic';"
-            "    font-weight: bold;"
-            "}");
-        QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
-
-        layout->addWidget(messageLabel);
-        layout->addWidget(closeButton, 0, Qt::AlignCenter);
-
-        messageDialog.setLayout(layout);
-
-        messageDialog.exec();
-        return;
-    }
-
-    UserData newUser{username.toStdString()};
-    storage.replace(newUser);
-
-    QDialog messageDialog(this);
-    messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-    messageDialog.setStyleSheet("background-color: black;");
-
-    QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
-
-    QLabel *messageLabel = new QLabel("Successfully registered!", &messageDialog);
-    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    messageLabel->setStyleSheet("color: #7fff00; font-weight: bold;font-size: 14px;");
-
-    QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-    closeButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: white;"
-        "    color: black;"
-        "    border: 2px solid black;"
-        "    border-radius: 5px;"
-        "    padding: 5px;"
-        "    font-family: 'Italic';"
-        "    font-weight: bold;"
-        "}");
-    QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
-
-    layout->addWidget(messageLabel);
-    layout->addWidget(closeButton, 0, Qt::AlignCenter);
-
-    messageDialog.setLayout(layout);
-
-    messageDialog.exec();
-    return;
-    */
-
-  if (username.isEmpty()) {
-      showMessageDialog("Username cannot be empty", "red");
-    return;
-  }
 
     httpClient->registerUser(username);
 }

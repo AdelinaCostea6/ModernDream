@@ -1,4 +1,4 @@
-#include "DatabaseManager.h"
+﻿#include "DatabaseManager.h"
 
 DatabaseManager::DatabaseManager()
 {
@@ -13,15 +13,16 @@ void DatabaseManager::AddUser(const DataUser& user)
 
 std::optional<DataUser> DatabaseManager::GetUser(const std::string& username)
 {
-	try
-	{
-		auto user = m_db.get<DataUser>(username);
-		return user;
-	}
-	catch (const std::system_error&)
-	{
-		return std::nullopt;
-	}
+    try 
+    {
+
+        auto user = m_db.get<DataUser>(username);
+        return user;
+    }
+    catch (const std::system_error& e) 
+    {
+        return std::nullopt;
+    }
 }
 
 std::vector<DataUser> DatabaseManager::GetAllUsers()
