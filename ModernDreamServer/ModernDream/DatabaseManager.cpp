@@ -2,41 +2,40 @@
 
 DatabaseManager::DatabaseManager()
 {
-	m_db.sync_schema();
+    m_db.sync_schema();
 }
 
-void DatabaseManager::AddUser(const DataUser& user)
+void DatabaseManager::AddUser(const DataUser &user) noexcept
 {
 
-	m_db.replace(user);
+    m_db.replace(user);
 }
 
-std::optional<DataUser> DatabaseManager::GetUser(const std::string& username)
+std::optional<DataUser> DatabaseManager::GetUser(const std::string &username) noexcept
 {
-    try 
+    try
     {
 
         auto user = m_db.get<DataUser>(username);
         return user;
     }
-    catch (const std::system_error& e) 
+    catch (const std::system_error &e)
     {
         return std::nullopt;
     }
 }
 
-std::vector<DataUser> DatabaseManager::GetAllUsers()
+std::vector<DataUser> DatabaseManager::GetAllUsers() noexcept
 {
-	return m_db.get_all<DataUser>();
+    return m_db.get_all<DataUser>();
 }
 
-void DatabaseManager::UpdateUser(const DataUser& user)
+void DatabaseManager::UpdateUser(const DataUser &user) noexcept
 {
-	m_db.update(user);
-
+    m_db.update(user);
 }
 
-void DatabaseManager::DeleteUser(const std::string& username)
+void DatabaseManager::DeleteUser(const std::string &username) noexcept
 {
-	m_db.remove<DataUser>(username);
+    m_db.remove<DataUser>(username);
 }
