@@ -9,7 +9,7 @@ class Bomb
 private:
 	static constexpr int radius = 10;
 	Coordinates position;
-	bool isActive;
+	bool isActive = true;
 
 public:
 	explicit Bomb(Coordinates position);
