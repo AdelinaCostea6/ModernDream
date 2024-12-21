@@ -7,15 +7,13 @@ using Coordinates = std::pair<int, int>;
 class Bomb
 {
 private:
-	static const int radius = 10;
+	static constexpr int radius = 10;
 	Coordinates position;
 	bool isActive;
-	
+
 public:
-	Bomb(Coordinates position);
-	Coordinates GetPosition() const;
-	bool GetStatus() const;
-	void SetStatus(bool status); 
-
-
+	explicit Bomb(Coordinates position);
+	[[nodiscard]] constexpr Coordinates GetPosition() const noexcept;
+	[[nodiscard]] constexpr bool GetStatus() const noexcept;
+	void SetStatus(bool status) noexcept;
 };
