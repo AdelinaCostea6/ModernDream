@@ -47,10 +47,34 @@ private:
 #include <vector>
 #include <random>
 #include <utility>
+#include <array> 
+
 
 
 
 class MAPGEN_API MapGenerator {
+private:
+
+    void InitializeMapMatrix();
+    void GenerateClusters();
+    void PlaceConnectorWalls();
+    void SetPlayerStartPosition(int numPlayers);
+    void PlaceBombs(); 
+
+    /*std::pair<int, int> size;
+    std::vector<std::vector<int>> mapMatrix;*/
+    static const size_t kHeightG = 15;
+    static const size_t kWidthG = 15;
+    std::array<std::array<int, kWidthG>, kHeightG> mapMatrix;
+
+
+    // Members to hold raw data for walls and bombs
+    std::vector<std::pair<int, int>> wallPositions;
+    std::vector<int> wallDurabilities;
+    std::vector<bool> wallDestructibleFlags;
+
+    std::vector<std::pair<int, int>> bombPositions;
+    std::vector<bool> bombStatuses;
 public:
     enum MapTile
     {
@@ -62,7 +86,7 @@ public:
     };
 
     MapGenerator();
-    MapGenerator(std::pair<int, int> mapSize);
+    //MapGenerator(std::pair<int, int> mapSize); 
     ~MapGenerator();
 
     void GenerateMap(int numPlayers);
@@ -74,22 +98,13 @@ public:
 
     std::vector<std::pair<int, int>> GetBombPositions() const;
     std::vector<bool> GetBombStatuses() const;
-private:
 
-    void InitializeMapMatrix();
-    void GenerateClusters();
-    void PlaceConnectorWalls();
-    void SetPlayerStartPosition(int numPlayers);
-    void PlaceBombs();
+    size_t GetHeightG() const;
 
-    std::pair<int, int> size;
-    std::vector<std::vector<int>> mapMatrix;
+    // Get the width of the map
+    size_t GetWidthG() const;
 
-    // Members to hold raw data for walls and bombs
-    std::vector<std::pair<int, int>> wallPositions;        // Wall positions
-    std::vector<int> wallDurabilities;                     // Wall durability
-    std::vector<bool> wallDestructibleFlags;               // Flags for destructibility
+    // Get the map matrix
+    const std::array<std::array<int, kWidthG>, kHeightG>& GetMapMatrix() const; 
 
-    std::vector<std::pair<int, int>> bombPositions;        // Bomb positions
-    std::vector<bool> bombStatuses; 
 };

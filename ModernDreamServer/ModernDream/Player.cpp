@@ -36,8 +36,8 @@ void Player::Movement(Map& mapMatrix)
             return;
         }
 
-        if (newX >= 0 && newX < mapMatrix.GetSize().first &&
-            newY >= 0 && newY < mapMatrix.GetSize().second)
+        if (newX >= 0 && newX < mapMatrix.GetHeight() &&
+            newY >= 0 && newY < mapMatrix.GetWidth())
         {
             if (mapMatrix.IsMovable(newX, newY))
             {

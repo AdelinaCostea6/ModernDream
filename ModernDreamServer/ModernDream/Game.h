@@ -15,7 +15,7 @@ private:
 
 public:
     Game( std::vector<Wall> walls,  std::vector<Bomb> bombs,  std::vector<Player> players);
-    Map GetMap();
+    Map& GetMap();
     std::vector<Player> GetPlayers();
     std::vector<Wall> GetWalls();
     std::vector<Bomb> GetBombs();

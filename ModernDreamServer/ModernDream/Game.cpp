@@ -12,7 +12,7 @@ Game::Game( std::vector<Wall> walls,  std::vector<Bomb> bombs,  std::vector<Play
     this->bombs = bombs;  
     this->players = players; 
 }
-Map Game::GetMap()
+Map& Game::GetMap()
 {
     return map;
 }
@@ -116,34 +116,75 @@ void Game::CheckAndApplyWeaponUpgrade()
     }
 }
 
+//void Game::TriggerBomb(int x, int y)
+//{
+//    Wall *wall = map.GetWallAt(x, y);
+//    if (wall != nullptr && wall->IsDestructible())
+//    {
+//        Bomb *bomb = map.GetBombAt(x, y);
+//        if (bomb != nullptr && !bomb->GetStatus())
+//        {
+//            bomb->SetStatus(true);
+//            std::cout << "A bomb was triggered at (" << x << " , " << y << ")" << std::endl;
+//        }
+//        for (Wall &otherWall : map.GetWalls())
+//        {
+//            double distance = std::sqrt(std::pow(otherWall.GetPosition().first - x, 2) + std::pow(otherWall.GetPosition().second - y, 2));
+//            if (distance <= 10.0 && otherWall.IsDestructible())
+//            {
+//                otherWall.Destroy();
+//                map.SetFreePosition(otherWall.GetPosition().first, otherWall.GetPosition().second);
+//            }
+//        }
+//        for (Player &player : players)
+//        {
+//            double distance = std::sqrt(std::pow(player.GetPosition().first - x, 2) + std::pow(player.GetPosition().second - y, 2));
+//            if (distance <= 10.0)
+//            {
+//                player.ResetPosition();
+//                std::cout << "The player " << player.GetName() << "was hit by the explosion\n";
+//            }
+//        }
+//    }
+//}
 void Game::TriggerBomb(int x, int y)
 {
-    Wall *wall = map.GetWallAt(x, y);
-    if (wall != nullptr && wall->IsDestructible())
+    Wall* wall = map.GetWallAt(x, y);
+    if (wall == nullptr || !wall->IsDestructible()) {
+        return;  // Early return if there's no destructible wall
+    }
+
+    Bomb* bomb = map.GetBombAt(x, y)->get();  
+    if (bomb == nullptr || bomb->GetStatus()) {
+        return;  // Early return if there's no bomb or if the bomb is already triggered
+    }
+
+    // Trigger the bomb
+    bomb->SetStatus(true);
+    std::cout << "A bomb was triggered at (" << x << " , " << y << ")" << std::endl;
+
+    // Process the affected walls
+    for (const auto& otherWall : map.GetWalls())
     {
-        Bomb *bomb = map.GetBombAt(x, y);
-        if (bomb != nullptr && !bomb->GetStatus())
+        double distance = std::sqrt(std::pow(otherWall->GetPosition().first - x, 2) +
+            std::pow(otherWall->GetPosition().second - y, 2));
+        if (distance <= 10.0 && otherWall->IsDestructible())
         {
-            bomb->SetStatus(true);
-            std::cout << "A bomb was triggered at (" << x << " , " << y << ")" << std::endl;
+            otherWall->Destroy();
+            map.SetFreePosition(otherWall->GetPosition().first, otherWall->GetPosition().second);
         }
-        for (Wall &otherWall : map.GetWalls())
+    }
+
+    // Process the players
+    for (Player& player : players)
+    {
+        double distance = std::sqrt(std::pow(player.GetPosition().first - x, 2) +
+            std::pow(player.GetPosition().second - y, 2));
+        if (distance <= 10.0)
         {
-            double distance = std::sqrt(std::pow(otherWall.GetPosition().first - x, 2) + std::pow(otherWall.GetPosition().second - y, 2));
-            if (distance <= 10.0 && otherWall.IsDestructible())
-            {
-                otherWall.Destroy();
-                map.SetFreePosition(otherWall.GetPosition().first, otherWall.GetPosition().second);
-            }
-        }
-        for (Player &player : players)
-        {
-            double distance = std::sqrt(std::pow(player.GetPosition().first - x, 2) + std::pow(player.GetPosition().second - y, 2));
-            if (distance <= 10.0)
-            {
-                player.ResetPosition();
-                std::cout << "The player " << player.GetName() << "was hit by the explosion\n";
-            }
+            player.ResetPosition();
+            std::cout << "The player " << player.GetName() << " was hit by the explosion\n";
         }
     }
 }
+

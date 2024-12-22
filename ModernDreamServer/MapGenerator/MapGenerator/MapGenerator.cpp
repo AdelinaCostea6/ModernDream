@@ -5,11 +5,9 @@
 #include <iostream>
 
 
-MapGenerator::MapGenerator():size(10,10)
-{
-}
-MapGenerator::MapGenerator(std::pair<int, int> size) : size(size) {
-}
+MapGenerator::MapGenerator() {
+    InitializeMapMatrix(); 
+} 
 
 void MapGenerator::GenerateMap(int numPlayers)
 {
@@ -21,9 +19,17 @@ void MapGenerator::GenerateMap(int numPlayers)
     DisplayMap();
   
 }
-
+//
+//void MapGenerator::InitializeMapMatrix() {
+//    mapMatrix.resize(size.first, std::vector<int>(size.second, FreeSpace));
+//}
 void MapGenerator::InitializeMapMatrix() {
-    mapMatrix.resize(size.first, std::vector<int>(size.second, FreeSpace));
+    
+    for (size_t i = 0; i < MapGenerator::kHeightG; ++i) {
+        for (size_t j = 0; j < MapGenerator::kWidthG; ++j) {
+            mapMatrix[i][j] = FreeSpace;
+        }
+    }
 }
 
 void MapGenerator::GenerateClusters() {
@@ -35,8 +41,8 @@ void MapGenerator::GenerateClusters() {
     std::uniform_int_distribution<> wallTypeDist(0, 1);
 
     for (int cluster = 0; cluster < numClusters; cluster++) {
-        int startY = std::uniform_int_distribution<>(2, size.first - 4)(gen);
-        int startX = std::uniform_int_distribution<>(2, size.second - 4)(gen);
+        int startY = std::uniform_int_distribution<>(2,MapGenerator::kHeightG /*size.first*/ - 4)(gen);
+        int startX = std::uniform_int_distribution<>(2, MapGenerator::kWidthG/*size.second*/ - 4)(gen);
 
         int clusterHeight = clusterSizeDist(gen);
         int clusterWidth = clusterSizeDist(gen);
@@ -44,7 +50,7 @@ void MapGenerator::GenerateClusters() {
         bool canPlace = true;
         for (int x = startX - 1; x <= startX + clusterWidth && canPlace; x++) {
             for (int y = startY - 1; y <= startY + clusterHeight && canPlace; y++) {
-                if (x >= 0 && x < size.first && y >= 0 && y < size.second) {
+                if (x >= 0 && x < MapGenerator::kHeightG && y >= 0 && y < MapGenerator::kWidthG) {
                     if (mapMatrix[x][y] != FreeSpace) {
                         canPlace = false;
                     }
@@ -54,8 +60,8 @@ void MapGenerator::GenerateClusters() {
 
         if (canPlace) {
             bool isHollow = std::uniform_int_distribution<>(0, 1)(gen);
-            for (int x = startX; x < startX + clusterWidth && x < size.first - 1; x++) {
-                for (int y = startY; y < startY + clusterHeight && y < size.second - 1; y++) {
+            for (int x = startX; x < startX + clusterWidth && x < MapGenerator::kHeightG - 1; x++) {
+                for (int y = startY; y < startY + clusterHeight && y < MapGenerator::kWidthG - 1; y++) {
                     if (!isHollow || x == startX || x == startX + clusterWidth - 1 ||
                         y == startY || y == startY + clusterHeight - 1) {
                         mapMatrix[x][y] = DestructibleWall;
@@ -76,8 +82,8 @@ void MapGenerator::PlaceConnectorWalls() {
     std::uniform_int_distribution<> connectorDist(0, 3);
     std::uniform_int_distribution<> wallTypeDist(0, 1);
 
-    for (int x = 1; x < size.first - 1; x++) {
-        for (int y = 1; y < size.second - 1; y++) {
+    for (int x = 1; x < MapGenerator::kHeightG - 1; x++) {
+        for (int y = 1; y < MapGenerator::kWidthG - 1; y++) {
             if (mapMatrix[x][y] == FreeSpace) {
                 bool hasNearbyWalls = false;
                 for (int dx = -1; dx <= 1; dx++) {
@@ -104,8 +110,8 @@ void MapGenerator::SetPlayerStartPosition(int numPlayers) {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::vector<std::pair<int, int>> startPositions = {
-        {0, 0}, {size.first - 1, 0},
-        {0, size.second - 1}, {size.first - 1, size.second - 1}
+        {0, 0}, {MapGenerator::kHeightG - 1, 0},
+        {0, MapGenerator::kWidthG - 1}, {MapGenerator::kHeightG - 1, MapGenerator::kWidthG - 1}
     };
     std::shuffle(startPositions.begin(), startPositions.end(), gen);
 
@@ -144,7 +150,7 @@ void MapGenerator::PlaceBombs() {
 }
 
 void MapGenerator::DisplayMap() const {
-    std::cout << "Map generated with size (" << size.first << ", " << size.second << ")." << std::endl;
+    std::cout << "Map generated with size (" << MapGenerator::kHeightG << ", " << MapGenerator::kWidthG << ")." << std::endl;
     for (const auto& row : mapMatrix) {
         for (int cell : row) {
             std::cout << cell << " ";
@@ -170,5 +176,13 @@ std::vector<std::pair<int, int>> MapGenerator::GetBombPositions() const {
 
 std::vector<bool> MapGenerator::GetBombStatuses() const {
     return bombStatuses;
+}
+size_t MapGenerator::GetHeightG() const
+{
+    return kHeightG;
+}
+size_t MapGenerator::GetWidthG() const
+{
+    return kWidthG; 
 }
 MapGenerator::~MapGenerator() {}
