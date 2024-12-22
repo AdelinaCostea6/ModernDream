@@ -1,20 +1,19 @@
 #include "Bomb.h"
-#include <utility>
 
 Bomb::Bomb(Coordinates position)
-	: position(std::move(position)), isActive(true) {}
+	: position(position), isActive(true) {}
 
-[[nodiscard]] constexpr Coordinates Bomb::GetPositions() const noexcept
+Coordinates Bomb::GetPosition() const
 {
 	return position;
 }
 
-[[nodiscard]] constexpr bool Bomb::GetStatus() const noexcept
+bool Bomb::GetStatus() const
 {
 	return isActive;
 }
 
-void Bomb::SetStatus(bool status) noexcept
+void Bomb::SetStatus(bool status)
 {
 	isActive = status;
 }
