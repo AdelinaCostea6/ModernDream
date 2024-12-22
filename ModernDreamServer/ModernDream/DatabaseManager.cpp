@@ -5,13 +5,13 @@ DatabaseManager::DatabaseManager()
     m_db.sync_schema();
 }
 
-void DatabaseManager::AddUser(const DataUser &user) noexcept
+void DatabaseManager::AddUser(const DataUser &user)
 {
 
     m_db.replace(user);
 }
 
-std::optional<DataUser> DatabaseManager::GetUser(const std::string &username) noexcept
+std::optional<DataUser> DatabaseManager::GetUser(const std::string &username)
 {
     try
     {
@@ -25,17 +25,17 @@ std::optional<DataUser> DatabaseManager::GetUser(const std::string &username) no
     }
 }
 
-std::vector<DataUser> DatabaseManager::GetAllUsers() noexcept
+std::vector<DataUser> DatabaseManager::GetAllUsers()
 {
     return m_db.get_all<DataUser>();
 }
 
-void DatabaseManager::UpdateUser(const DataUser &user) noexcept
+void DatabaseManager::UpdateUser(const DataUser &user)
 {
     m_db.update(user);
 }
 
-void DatabaseManager::DeleteUser(const std::string &username) noexcept
+void DatabaseManager::DeleteUser(const std::string &username)
 {
     m_db.remove<DataUser>(username);
 }

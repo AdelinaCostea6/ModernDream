@@ -25,11 +25,11 @@ class DatabaseManager
 
 public:
 	DatabaseManager();
-	void AddUser(const DataUser &user) noexcept;
-	std::optional<DataUser> GetUser(const std::string &username) noexcept;
-	std::vector<DataUser> GetAllUsers() noexcept;
-	void UpdateUser(const DataUser &user) noexcept;
-	void DeleteUser(const std::string &username) noexcept;
+	void AddUser(const DataUser &user);
+	std::optional<DataUser> GetUser(const std::string &username);
+	std::vector<DataUser> GetAllUsers();
+	void UpdateUser(const DataUser &user);
+	void DeleteUser(const std::string &username);
 
 private:
 	const std::string kDbFile{"Titans_vanguard.sqlite"};
