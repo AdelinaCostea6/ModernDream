@@ -4,25 +4,26 @@
 #include <utility>
 #include "Player.h"
 #include "Wall.h"
+#include "Bullet.h"
 
 using Coordinates = std::pair<int, int>;
 
 class Bullet
 {
 private:
-	Coordinates position{0, 0};
-	float speed = 0.25f;
-	bool isActive = true;
+	Coordinates position;
+	float speed;
+	bool isActive;
 
 public:
-	Bullet() noexcept = default;
-	explicit Bullet(Coordinates position) noexcept;
-	void SetIsInactive() noexcept;
-	void SetPosition(const Coordinates &pos) noexcept;
-	[[nodiscard]] float GetSpeed() const noexcept;
-	[[nodiscard]] Coordinates GetPosition() const noexcept;
-	[[nodiscard]] bool GetIsInactive() noexcept;
-	void SetDoubleSpeed() noexcept;
+	Bullet();
+	Bullet(Coordinates position);
+	void SetIsInactive();
+	void SetPosition(const Coordinates &pos);
+	float GetSpeed() const;
+	Coordinates GetPosition() const;
+	bool GetIsInactive();
+	void SetDoubleSpeed();
 	void Movement();
 	bool CheckCollisionWithPlayers(std::vector<class Player> &players);
 	bool CheckCollisionwithWalls(std::vector<Wall> &walls);

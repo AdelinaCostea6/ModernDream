@@ -1,34 +1,35 @@
 #include "Bullet.h"
 
-Bullet::Bullet(Coordinates position) noexcept
-	: position(std::move(position)) {}
+Bullet::Bullet() : position({0, 0}), speed(0.25), isActive(true) {}
 
-void Bullet::SetIsInactive() noexcept
+Bullet::Bullet(Coordinates position) : position(position), speed(0.25), isActive(true) {}
+
+void Bullet::SetIsInactive()
 {
 	isActive = false;
 }
 
-void Bullet::SetPosition(const Coordinates &pos) noexcept
+void Bullet::SetPosition(const Coordinates &pos)
 {
 	position = pos;
 }
 
-[[nodiscard]] float Bullet::GetSpeed() const noexcept
+float Bullet::GetSpeed() const
 {
 	return speed;
 }
 
-[[nodiscard]] Coordinates Bullet::GetPosition() const noexcept
+Coordinates Bullet::GetPosition() const
 {
 	return position;
 }
 
-[[nodiscard]] bool Bullet::GetIsInactive() noexcept
+bool Bullet::GetIsInactive()
 {
 	return isActive;
 }
 
-void Bullet::SetDoubleSpeed() noexcept
+void Bullet::SetDoubleSpeed()
 {
 	speed *= 2;
 }
