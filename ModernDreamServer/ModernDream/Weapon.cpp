@@ -1,23 +1,28 @@
 #include "Weapon.h"
+#include <chrono>
 
-Weapon::Weapon(float speed):speed(speed),waitingTime(4.0f),lastShot(0.0f)
-{}
+Weapon::Weapon(float speed) : speed(speed), waitingTime(4.0f), lastShot(std::chrono::steady_clock::now())
+{
+}
 
 void Weapon::Shoot(/*std::vector<Bullet*>& playerBullets*/)
 {
 	if (CanShoot())
 	{
-		lastShot = (float)std::time(nullptr);
-		//playerBullets.emplace_back(new Bullet(position));
+		lastShot = std::chrono::steady_clock::now();
+		// playerBullets.emplace_back(new Bullet(position));
 	}
 }
 
-bool Weapon::CanShoot()
+bool Weapon::CanShoot() const noexcept
 {
-	return (lastShot + waitingTime) <= (float)std::time(nullptr);
+	using namespace std::chrono;
+	auto now = steady_clock::now();
+	auto durationSinceLastShot = duration_cast<seconds>(now - lastShot).count();
+	return durationSinceLastShot >= waitingTime;
 }
 
-void Weapon::UpgradeWaitingTime(float reduction)
+void Weapon::UpgradeWaitingTime(float reduction) noexcept
 {
 	waitingTime -= reduction;
 	if (waitingTime < 1.0f)
@@ -25,22 +30,24 @@ void Weapon::UpgradeWaitingTime(float reduction)
 		waitingTime = 1.0f;
 	}
 }
-void Weapon::UpgradeSpeed(float increase)
+void Weapon::UpgradeSpeed(float increase) noexcept
 {
 	speed += increase;
 }
 
-float Weapon::GetSpeed()
+float Weapon::GetSpeed() const noexcept
 {
 	return speed;
 }
 
-float Weapon::GetWaitingTime()
+float Weapon::GetWaitingTime() const noexcept
 {
 	return waitingTime;
 }
 
-float Weapon::GetLastShot()
+float Weapon::GetLastShot() const noexcept
 {
-	return lastShot;
+	using namespace std::chrono;
+	auto durationSinceLastShot = duration_cast<seconds>(steady_clock::now() - lastShot).count();
+	return static_cast<float>(durationSinceLastShot);
 }
