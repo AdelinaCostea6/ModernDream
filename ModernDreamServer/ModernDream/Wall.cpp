@@ -1,51 +1,36 @@
 #include "Wall.h"
 
-Wall::Wall(std::pair<int, int> position, WallType type, int durability, bool destructible, Bomb* bomb)
-    : position(position), type(type), durability(durability), destructible(destructible), bomb(bomb) {}
+Wall::Wall(std::pair<std::uint16_t, std::uint16_t> position, WallType type, std::uint16_t durability, bool destructible, std::optional<Bomb> bomb)
+    : position(position), type(type), durability(durability), destructible(destructible), bomb(std::move(bomb)) {}
 
-
-const std::pair<int, int>& Wall::GetPosition() 
-{
-    return position;
-}
-
-WallType Wall::GetType() 
-{
+WallType Wall::GetType() const noexcept {
     return type;
 }
 
-int Wall::GetDurability()
-{
+const std::pair<std::uint16_t, std::uint16_t>& Wall::GetPosition() const noexcept {
+    return position;
+}
+
+std::uint16_t Wall::GetDurability() const noexcept {
     return durability;
 }
 
-bool Wall::GetDestructible()
-{
+bool Wall::GetDestructible() const noexcept {
     return destructible;
 }
 
-void Wall::ReduceDurability()
-{
-    if (IsDestructible() == false)
-    {
-        return;
+void Wall::ReduceDurability() noexcept {
+    if (destructible && durability > 0) {
+        --durability;
     }
-    if (destructible)
-    {
-        durability--;
-    }
-    if (durability < 0)
-    {
+}
+
+bool Wall::IsDestructible() const noexcept {
+    return destructible;
+}
+
+void Wall::Destroy() noexcept {
+    if (destructible) {
         durability = 0;
     }
-}
-
-bool Wall::IsDestructible()
-{
-    return type == WallType::Destructible;
-}
-
-void Wall::Destroy()
-{
-    std::cout << "The wall at (" << position.first << " , " << position.second << ")" << "was destroyed\n";
 }

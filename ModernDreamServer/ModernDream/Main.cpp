@@ -2,7 +2,6 @@
 #include <conio.h>
 #include <thread>
 #include <chrono>
-#include "Bomb.h"
 #include "Bullet.h"
 #include "Wall.h"
 #include "Player.h"
@@ -11,6 +10,7 @@
 #include "LoginSystem.h"
 #include "DatabaseManager.h"
 #include "Routing.h"
+import bomb;
 #include "../MapGenerator/MapGenerator/MapGenerator.h"
 
 int main()

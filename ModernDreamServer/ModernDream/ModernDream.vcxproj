@@ -107,6 +107,8 @@
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <AdditionalOptions>/D _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>C:\Users\d\OneDrive\Desktop\ModernDream\ModernDreamServer\MapGenerator;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <EnableModules>true</EnableModules>
+      <BuildStlModules>true</BuildStlModules>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,7 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Bomb.cpp" />
+    <ClCompile Include="bomb.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="DatabaseManager.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -143,7 +145,9 @@
     <ClCompile Include="Weapon.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Bomb.h" />
+    <ClCompile Include="bomb.cppm">
+      <FileType>Document</FileType>
+    </ClCompile>
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="DatabaseManager.h" />
     <ClInclude Include="DataUser.h" />

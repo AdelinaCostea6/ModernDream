@@ -1,4 +1,4 @@
-#include "Bomb.h"
+module bomb;
 
 Bomb::Bomb(Coordinates position)
 	: position(position), isActive(true) {}

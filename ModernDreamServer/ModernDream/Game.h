@@ -2,7 +2,7 @@
 #include "Map.h"
 #include "Player.h"
 #include "Wall.h"
-#include "Bomb.h"
+import bomb;
 
 class Game
 {

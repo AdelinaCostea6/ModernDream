@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <random>
 #include <utility>
-#include "Bomb.h"
 #include "Wall.h"
+import bomb;
 
 
 class Map

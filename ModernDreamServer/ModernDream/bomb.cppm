@@ -1,10 +1,9 @@
-#pragma once
-#include <iostream>
+export module bomb;
 #include <utility>
 
-using Coordinates = std::pair<int, int>;
+export using Coordinates = std::pair<int, int>;
 
-class Bomb
+export class Bomb
 {
 private:
 	static const int radius = 10;

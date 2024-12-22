@@ -1,31 +1,31 @@
 #pragma once
-#include <iostream>
+#include <cstdint>
+#include <optional>
 #include <utility>
-#include "Bomb.h"
+import bomb;
 
-enum class WallType 
+enum class WallType : std::uint8_t 
 {
-
-    NonDestructible = 0,  
-    Destructible = 1  
+    NonDestructible = 0,
+    Destructible = 1
 };
-class Wall
-{
-private:
-    std::pair<int,int> position;
-    WallType type;
-    int durability;
-    bool destructible;
-    Bomb* bomb;
 
+class Wall {
+private:
+    std::pair<std::uint16_t, std::uint16_t> position;
+    WallType type;
+    std::uint16_t durability; 
+    bool destructible;
+    std::optional<Bomb> bomb; 
 
 public:
-    Wall(std::pair<int, int> position, WallType type, int durability, bool destructible, Bomb* bomb=nullptr);
-    WallType GetType();
-    const std::pair<int,int>& GetPosition();  
-    int GetDurability();
-    bool GetDestructible();
-    void ReduceDurability();
-    bool IsDestructible();
-    void Destroy();
+    Wall(std::pair<std::uint16_t, std::uint16_t> position, WallType type, std::uint16_t durability, bool destructible, std::optional<Bomb> bomb = std::nullopt);
+
+    WallType GetType() const noexcept;
+    const std::pair<std::uint16_t, std::uint16_t>& GetPosition() const noexcept;
+    std::uint16_t GetDurability() const noexcept;
+    bool GetDestructible() const noexcept;
+    void ReduceDurability() noexcept;
+    bool IsDestructible() const noexcept;
+    void Destroy() noexcept;
 };
