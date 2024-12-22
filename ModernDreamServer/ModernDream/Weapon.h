@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include <chrono>
 #include "Player.h"
 #include <vector>
 #include <string>
@@ -10,16 +9,16 @@ class Weapon
 private:
 	float speed;
 	float waitingTime;
-	std::chrono::steady_clock::time_point lastShot;
+	float lastShot;
 
 public:
-	Weapon() noexcept = default;
-	Weapon(float speed) noexcept;
+	Weapon() = default;
+	Weapon(float speed);
 	void Shoot(/*std::vector<Bullet*>& playerBullets*/);
-	bool CanShoot() noexcept;
-	void UpgradeWaitingTime(float reduction) noexcept;
-	void UpgradeSpeed(float increase) noexcept;
-	float GetSpeed() const noexcept;
-	float GetWaitingTime() const noexcept;
-	float GetLastShot() const noexcept;
+	bool CanShoot();
+	void UpgradeWaitingTime(float reduction);
+	void UpgradeSpeed(float increase);
+	float GetSpeed();
+	float GetWaitingTime();
+	float GetLastShot();
 };
