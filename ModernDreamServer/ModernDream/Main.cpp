@@ -102,7 +102,7 @@ int main() {
         if (_kbhit()) {
             char ch = _getch();
             if (ch == 'q') {
-                std::cout << "Exiting movement test.";
+                std::cout << "Exiting movement test.\n";
                     break;
             }
         }
@@ -134,13 +134,13 @@ int main() {
 
 
     std::cout << "Testing winner determination:\n";
-    //game.DetermineWinner();
+    game.DetermineWinner();
 
     std::cout << "Testing weapon upgrades:\n";
-    //players[0]->SetScore(10);
-   // game.CheckAndApplyWeaponUpgrade();
+    players[0]->SetScore(10);
+    game.CheckAndApplyWeaponUpgrade();
 
-   /* std::cout << "Testing bomb activation:\n";
+    std::cout << "Testing bomb activation:\n";
     for (const auto& wall : game.GetWalls()) {
         if (wall->IsDestructible()) {
             auto pos = wall->GetPosition();
@@ -148,7 +148,7 @@ int main() {
             game.TriggerBomb(pos.first, pos.second);
             break;
         }
-    }*/
+    }
 
     return 0;
 }

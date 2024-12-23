@@ -11,7 +11,7 @@ void Player::Login()
 
 void Player::Movement(Map& mapMatrix)
 {
-    if (_kbhit())
+    if (_kbhit()) 
     {
         char key = _getch();
         int newX = position.first;
@@ -20,16 +20,16 @@ void Player::Movement(Map& mapMatrix)
         switch (key)
         {
         case 'w':
-            newX -= 1;
+            newX -= 1; 
             break;
         case 's':
-            newX += 1;
+            newX += 1; 
             break;
         case 'a':
-            newY -= 1;
+            newY -= 1; 
             break;
         case 'd':
-            newY += 1;
+            newY += 1; 
             break;
         default:
             std::cout << "WRONG! USE W, A, S, D FOR MOVEMENT.\n";
@@ -56,8 +56,8 @@ void Player::Movement(Map& mapMatrix)
             std::cout << "Cannot move outside map boundaries!\n";
         }
     }
-    
 }
+
 void Player::Shoot() 
 {
 	weapon->Shoot(); 
