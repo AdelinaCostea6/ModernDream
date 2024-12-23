@@ -9,7 +9,7 @@ class Player
 {
 private:
 	std::string name;
-	std::shared_ptr<Weapon> weapon;
+	std::unique_ptr<Weapon> weapon;
 	int points{ 0 };
 	int lifes{ 3 };
 	std::pair<int, int> position{ 0, 0 };
@@ -17,7 +17,7 @@ private:
 	int score{ 0 };
 	bool speedBoostUsed{ false };
 public:
-    Player(std::string name, std::shared_ptr<Weapon> weapon, std::pair<int, int> position);
+    Player(std::string name, std::unique_ptr<Weapon> weapon, std::pair<int, int> position);
 
     void Login();
     void Movement(Map& mapMatrix);

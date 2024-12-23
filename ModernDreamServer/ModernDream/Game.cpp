@@ -6,60 +6,65 @@ Game::Game(Map map, std::vector<Player> players)
     this->players = players;
 }
 */
-//Game::Game(std::vector<std::shared_ptr<Wall>> walls,
-//    std::vector<std::shared_ptr<Bomb>> bombs,
-//    std::vector<std::shared_ptr<Player>> players)
-//{
-//    this->walls = std::move(walls);
-//    this->bombs = { std::make_shared<Bomb>(*bombs[0]), std::make_shared<Bomb>(*bombs[1]), std::make_shared<Bomb>(*bombs[2]) };
-//    for (size_t i = 0; i < players.size(); ++i)
-//    {
-//        this->players[i] = players[i]; 
-//    }
-//}
 
 
+
+Game::Game(std::vector<std::unique_ptr<Wall>> walls, std::array<std::unique_ptr<Bomb>, 3> bombs, std::array<std::unique_ptr<Player>, 4> players)
+    :walls(std::move(walls)), bombs(std::move(bombs)), players(std::move(players))
+{
+}
 
 const Map& Game::GetMap() const
 {
     return map;
 }
 
-std::vector<std::shared_ptr<Player>> Game::GetPlayers() const
+std::array<std::unique_ptr<Player>, 4>& Game::GetPlayers()
 {
-    return { players.begin(), players.end() };
+    return players;
 }
 
-const std::vector<std::shared_ptr<Wall>>& Game::GetWalls() const
+std::vector<std::unique_ptr<Wall>>& Game::GetWalls()
 {
-    return walls; 
+    return walls;
 }
 
-std::vector<std::shared_ptr<Bomb>> Game::GetBombs() const
+const std::array<std::unique_ptr<Bomb>, 3>& Game::GetBombs() const
 {
-    return { bombs.begin(), bombs.end() }; 
+    return bombs;
 }
+
 
 void Game::DetermineWinner()
 {
-    if (players.empty())
+    
+    if (std::all_of(players.begin(), players.end(), [](const std::unique_ptr<Player>& player) { return !player; }))
     {
         std::cout << "No players in the game." << std::endl;
         return;
     }
-    std::sort(players.begin(), players.end(), [](const std::shared_ptr<Player>& a, const std::shared_ptr<Player>& b)
+
+    std::vector<Player*> sortedPlayers;
+    for (const auto& player : players)
+    {
+        if (player) 
         {
-            return a->GetPoints() > b->GetPoints(); 
+            sortedPlayers.push_back(player.get());
+        }
+    }
+    std::sort(sortedPlayers.begin(), sortedPlayers.end(), [](const Player* a, const Player* b)
+        {
+            return a->GetPoints() > b->GetPoints();
         });
 
     WinGame();
-    if (players.size() > 1)
+    if (sortedPlayers.size() > 1)
     {
         FinishSecond();
     }
 
     std::cout << "Game Results:" << std::endl;
-    for (const auto& player : players)
+    for (const auto* player : sortedPlayers)
     {
         std::cout << "Player " << player->GetName()
             << ": Points = " << player->GetPoints()
@@ -68,50 +73,36 @@ void Game::DetermineWinner()
 }
 
 
+
 void Game::WinGame()
 {
-    std::vector<std::shared_ptr<Player>> players = GetPlayers(); 
-
-    if (players.empty())
-    {
-        std::cout << "No players in the game!" << std::endl;
-        return;
-    }
-
-    auto winner = std::max_element(players.begin(), players.end(), [](const std::shared_ptr<Player>& a, const std::shared_ptr<Player>& b)
+    auto maxPlayer = std::max_element(players.begin(), players.end(), [](const std::unique_ptr<Player>& a, const std::unique_ptr<Player>& b)
         {
-            return a->GetScore() < b->GetScore(); 
+            return a->GetScore() < b->GetScore();
         });
 
-    if (winner != players.end() && *winner)
+    if (maxPlayer != players.end() && *maxPlayer)
     {
-        (*winner)->SetPoints((*winner)->GetPoints() + 200);
-        (*winner)->SetScore((*winner)->GetScore() + 2);
+        (*maxPlayer)->SetPoints((*maxPlayer)->GetPoints() + 200);
+        (*maxPlayer)->SetScore((*maxPlayer)->GetScore() + 2);
 
-        std::cout << "Player " << (*winner)->GetName() << " won the game and received 200 bonus points and 2 score points. "
-            << "Total points: " << (*winner)->GetPoints() << ", Total score: " << (*winner)->GetScore() << std::endl;
+        std::cout << "Player " << (*maxPlayer)->GetName() << " won the game and received 200 bonus points and 2 score points. "
+            << "Total points: " << (*maxPlayer)->GetPoints() << ", Total score: " << (*maxPlayer)->GetScore() << std::endl;
     }
 }
 
 
+
 void Game::FinishSecond()
 {
-    std::vector<std::shared_ptr<Player>> players = GetPlayers(); 
-
-    if (players.size() < 2)
-    {
-        std::cout << "Not enough players to determine who finished second!" << std::endl;
-        return;
-    }
-
-    auto first = std::max_element(players.begin(), players.end(), [](const std::shared_ptr<Player>& a, const std::shared_ptr<Player>& b)
+    auto first = std::max_element(players.begin(), players.end(), [](const std::unique_ptr<Player>& a, const std::unique_ptr<Player>& b)
         {
-            return a->GetScore() < b->GetScore(); 
+            return a->GetScore() < b->GetScore();
         });
 
-    auto second = std::max_element(players.begin(), players.end(), [&](const std::shared_ptr<Player>& a, const std::shared_ptr<Player>& b)
+    auto second = std::max_element(players.begin(), players.end(), [&](const std::unique_ptr<Player>& a, const std::unique_ptr<Player>& b)
         {
-            if (a == *first) return true; 
+            if (a == *first) return true;
             if (b == *first) return false;
             return a->GetScore() < b->GetScore();
         });
@@ -122,6 +113,7 @@ void Game::FinishSecond()
         std::cout << "Player " << (*second)->GetName() << " finished second and received 1 score point. Total score: " << (*second)->GetScore() << std::endl;
     }
 }
+
 
 
 void Game::CheckAndApplyWeaponUpgrade()
@@ -145,18 +137,17 @@ void Game::TriggerBomb(int x, int y)
     Wall* wall = map.GetWallAt(x, y);
     if (wall == nullptr || !wall->IsDestructible())
     {
-        return; 
+        return;
     }
 
-    auto bombIt = std::find_if(bombs.begin(), bombs.end(), [&](const std::shared_ptr<Bomb>& bomb) {
+    auto bombIt = std::find_if(bombs.begin(), bombs.end(), [&](const std::unique_ptr<Bomb>& bomb) {
         return bomb && bomb->GetPosition() == Coordinates{ x, y };
         });
 
     if (bombIt == bombs.end() || (*bombIt)->GetStatus())
     {
-        return; 
+        return;
     }
-
 
     (*bombIt)->SetStatus(true);
     std::cout << "A bomb was triggered at (" << x << " , " << y << ")" << std::endl;
@@ -174,13 +165,15 @@ void Game::TriggerBomb(int x, int y)
 
     for (const auto& playerPtr : players)
     {
-        double distance = std::sqrt(std::pow(playerPtr->GetPosition().first - x, 2) +
-            std::pow(playerPtr->GetPosition().second - y, 2));
-        if (distance <= 10.0)
+        if (playerPtr)
         {
-            playerPtr->ResetPosition();
-            std::cout << "The player " << playerPtr->GetName() << " was hit by the explosion\n";
+            double distance = std::sqrt(std::pow(playerPtr->GetPosition().first - x, 2) +
+                std::pow(playerPtr->GetPosition().second - y, 2));
+            if (distance <= 10.0)
+            {
+                playerPtr->ResetPosition();
+                std::cout << "The player " << playerPtr->GetName() << " was hit by the explosion\n";
+            }
         }
     }
 }
-
