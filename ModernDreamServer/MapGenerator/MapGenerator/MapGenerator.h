@@ -105,6 +105,8 @@ public:
     size_t GetWidthG() const;
 
     // Get the map matrix
-    const std::array<std::array<int, kWidthG>, kHeightG>& GetMapMatrix() const; 
+    const std::array<std::array<int, kWidthG>, kHeightG>& GetMapMatrix() const {
+        return mapMatrix;
+    }
 
 };

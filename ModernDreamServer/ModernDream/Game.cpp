@@ -6,17 +6,19 @@ Game::Game(Map map, std::vector<Player> players)
     this->players = players;
 }
 */
-Game::Game(std::vector<std::shared_ptr<Wall>> walls,
-    std::vector<std::shared_ptr<Bomb>> bombs,
-    std::vector<std::shared_ptr<Player>> players)
-{
-    this->walls = std::move(walls);
-    this->bombs = { std::make_shared<Bomb>(*bombs[0]), std::make_shared<Bomb>(*bombs[1]), std::make_shared<Bomb>(*bombs[2]) };
-    for (size_t i = 0; i < players.size(); ++i)
-    {
-        this->players[i] = players[i]; 
-    }
-}
+//Game::Game(std::vector<std::shared_ptr<Wall>> walls,
+//    std::vector<std::shared_ptr<Bomb>> bombs,
+//    std::vector<std::shared_ptr<Player>> players)
+//{
+//    this->walls = std::move(walls);
+//    this->bombs = { std::make_shared<Bomb>(*bombs[0]), std::make_shared<Bomb>(*bombs[1]), std::make_shared<Bomb>(*bombs[2]) };
+//    for (size_t i = 0; i < players.size(); ++i)
+//    {
+//        this->players[i] = players[i]; 
+//    }
+//}
+
+
 
 const Map& Game::GetMap() const
 {

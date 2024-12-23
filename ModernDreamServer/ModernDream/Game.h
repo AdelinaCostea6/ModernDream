@@ -13,9 +13,11 @@ private:
     std::array<std::shared_ptr<Bomb>, 3> bombs;     
 
 public:
-    Game(std::vector<std::shared_ptr<Wall>> walls,
-        std::vector<std::shared_ptr<Bomb>> bombs,
-        std::vector<std::shared_ptr<Player>> players);
+    Game(std::vector<std::unique_ptr<Wall>> walls,
+        std::array<std::unique_ptr<Bomb>, 3> bombs,
+        std::vector<std::shared_ptr<Player>> players)
+        : walls(std::move(walls)), bombs(std::move(bombs)), players(std::move(players)) {
+    }
 
     const Map& GetMap() const;
     std::vector<std::shared_ptr<Player>> GetPlayers() const;
