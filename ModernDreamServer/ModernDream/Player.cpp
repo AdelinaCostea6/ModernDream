@@ -1,7 +1,7 @@
 ﻿#include "Player.h"
 #include <conio.h>
 
-Player::Player(std::string name, std::shared_ptr<class Weapon> weapon, std::pair<int, int> position)
+Player::Player(std::string name, std::shared_ptr<Weapon> weapon, std::pair<int, int> position)
 	: name(name), weapon(std::move(weapon)), position(position), initialPosition(position), points(0), lifes(3),score(0) {
 }
 void Player::Login()
@@ -69,7 +69,7 @@ void Player::ResetPosition()
 	position = initialPosition;
 }
 
-void Player::hit()
+void Player::Hit()
 {
 	lifes--;
 	std::cout << "Player :" << name << "Was hit and lost a life.Lifes remaining:" << lifes << std::endl;
@@ -100,12 +100,12 @@ std::pair<int, int> Player::GetPosition() const
 	return position;
 }
 
-const std::string& Player::GetName()
+const std::string& Player::GetName() const
 {
 	return name;
 }
 
-int Player::GetScore()  
+int Player::GetScore() const
 {
 	return score;
 }

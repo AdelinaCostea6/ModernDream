@@ -1,6 +1,5 @@
 #pragma once
 #include <iostream>
-#include "Player.h"
 #include <vector>
 #include <string>
 #include "Bullet.h"
@@ -8,17 +7,17 @@ class Weapon
 {
 private:
 	float speed;
-	float waitingTime;
-	float lastShot;
+	float waitingTime{ 4.0f };
+	float lastShot{ 0.0f };
 
 public:
 	Weapon() = default;
 	Weapon(float speed);
-	void Shoot(/*std::vector<Bullet*>& playerBullets*/);
-	bool CanShoot();
+	void Shoot();
+	bool CanShoot() const;
 	void UpgradeWaitingTime(float reduction);
 	void UpgradeSpeed(float increase);
-	float GetSpeed();
-	float GetWaitingTime();
-	float GetLastShot();
+	float GetSpeed() const;
+	float GetWaitingTime() const;
+	float GetLastShot() const;
 };

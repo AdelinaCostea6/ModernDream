@@ -136,7 +136,6 @@
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="DatabaseManager.cpp" />
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="LoginSystem.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Player.cpp" />
@@ -152,7 +151,6 @@
     <ClInclude Include="DatabaseManager.h" />
     <ClInclude Include="DataUser.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="LoginSystem.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Routing.h" />

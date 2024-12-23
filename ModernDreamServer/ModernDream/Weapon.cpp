@@ -1,10 +1,10 @@
 #include "Weapon.h"
 
-Weapon::Weapon(float speed) : speed(speed), waitingTime(4.0f), lastShot(0.0f)
+Weapon::Weapon(float speed) : speed(speed)
 {
 }
 
-void Weapon::Shoot(/*std::vector<Bullet*>& playerBullets*/)
+void Weapon::Shoot()
 {
 	if (CanShoot())
 	{
@@ -13,7 +13,7 @@ void Weapon::Shoot(/*std::vector<Bullet*>& playerBullets*/)
 	}
 }
 
-bool Weapon::CanShoot()
+bool Weapon::CanShoot() const
 {
 	return (lastShot + waitingTime) <= (float)std::time(nullptr);
 }
@@ -31,17 +31,17 @@ void Weapon::UpgradeSpeed(float increase)
 	speed += increase;
 }
 
-float Weapon::GetSpeed()
+float Weapon::GetSpeed() const
 {
 	return speed;
 }
 
-float Weapon::GetWaitingTime()
+float Weapon::GetWaitingTime() const
 {
 	return waitingTime;
 }
 
-float Weapon::GetLastShot()
+float Weapon::GetLastShot() const
 {
 	return lastShot;
 }

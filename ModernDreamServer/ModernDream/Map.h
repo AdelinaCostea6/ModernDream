@@ -32,6 +32,6 @@ public:
     Wall* GetWallAt(int x, int y);
     std::unique_ptr<Bomb>* GetBombAt(int x, int y); 
     void SetFreePosition(int x, int y);
-    void SetWalls(const std::vector<std::unique_ptr<Wall>>& newWalls);
+    void SetWalls( std::vector<std::unique_ptr<Wall>> newWalls);
     void SetBombs(const std::array<std::unique_ptr<Bomb>, 3>& newBombs);  
 };

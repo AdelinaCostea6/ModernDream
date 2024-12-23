@@ -117,9 +117,9 @@ void Map::SetFreePosition(int x, int y)
     mapMatrix[x][y] = 1;
 }
 
-void Map::SetWalls(const std::vector<std::unique_ptr<Wall>>& newWalls) 
+void Map::SetWalls(std::vector<std::unique_ptr<Wall>> newWalls) 
 {
-    walls = newWalls; 
+    walls = std::move(newWalls);
 }
 
 //void Map::SetBombs(const std::array<std::unique_ptr<Bomb>, 3>&& newBombs)

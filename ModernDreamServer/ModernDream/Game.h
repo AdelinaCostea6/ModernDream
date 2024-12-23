@@ -8,21 +8,22 @@ class Game
 {
 private:
     Map map;
-    std::vector<Player> players;
-    std::vector<Wall>walls;
-    std::vector<Bomb>bombs;
-   
+    std::array<std::shared_ptr<Player>, 4> players; 
+    std::vector<std::shared_ptr<Wall>> walls;       
+    std::array<std::shared_ptr<Bomb>, 3> bombs;     
 
 public:
-    Game( std::vector<Wall> walls,  std::vector<Bomb> bombs,  std::vector<Player> players);
-    Map& GetMap();
-    std::vector<Player> GetPlayers();
-    std::vector<Wall> GetWalls();
-    std::vector<Bomb> GetBombs();
+    Game(std::vector<std::shared_ptr<Wall>> walls,
+        std::vector<std::shared_ptr<Bomb>> bombs,
+        std::vector<std::shared_ptr<Player>> players);
+
+    const Map& GetMap() const;
+    std::vector<std::shared_ptr<Player>> GetPlayers() const;
+    const std::vector<std::shared_ptr<Wall>>& GetWalls() const;
+    std::vector<std::shared_ptr<Bomb>> GetBombs() const;
     void DetermineWinner();
     void WinGame();
     void FinishSecond();
     void CheckAndApplyWeaponUpgrade();
     void TriggerBomb(int x, int y);
-
 };
