@@ -437,7 +437,37 @@ void LoginDialog::onHelicopterSelected()
 
 void LoginDialog::onBoatSelected()
 {
-    QMessageBox::information(this, "Map Selection", "You selected: Boat Map");
+    QDialog messageDialog(this);
+    messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+    messageDialog.setStyleSheet("background-color: 	black;");
+
+    QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
+
+    QLabel *messageLabel = new QLabel("You selected Boatnage Circuit", &messageDialog);
+    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    messageLabel->setStyleSheet("color: red; font-weight: bold; font-size: 18px;");
+
+    QPushButton *closeButton = new QPushButton("OK", &messageDialog);
+    closeButton->setStyleSheet(
+        "QPushButton {"
+        "    background-color: white;"
+        "    color: black;"
+        "    border: 2px solid black;"
+        "    border-radius: 5px;"
+        "    padding: 5px;"
+        "    font-family: 'Italic';"
+        "    font-weight: bold;"
+        "}");
+    QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
+
+    layout->addWidget(messageLabel);
+    layout->addWidget(closeButton, 0, Qt::AlignCenter);
+
+    messageDialog.setLayout(layout);
+
+    messageDialog.exec();
+
+    return;
 }
 
 void LoginDialog::onCarSelected()
