@@ -409,6 +409,60 @@ void LoginDialog::onOptions()
     return;
 }
 
+void LoginDialog::onCarMap()
+{
+    QWidget *onCarMapPage = new QWidget();
+    QVBoxLayout *onCarMapLayout = new QVBoxLayout();
+    onCarMapLayout->setAlignment(Qt::AlignCenter);
+
+    QFrame *onCarMapFrame = new QFrame(this);
+    QVBoxLayout *carMapFrameLayout = new QVBoxLayout(carMapFrame);
+    carMapFrameLayout->setAlignment(Qt::AlignCenter);
+
+    QLabel *carMapLabel = new QLabel("Car Map", this);
+    carMapLabel->setFixedSize(600, 400);
+    carMapLabel->setStyleSheet(
+        "background-color: rgba(30, 30, 30, 0.8);"
+        "border: 2px solid #BF00FF;"
+        "border-radius: 10px;"
+        "color: white;"
+        "font-size: 16px;"
+        "font-weight: bold;"
+        "text-align: center;"
+        "padding: 10px;")
+
+        QPushButton *backToMapOptionsButton = new QPushButton("BACK", this);
+    backToMapOptionsButton->setFixedSize(100, 50);
+    backToMapOptionsButton->setStyleSheet(
+        "QPushButton {"
+        "    background-color: black;"
+        "    color: #BF00FF;"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 5px;"
+        "    padding: 5px;"
+        "    font-size: 12px;"
+        "    font-family: 'Italic';"
+        "    font-weight: bold;"
+        "}");
+
+    carMapFrameLayout->addWidget(carMapLabel);
+    carMapFrameLayout->addWidget(backToMapOptionsButton);
+
+    carMapLayout->addStretch();
+    carMapLayout->addWidget(carMapFrame);
+    carMapLayout->addStretch();
+
+    carMapPage->setLayout(carMapLayout);
+
+    stackedWidget->addWidget(carMapPage);
+
+    connect(backToMapOptionsButton, &QPushButton::clicked, [=]()
+            { stackedWidget->setCurrentWidget(mapOptionsPage); });
+
+    connect(carButton, &QPushButton::clicked, [=]()
+            { stackedWidget->setCurrentWidget(carMapPage); });
+}
+
 void LoginDialog::onHelicopterSelected()
 {
     QDialog messageDialog(this);
