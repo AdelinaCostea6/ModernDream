@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QLineEdit>
+#include <qframe.h>
 #include "HttpClient.h"
 
 auto LoginDialog::createStorage()
@@ -292,7 +293,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(httpClient, &HttpClient::loginFailure, this, &LoginDialog::onLoginFailure);
     connect(httpClient, &HttpClient::registerFailure, this, &LoginDialog::onRegisterFailure);
 
-    QWidget *carGamePage = new QWidget();
+   /* QWidget *carGamePage = new QWidget();
     QVBoxLayout *carGameLayout = new QVBoxLayout();
     carGameLayout->setAlignment(Qt::AlignCenter);
 
@@ -326,7 +327,7 @@ LoginDialog::LoginDialog(QWidget *parent)
 
     stackedWidget->addWidget(carGamePage);
 
-    connect(startGameButton, &QPushButton::clicked, this, &LoginDialog::onStartGame);
+    connect(startGameButton, &QPushButton::clicked, this, &LoginDialog::onStartGame);*/
 }
 
 void LoginDialog::switchToMenu()
@@ -360,16 +361,16 @@ void LoginDialog::OnRegister()
     httpClient->registerUser(username);
 }
 
-void LoginDialog::onStartGame()
-{
-    int playerCount = playerCountSpinBox->value();
-    QString selectedMap = mapComboBox->currentText();
-
-    QMessageBox::information(this, "Game Start",
-                             QString("Starting game with %1 players on map: %2")
-                                 .arg(playerCount)
-                                 .arg(selectedMap));
-}
+//void LoginDialog::onStartGame()
+//{
+//    int playerCount = playerCountSpinBox->value();
+//    QString selectedMap = mapComboBox->currentText();
+//
+//    QMessageBox::information(this, "Game Start",
+//                             QString("Starting game with %1 players on map: %2")
+//                                 .arg(playerCount)
+//                                 .arg(selectedMap));
+//}
 
 void LoginDialog::onOptions()
 {
@@ -409,59 +410,59 @@ void LoginDialog::onOptions()
     return;
 }
 
-void LoginDialog::onCarMap()
-{
-    QWidget *onCarMapPage = new QWidget();
-    QVBoxLayout *onCarMapLayout = new QVBoxLayout();
-    onCarMapLayout->setAlignment(Qt::AlignCenter);
-
-    QFrame *onCarMapFrame = new QFrame(this);
-    QVBoxLayout *carMapFrameLayout = new QVBoxLayout(carMapFrame);
-    carMapFrameLayout->setAlignment(Qt::AlignCenter);
-
-    QLabel *carMapLabel = new QLabel("Car Map", this);
-    carMapLabel->setFixedSize(600, 400);
-    carMapLabel->setStyleSheet(
-        "background-color: rgba(30, 30, 30, 0.8);"
-        "border: 2px solid #BF00FF;"
-        "border-radius: 10px;"
-        "color: white;"
-        "font-size: 16px;"
-        "font-weight: bold;"
-        "text-align: center;"
-        "padding: 10px;")
-
-        QPushButton *backToMapOptionsButton = new QPushButton("BACK", this);
-    backToMapOptionsButton->setFixedSize(100, 50);
-    backToMapOptionsButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: black;"
-        "    color: #BF00FF;"
-        "    border: 2px solid #BF00FF;"
-        "    border-radius: 5px;"
-        "    padding: 5px;"
-        "    font-size: 12px;"
-        "    font-family: 'Italic';"
-        "    font-weight: bold;"
-        "}");
-
-    carMapFrameLayout->addWidget(carMapLabel);
-    carMapFrameLayout->addWidget(backToMapOptionsButton);
-
-    carMapLayout->addStretch();
-    carMapLayout->addWidget(carMapFrame);
-    carMapLayout->addStretch();
-
-    carMapPage->setLayout(carMapLayout);
-
-    stackedWidget->addWidget(carMapPage);
-
-    connect(backToMapOptionsButton, &QPushButton::clicked, [=]()
-            { stackedWidget->setCurrentWidget(mapOptionsPage); });
-
-    connect(carButton, &QPushButton::clicked, [=]()
-            { stackedWidget->setCurrentWidget(carMapPage); });
-}
+//void LoginDialog::onCarMap() 
+//{
+//    QWidget *onCarMapPage = new QWidget();
+//    QVBoxLayout *onCarMapLayout = new QVBoxLayout();
+//    onCarMapLayout->setAlignment(Qt::AlignCenter);
+//
+//    QFrame *onCarMapFrame = new QFrame(this);
+//    QVBoxLayout *carMapFrameLayout = new QVBoxLayout(carMapFrame);
+//    carMapFrameLayout->setAlignment(Qt::AlignCenter);
+//
+//    QLabel *carMapLabel = new QLabel("Car Map", this);
+//    carMapLabel->setFixedSize(600, 400);
+//    carMapLabel->setStyleSheet(
+//        "background-color: rgba(30, 30, 30, 0.8);"
+//        "border: 2px solid #BF00FF;"
+//        "border-radius: 10px;"
+//        "color: white;"
+//        "font-size: 16px;"
+//        "font-weight: bold;"
+//        "text-align: center;"
+//        "padding: 10px;");
+//        
+//        QPushButton *backToMapOptionsButton = new QPushButton("BACK", this);
+//    backToMapOptionsButton->setFixedSize(100, 50);
+//    backToMapOptionsButton->setStyleSheet(
+//        "QPushButton {"
+//        "    background-color: black;"
+//        "    color: #BF00FF;"
+//        "    border: 2px solid #BF00FF;"
+//        "    border-radius: 5px;"
+//        "    padding: 5px;"
+//        "    font-size: 12px;"
+//        "    font-family: 'Italic';"
+//        "    font-weight: bold;"
+//        "}");
+//
+//    carMapFrameLayout->addWidget(carMapLabel);
+//    carMapFrameLayout->addWidget(backToMapOptionsButton);
+//
+//    carMapLayout->addStretch();
+//    carMapLayout->addWidget(carMapFrame);
+//    carMapLayout->addStretch();
+//
+//    carMapPage->setLayout(carMapLayout);
+//
+//    stackedWidget->addWidget(carMapPage);
+//
+//    connect(backToMapOptionsButton, &QPushButton::clicked, [=]()
+//            { stackedWidget->setCurrentWidget(mapOptionsPage); });
+//
+//    connect(carButton, &QPushButton::clicked, [=]()
+//            { stackedWidget->setCurrentWidget(carMapPage); });
+//}
 
 void LoginDialog::onHelicopterSelected()
 {
@@ -535,42 +536,42 @@ void LoginDialog::onBoatSelected()
 
 void LoginDialog::onCarSelected()
 {
-    QDialog messageDialog(this);
-    messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-    messageDialog.setStyleSheet("background-color: 	black;");
-
-    QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
-
-    QLabel *messageLabel = new QLabel("You selected Carnage Circuit", &messageDialog);
-    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    messageLabel->setStyleSheet("color: red; font-weight: bold; font-size: 18px;");
-
-    QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-    closeButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: white;"
-        "    color: black;"
-        "    border: 2px solid black;"
-        "    border-radius: 5px;"
-        "    padding: 5px;"
-        "    font-family: 'Italic';"
-        "    font-weight: bold;"
-        "}");
-    QObject::connect(closeButton, &QPushButton::clicked, [&]())
-    {
-        messageDialog.accept();
-        stackedWidget->setCurrentIndex(3);
-        carGameStackedWidget->setCurrentIndex(0);
-    }
-
-    layout->addWidget(messageLabel);
-    layout->addWidget(closeButton, 0, Qt::AlignCenter);
-
-    messageDialog.setLayout(layout);
-
-    messageDialog.exec();
-
-    return;
+//    QDialog messageDialog(this);
+//    messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
+//    messageDialog.setStyleSheet("background-color: 	black;");
+//
+//    QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
+//
+//    QLabel *messageLabel = new QLabel("You selected Carnage Circuit", &messageDialog);
+//    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+//    messageLabel->setStyleSheet("color: red; font-weight: bold; font-size: 18px;");
+//
+//    QPushButton *closeButton = new QPushButton("OK", &messageDialog);
+//    closeButton->setStyleSheet(
+//        "QPushButton {"
+//        "    background-color: white;"
+//        "    color: black;"
+//        "    border: 2px solid black;"
+//        "    border-radius: 5px;"
+//        "    padding: 5px;"
+//        "    font-family: 'Italic';"
+//        "    font-weight: bold;"
+//        "}");
+//    QObject::connect(closeButton, &QPushButton::clicked, [&]())
+//    {
+//        messageDialog.accept();
+//        stackedWidget->setCurrentIndex(3);
+//        carGameStackedWidget->setCurrentIndex(0);
+//    }
+//
+//    layout->addWidget(messageLabel);
+//    layout->addWidget(closeButton, 0, Qt::AlignCenter);
+//
+//    messageDialog.setLayout(layout);
+//
+//    messageDialog.exec();
+//
+//    return;
 }
 
 void LoginDialog::paintEvent(QPaintEvent *event)

@@ -50,7 +50,7 @@ private:
 private slots:
     void OnLogin();
     void OnRegister();
-    void onStartGame();
+    //void onStartGame();
     void onOptions();
     void onHelicopterSelected();
     void onBoatSelected();
