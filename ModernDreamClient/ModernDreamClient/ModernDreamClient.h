@@ -7,7 +7,13 @@
 #include <QSpinBox>
 #include <QComboBox>
 #include <QPushButton>
-
+#include <qlistwidget.h>
+#include <qprogressbar.h>
+enum class GameMap {
+    CAR,
+    HELICOPTER,
+    BOAT
+};
 class ModernDreamClient : public QMainWindow
 {
     Q_OBJECT
@@ -21,6 +27,22 @@ private:
     QComboBox* mapComboBox;
     QPushButton* startGameButton;
 
+    void setupWaitingRoom();
+    void updateWaitingRoom(int current, int required);
+
+    QWidget* waitingRoomWidget;
+    QLabel* waitingStatusLabel;
+    QProgressBar* playerProgress;  
+    QListWidget* playerList; 
+    QString currentUsername;
+
+    HttpClient* httpClient;
+
 private slots:
-    void OnStartGame();
+    void OnStartGame(GameMap mapType, const QString& username); 
+
+    void onJoinGameSuccess(const QString& sessionId, int current, int required);
+    void onPlayerJoined(const QString& username, int current, int required);
+    void onPlayerLeft(const QString& username, int current, int required);
+    void onGameReady(const QString& sessionId, const QJsonArray& players);
 };

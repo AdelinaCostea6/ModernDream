@@ -15,8 +15,11 @@ public:
     explicit HttpClient(QObject* parent = nullptr);
 
     void login(const QString& username);
-
     void registerUser(const QString& username);
+
+    void joinGame(const QString& username, const QString& mapType, int requiredPlayers);
+    void checkGameStatus(const QString& sessionId);
+    void leaveGame(const QString& sessionId);
 
 signals:
     void loginSuccess(const QString& username, int score);  
@@ -24,12 +27,25 @@ signals:
     void loginFailure(const QString& error);  
     void registerFailure(const QString& error);  
 
+    void joinGameSuccess(const QString& sessionId, int currentPlayers, int requiredPlayers);
+    void joinGameFailure(const QString& error);
+    void gameReady(const QString& sessionId, const QJsonArray& players);
+    void playerJoined(const QString& username, int currentPlayers, int requiredPlayers);
+    void playerLeft(const QString& username, int currentPlayers, int requiredPlayers);
+
 private slots:
     void onLoginResponse();
     void onRegisterResponse();
 
+    void onJoinGameResponse();
+    void onCheckStatusResponse();
+    void onLeaveGameResponse();
+
 private:
     QNetworkAccessManager* manager;
+
+    QTimer* statusCheckTimer; 
+    QString currentSessionId; 
 };
 
 #endif  // HTTPCLIENT_H
