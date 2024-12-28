@@ -12,12 +12,7 @@
 #include <QStackedWidget>
 #include <sqlite_orm/sqlite_orm.h>
 #include "HttpClient.h"
-
-struct UserData
-{
-    std::string username;
-    std::string password;
-};
+#include "ModernDreamClient.h"
 
 class LoginDialog : public QDialog
 {
@@ -32,7 +27,6 @@ protected:
 private:
     HttpClient *httpClient;
     QLineEdit *usernameEdit;
-    QLineEdit *passwordEdit;
     QPushButton *loginButton;
     QPushButton *registerButton;
 
@@ -42,6 +36,7 @@ private:
     QWidget *loginView;
     QWidget *menuView;
     QStackedWidget *stackedWidget;
+    ModernDreamClient* modernDreamClient;
 
     auto createStorage();
 
@@ -60,5 +55,12 @@ private slots:
     void onLoginFailure(const QString &error);
     void onRegisterFailure(const QString &error);
     void showMessageDialog(const QString &message, const QString &color);
+    void onJoinGameSuccess(const QString& sessionId, int currentPlayers, int requiredPlayers);
+    void onJoinGameFailure(const QString& error);
+
+signals:
+    void switchToWaitingRoom(const QString& sessionId, int currentPlayers, int requiredPlayers);
+
+
 };
 #endif

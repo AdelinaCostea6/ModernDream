@@ -12,6 +12,8 @@ private:
 
 public:
 	Weapon() = default;
+	Weapon(Weapon&&) noexcept = default;
+	Weapon& operator=(Weapon&&) noexcept = default;
 	Weapon(float speed);
 	void Shoot();
 	bool CanShoot() const;

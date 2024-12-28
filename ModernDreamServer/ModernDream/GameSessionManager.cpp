@@ -1,17 +1,29 @@
 ﻿#include "GameSessionManager.h"
 #include <stdexcept>
-#include <iostream>
 #include <random>
-#include <memory>
+#include <iostream>
+
+// Constructor de mutare
+GameSession::GameSession(GameSession&& other) noexcept
+    : sessionId(std::move(other.sessionId)),
+    requiredPlayers(other.requiredPlayers),
+    players(std::move(other.players)),
+    isReady(other.isReady) {}
+
+// Operator de atribuire prin mutare
+GameSession& GameSession::operator=(GameSession&& other) noexcept {
+    if (this != &other) {
+        sessionId = std::move(other.sessionId);
+        requiredPlayers = other.requiredPlayers;
+        players = std::move(other.players);
+        isReady = other.isReady;
+    }
+    return *this;
+}
 
 std::string GameSessionManager::CreateSession(int requiredPlayers) {
     std::string sessionId = std::to_string(rand());
-    sessions[sessionId] = GameSession{
-        sessionId,
-        requiredPlayers,
-        std::map<std::string, std::unique_ptr<Player>>{},
-        false
-    };
+    sessions.emplace(sessionId, GameSession(sessionId, requiredPlayers));
     return sessionId;
 }
 
@@ -21,13 +33,11 @@ bool GameSessionManager::JoinSession(const std::string& sessionId, const std::st
         auto& session = it->second;
 
         if (session.players.find(username) == session.players.end()) {
-            
             auto weapon = std::make_unique<Weapon>();
             auto player = std::make_unique<Player>(username, std::move(weapon), std::make_pair(0, 0));
 
             session.players[username] = std::move(player);
 
-            // Marchează sesiunea ca fiind pregătită dacă are suficienți jucători
             if (session.players.size() >= session.requiredPlayers) {
                 session.isReady = true;
             }
@@ -47,11 +57,10 @@ void GameSessionManager::LeaveSession(const std::string& sessionId, const std::s
         }
     }
 }
-
-GameSession GameSessionManager::GetSessionStatus(const std::string& sessionId) const {
+ GameSession GameSessionManager::GetSessionStatus(const std::string& sessionId) {
     auto it = sessions.find(sessionId);
     if (it != sessions.end()) {
-        return it->second;
+        return std::move(it->second);
     }
     throw std::out_of_range("Session not found");
 }

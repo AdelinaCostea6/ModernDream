@@ -5,7 +5,7 @@
 #include <QNetworkReply>
 
 
-/*HttpClient::HttpClient(QObject* parent)
+HttpClient::HttpClient(QObject* parent)
     : QObject(parent), manager(new QNetworkAccessManager(this)) {}
 
 void HttpClient::login(const QString& username)
@@ -90,147 +90,132 @@ void HttpClient::onRegisterResponse()
     reply->deleteLater();
 }
 
-void HttpClient::joinGame(const QString& username, const QString& mapType, int requiredPlayers) {
-    QUrl url("http://localhost:8080/game/join");
+//void HttpClient::joinGame(const QString& username, const QString& mapType, int requiredPlayers) {
+//    QUrl url("http://localhost:8080/game/join");
+//    QNetworkRequest request(url);
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QJsonObject json;
+//    json["username"] = username;
+//    json["mapType"] = mapType;
+//    json["requiredPlayers"] = requiredPlayers;
+//
+//    QByteArray data = QJsonDocument(json).toJson();
+//    QNetworkReply* reply = manager->post(request, data);
+//    connect(reply, &QNetworkReply::finished, this, &HttpClient::onJoinGameResponse);
+//}
+//
+//void HttpClient::onJoinGameResponse() {
+//    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+//    if (!reply) return;
+//
+//    if (reply->error() == QNetworkReply::NoError) {
+//        QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
+//
+//        currentSessionId = response["sessionId"].toString();
+//        int currentPlayers = response["currentPlayers"].toInt();
+//        int requiredPlayers = response["requiredPlayers"].toInt();
+//
+//        emit joinGameSuccess(currentSessionId, currentPlayers, requiredPlayers);
+//
+//        // Start periodic status checks
+//        if (!statusCheckTimer) {
+//            statusCheckTimer = new QTimer(this);
+//            statusCheckTimer->setInterval(2000); // Check every 2 seconds
+//            connect(statusCheckTimer, &QTimer::timeout, [this]() {
+//                checkGameStatus(currentSessionId);
+//                });
+//        }
+//        statusCheckTimer->start();
+//    }
+//    else {
+//        emit joinGameFailure(reply->errorString());
+//    }
+//
+//    reply->deleteLater();
+//}
+//
+//void HttpClient::checkGameStatus(const QString& sessionId) {
+//    QUrl url(QString("http://localhost:8080/game/status/%1").arg(sessionId));
+//    QNetworkRequest request(url);
+//
+//    QNetworkReply* reply = manager->get(request);
+//    connect(reply, &QNetworkReply::finished, this, &HttpClient::onCheckStatusResponse);
+//}
+//
+//void HttpClient::onCheckStatusResponse() {
+//    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+//    if (!reply) return;
+//
+//    if (reply->error() == QNetworkReply::NoError) {
+//        QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
+//
+//        int currentPlayers = response["currentPlayers"].toInt();
+//        int requiredPlayers = response["requiredPlayers"].toInt();
+//
+//        if (response["status"].toString() == "ready") {
+//            statusCheckTimer->stop();
+//            emit gameReady(currentSessionId, response["players"].toArray());
+//        }
+//        else if (response["status"].toString() == "waiting") {
+//            if (response.contains("lastJoined")) {
+//                emit playerJoined(response["lastJoined"].toString(),
+//                    currentPlayers, requiredPlayers);
+//            }
+//            if (response.contains("lastLeft")) {
+//                emit playerLeft(response["lastLeft"].toString(),
+//                    currentPlayers, requiredPlayers);
+//            }
+//        }
+//    }
+//
+//    reply->deleteLater();
+//}
+
+
+void HttpClient::createGame(int requiredPlayers) {
+    QUrl url("http://localhost:8080/game/create");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     QJsonObject json;
-    json["username"] = username;
-    json["mapType"] = mapType;
     json["requiredPlayers"] = requiredPlayers;
 
     QByteArray data = QJsonDocument(json).toJson();
     QNetworkReply* reply = manager->post(request, data);
-    connect(reply, &QNetworkReply::finished, this, &HttpClient::onJoinGameResponse);
+    connect(reply, &QNetworkReply::finished, this, &HttpClient::onCreateGameResponse);
 }
 
-void HttpClient::onJoinGameResponse() {
+void HttpClient::onCreateGameResponse() {
+  /*QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply) return;
+
+    if (reply->error() == QNetworkReply::NoError) {
+        QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
+        emit joinGameSuccess(response["sessionId"].toString(), 1, response["requiredPlayers"].toInt());
+    }
+    else {
+        qDebug() << "Error creating game:" << reply->errorString();
+    }
+    reply->deleteLater();*/
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
     if (!reply) return;
 
     if (reply->error() == QNetworkReply::NoError) {
         QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
 
-        currentSessionId = response["sessionId"].toString();
-        int currentPlayers = response["currentPlayers"].toInt();
-        int requiredPlayers = response["requiredPlayers"].toInt();
+        if (response.contains("sessionId")) {
+            currentSessionId = response["sessionId"].toString();
+            qDebug() << "Game created successfully, session ID:" << currentSessionId;
 
-        emit joinGameSuccess(currentSessionId, currentPlayers, requiredPlayers);
-
-        // Start periodic status checks
-        if (!statusCheckTimer) {
-            statusCheckTimer = new QTimer(this);
-            statusCheckTimer->setInterval(2000); // Check every 2 seconds
-            connect(statusCheckTimer, &QTimer::timeout, [this]() {
-                checkGameStatus(currentSessionId);
-                });
-        }
-        statusCheckTimer->start();
-    }
-    else {
-        emit joinGameFailure(reply->errorString());
-    }
-
-    reply->deleteLater();
-}
-
-void HttpClient::checkGameStatus(const QString& sessionId) {
-    QUrl url(QString("http://localhost:8080/game/status/%1").arg(sessionId));
-    QNetworkRequest request(url);
-
-    QNetworkReply* reply = manager->get(request);
-    connect(reply, &QNetworkReply::finished, this, &HttpClient::onCheckStatusResponse);
-}
-
-void HttpClient::onCheckStatusResponse() {
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    if (!reply) return;
-
-    if (reply->error() == QNetworkReply::NoError) {
-        QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
-
-        int currentPlayers = response["currentPlayers"].toInt();
-        int requiredPlayers = response["requiredPlayers"].toInt();
-
-        if (response["status"].toString() == "ready") {
-            statusCheckTimer->stop();
-            emit gameReady(currentSessionId, response["players"].toArray());
-        }
-        else if (response["status"].toString() == "waiting") {
-            if (response.contains("lastJoined")) {
-                emit playerJoined(response["lastJoined"].toString(),
-                    currentPlayers, requiredPlayers);
-            }
-            if (response.contains("lastLeft")) {
-                emit playerLeft(response["lastLeft"].toString(),
-                    currentPlayers, requiredPlayers);
-            }
-        }
-    }
-
-    reply->deleteLater();
-}
-*/
-
-HttpClient::HttpClient(QObject* parent)
-    : QObject(parent), manager(new QNetworkAccessManager(this)), statusCheckTimer(nullptr) {}
-
-void HttpClient::login(const QString& username) {
-    QUrl url("http://localhost:8080/login/" + username);
-    QNetworkRequest request(url);
-
-    QNetworkReply* reply = manager->get(request);
-    connect(reply, &QNetworkReply::finished, this, &HttpClient::onLoginResponse);
-}
-
-void HttpClient::registerUser(const QString& username) {
-    QUrl url("http://localhost:8080/register");
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-    QJsonObject json;
-    json["username"] = username;
-    QByteArray data = QJsonDocument(json).toJson();
-
-    QNetworkReply* reply = manager->post(request, data);
-    connect(reply, &QNetworkReply::finished, this, &HttpClient::onRegisterResponse);
-}
-
-void HttpClient::onLoginResponse() {
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    if (!reply) return;
-
-    QByteArray responseData = reply->readAll();
-
-    if (reply->error() != QNetworkReply::NoError) {
-        QString errorString = reply->error() == QNetworkReply::ContentNotFoundError
-            ? "User not found" : reply->errorString();
-        emit loginFailure(errorString);
-    }
-    else {
-        QJsonObject jsonObj = QJsonDocument::fromJson(responseData).object();
-        if (jsonObj.contains("username") && jsonObj.contains("score")) {
-            emit loginSuccess(jsonObj["username"].toString(), jsonObj["score"].toInt());
+            emit joinGameSuccess(currentSessionId, 1, response["requiredPlayers"].toInt());
         }
         else {
-            emit loginFailure("Invalid server response");
+            qDebug() << "Error: sessionId missing in createGame response";
         }
     }
-    reply->deleteLater();
-}
-
-void HttpClient::onRegisterResponse() {
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    if (!reply) return;
-
-    if (reply->error() == QNetworkReply::NoError) {
-        emit registerSuccess();
-    }
     else {
-        QString errorString = reply->error() == QNetworkReply::ContentConflictError
-            ? "Username already exists" : reply->errorString();
-        emit registerFailure(errorString);
+        qDebug() << "Failed to create game:" << reply->errorString();
     }
     reply->deleteLater();
 }
@@ -241,6 +226,7 @@ void HttpClient::joinGame(const QString& username, const QString& mapType, int r
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     QJsonObject json;
+    json["sessionId"] = currentSessionId;
     json["username"] = username;
     json["mapType"] = mapType;
     json["requiredPlayers"] = requiredPlayers;
@@ -256,24 +242,37 @@ void HttpClient::onJoinGameResponse() {
 
     if (reply->error() == QNetworkReply::NoError) {
         QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
-
         currentSessionId = response["sessionId"].toString();
-        int currentPlayers = response["currentPlayers"].toInt();
-        int requiredPlayers = response["requiredPlayers"].toInt();
-
-        emit joinGameSuccess(currentSessionId, currentPlayers, requiredPlayers);
-
-        if (!statusCheckTimer) {
-            statusCheckTimer = new QTimer(this);
-            statusCheckTimer->setInterval(2000);
-            connect(statusCheckTimer, &QTimer::timeout, [this]() {
-                checkGameStatus(currentSessionId);
-                });
-        }
-        statusCheckTimer->start();
+        emit joinGameSuccess(currentSessionId, response["currentPlayers"].toInt(), response["requiredPlayers"].toInt());
     }
     else {
         emit joinGameFailure(reply->errorString());
+    }
+    reply->deleteLater();
+}
+
+void HttpClient::leaveGame(const QString& sessionId) {
+    QUrl url("http://localhost:8080/game/leave");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject json;
+    json["sessionId"] = sessionId;
+
+    QByteArray data = QJsonDocument(json).toJson();
+    QNetworkReply* reply = manager->post(request, data);
+    connect(reply, &QNetworkReply::finished, this, &HttpClient::onLeaveGameResponse);
+}
+
+void HttpClient::onLeaveGameResponse() {
+    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+    if (!reply) return;
+
+    if (reply->error() == QNetworkReply::NoError) {
+        qDebug() << "Left game successfully.";
+    }
+    else {
+        qDebug() << "Error leaving game:" << reply->errorString();
     }
     reply->deleteLater();
 }
@@ -310,32 +309,4 @@ void HttpClient::onCheckStatusResponse() {
         }
     }
     reply->deleteLater();
-}
-
-void HttpClient::onLeaveGameResponse() {
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    if (!reply) return;
-
-    if (reply->error() == QNetworkReply::NoError) {
-        qDebug() << "Left game successfully.";
-    }
-    else {
-        qDebug() << "Error leaving game: " << reply->errorString();
-    }
-
-    reply->deleteLater();
-}
-
-void HttpClient::leaveGame(const QString& sessionId) {
-    QUrl url("http://localhost:8080/game/leave");
-    QNetworkRequest request(url);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-    QJsonObject json;
-    json["sessionId"] = sessionId;
-
-    QByteArray data = QJsonDocument(json).toJson();
-    QNetworkReply* reply = manager->post(request, data);
-
-    connect(reply, &QNetworkReply::finished, this, &HttpClient::onLeaveGameResponse);
 }

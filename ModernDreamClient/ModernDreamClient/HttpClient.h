@@ -16,7 +16,7 @@ public:
 
     void login(const QString& username);
     void registerUser(const QString& username);
-
+    void createGame(int requiredPlayers);
     void joinGame(const QString& username, const QString& mapType, int requiredPlayers);
     void checkGameStatus(const QString& sessionId);
     void leaveGame(const QString& sessionId);
@@ -33,9 +33,11 @@ signals:
     void playerJoined(const QString& username, int currentPlayers, int requiredPlayers);
     void playerLeft(const QString& username, int currentPlayers, int requiredPlayers);
 
+
 private slots:
     void onLoginResponse();
     void onRegisterResponse();
+    void onCreateGameResponse();
 
     void onJoinGameResponse();
     void onCheckStatusResponse();

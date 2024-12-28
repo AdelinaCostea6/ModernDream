@@ -12,14 +12,8 @@
 #include <QLineEdit>
 #include <qframe.h>
 #include "HttpClient.h"
+#include "ModernDreamClient.h"
 
-auto LoginDialog::createStorage()
-{
-    using namespace sqlite_orm;
-    return make_storage("titan_vanguard_users.sqlite",
-                        make_table("users",
-                                   make_column("username", &UserData::username, primary_key())));
-}
 
 LoginDialog::LoginDialog(QWidget *parent)
     : QDialog(parent), httpClient(new HttpClient(this))
@@ -292,6 +286,8 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(httpClient, &HttpClient::registerSuccess, this, &LoginDialog::onRegisterSuccess);
     connect(httpClient, &HttpClient::loginFailure, this, &LoginDialog::onLoginFailure);
     connect(httpClient, &HttpClient::registerFailure, this, &LoginDialog::onRegisterFailure);
+    connect(this, &LoginDialog::switchToWaitingRoom, modernDreamClient, &ModernDreamClient::onJoinGameSuccess);
+
 
    /* QWidget *carGamePage = new QWidget();
     QVBoxLayout *carGameLayout = new QVBoxLayout();
@@ -466,7 +462,7 @@ void LoginDialog::onOptions()
 
 void LoginDialog::onHelicopterSelected()
 {
-    QDialog messageDialog(this);
+    /*QDialog messageDialog(this);
     messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
     messageDialog.setStyleSheet("background-color: black");
 
@@ -496,12 +492,32 @@ void LoginDialog::onHelicopterSelected()
 
     messageDialog.exec();
 
-    return;
+    return;*/
+    QString username = usernameEdit->text();
+    if (username.isEmpty()) {
+        showMessageDialog("Username cannot be empty", "red");
+        return;
+    }
+
+    httpClient->joinGame(username, "helicopter", 4);
+
+    connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
+    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);
 }
+void LoginDialog::onJoinGameSuccess(const QString& sessionId, int currentPlayers, int requiredPlayers) {
+    showMessageDialog("You have joined the session: " + sessionId, "#7fff00");
+
+    emit switchToWaitingRoom(sessionId, currentPlayers, requiredPlayers);
+}
+
+void LoginDialog::onJoinGameFailure(const QString& error) {
+    showMessageDialog("Failed to join game: " + error, "red");
+}
+
 
 void LoginDialog::onBoatSelected()
 {
-    QDialog messageDialog(this);
+    /*QDialog messageDialog(this);
     messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
     messageDialog.setStyleSheet("background-color: 	black;");
 
@@ -531,7 +547,19 @@ void LoginDialog::onBoatSelected()
 
     messageDialog.exec();
 
-    return;
+    return;*/
+
+    QString username = usernameEdit->text();
+    if (username.isEmpty()) {
+        showMessageDialog("Username cannot be empty", "red");
+        return;
+    }
+
+    httpClient->joinGame(username, "Boat", 4);
+
+    connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
+    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);
+
 }
 
 void LoginDialog::onCarSelected()
@@ -572,6 +600,17 @@ void LoginDialog::onCarSelected()
 //    messageDialog.exec();
 //
 //    return;
+
+    QString username = usernameEdit->text();
+    if (username.isEmpty()) {
+        showMessageDialog("Username cannot be empty", "red");
+        return;
+    }
+
+    httpClient->joinGame(username, "Car", 4);
+
+    connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
+    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);
 }
 
 void LoginDialog::paintEvent(QPaintEvent *event)

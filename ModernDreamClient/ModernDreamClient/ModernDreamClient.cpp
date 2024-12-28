@@ -1,4 +1,4 @@
-﻿#include "ModernDreamClient.h"
+﻿/*#include "ModernDreamClient.h"
 #include <QMessageBox.h>
 #include "LoginDialog.h"
 ModernDreamClient::ModernDreamClient(QWidget* parent)
@@ -175,3 +175,136 @@ void ModernDreamClient::updateWaitingRoom(int current, int required) {
 //    gameWidget->initializeGame(currentMap, playerNames);
 //    gameWidget->startGame();
 //}
+*/
+
+#include "ModernDreamClient.h"
+#include <QVBoxLayout>
+#include <QMessageBox>
+#include <QJsonArray>
+
+ModernDreamClient::ModernDreamClient(QWidget* parent)
+    : QMainWindow(parent), mainStack(new QStackedWidget(this)), httpClient(new HttpClient(this)) {
+    setWindowTitle("Battle City - Modern Dream");
+    resize(800, 600);
+
+    tabWidget = new QTabWidget(this);
+
+    QWidget* gameSetupTab = new QWidget();
+    QVBoxLayout* setupLayout = new QVBoxLayout(gameSetupTab);
+
+    QLabel* playerCountLabel = new QLabel("Number of Players: ", this);
+    playerCountSpinBox = new QSpinBox(this);
+    playerCountSpinBox->setRange(1, 4);
+
+    QLabel* mapLabel = new QLabel("Select Map:", this);
+    mapComboBox = new QComboBox(this);
+    mapComboBox->addItems({ "Small Map", "Medium Map", "Large Map" });
+
+    startGameButton = new QPushButton("Start Game", this);
+
+    setupLayout->addWidget(playerCountLabel);
+    setupLayout->addWidget(playerCountSpinBox);
+    setupLayout->addWidget(mapLabel);
+    setupLayout->addWidget(mapComboBox);
+    setupLayout->addWidget(startGameButton);
+
+    tabWidget->addTab(gameSetupTab, "Game Setup");
+
+    mainStack->addWidget(tabWidget);
+    setCentralWidget(mainStack);
+
+    connect(startGameButton, &QPushButton::clicked, this, [this]() {
+        OnStartGame(currentMap, currentUsername);
+        });
+
+    setupWaitingRoom();
+
+    connect(httpClient, &HttpClient::gameReady, this, &ModernDreamClient::onGameReady);
+    connect(httpClient, &HttpClient::playerJoined, this, &ModernDreamClient::onPlayerJoined);
+    connect(httpClient, &HttpClient::playerLeft, this, &ModernDreamClient::onPlayerLeft);
+    connect(httpClient, &HttpClient::joinGameSuccess, this, &ModernDreamClient::onJoinGameSuccess);
+}
+
+void ModernDreamClient::setupWaitingRoom() {
+    waitingRoomWidget = new QWidget();
+    QVBoxLayout* layout = new QVBoxLayout(waitingRoomWidget);
+
+    waitingStatusLabel = new QLabel("Waiting for players...");
+    waitingStatusLabel->setAlignment(Qt::AlignCenter);
+
+    playerProgress = new QProgressBar();
+    playerList = new QListWidget();
+
+    QPushButton* leaveButton = new QPushButton("Leave Game");
+    connect(leaveButton, &QPushButton::clicked, this, &ModernDreamClient::onLeaveGame);
+
+    layout->addWidget(waitingStatusLabel);
+    layout->addWidget(playerProgress);
+    layout->addWidget(playerList);
+    layout->addWidget(leaveButton);
+
+    mainStack->addWidget(waitingRoomWidget);
+}
+
+void ModernDreamClient::OnStartGame(GameMap mapType, const QString& username) {
+    currentUsername = username;
+    currentMap = mapType;
+
+    QString mapTypeStr;
+    switch (mapType) {
+    case GameMap::CAR: mapTypeStr = "car"; break;
+    case GameMap::HELICOPTER: mapTypeStr = "helicopter"; break;
+    case GameMap::BOAT: mapTypeStr = "boat"; break;
+    }
+
+    httpClient->joinGame(username, mapTypeStr, playerCountSpinBox->value());
+    mainStack->setCurrentWidget(waitingRoomWidget);
+}
+
+void ModernDreamClient::onJoinGameSuccess(const QString& sessionId, int current, int required) {
+    currentSessionId = sessionId;
+    updateWaitingRoom(current, required);
+    playerList->addItem(currentUsername + " (You)");
+    mainStack->setCurrentWidget(waitingRoomWidget);
+}
+
+void ModernDreamClient::onPlayerJoined(const QString& username, int current, int required) {
+    updateWaitingRoom(current, required);
+    playerList->addItem(username);
+}
+
+void ModernDreamClient::onPlayerLeft(const QString& username, int current, int required) {
+    updateWaitingRoom(current, required);
+    for (int i = 0; i < playerList->count(); i++) {
+        if (playerList->item(i)->text().startsWith(username)) {
+            delete playerList->takeItem(i);
+            break;
+        }
+    }
+}
+
+void ModernDreamClient::updateWaitingRoom(int current, int required) {
+    waitingStatusLabel->setText(QString("Waiting for players... (%1/%2)").arg(current).arg(required));
+    playerProgress->setMaximum(required);
+    playerProgress->setValue(current);
+}
+
+void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
+    mainStack->setCurrentWidget(gameWidget);
+    QVector<QString> playerNames;
+    for (const QJsonValue& player : players) {
+        playerNames.append(player.toString());
+    }
+    qDebug() << "Game is ready with session ID:" << sessionId;
+    qDebug() << "Players in the session:" << playerNames;
+}
+
+void ModernDreamClient::onLeaveGame() {
+    if (!currentSessionId.isEmpty()) {
+        httpClient->leaveGame(currentSessionId);
+        mainStack->setCurrentWidget(tabWidget);
+        playerList->clear();
+        waitingStatusLabel->setText("Waiting for players...");
+    }
+}
+
