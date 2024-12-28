@@ -15,7 +15,7 @@ import bomb;
 #include "../MapGenerator/MapGenerator/MapGenerator.h"
 
 int main() {
-    std::cout << "=== Testing Classes ===\n\n";
+    /*std::cout << "=== Testing Classes ===\n\n";
 
     // Bomb Test
     std::cout << "--- BOMB TEST ---\n";
@@ -133,7 +133,7 @@ int main() {
     Game game(std::move(gameWalls), std::move(gameBombs), std::move(players));
 
 
-    std::cout << "Testing winner determination:\n";
+    /*std::cout << "Testing winner determination:\n";
     game.DetermineWinner();
 
     std::cout << "Testing weapon upgrades:\n";
@@ -148,7 +148,11 @@ int main() {
             game.TriggerBomb(pos.first, pos.second);
             break;
         }
-    }
+    }*/
+
+    DatabaseManager dbManager;
+    http::Routing routing;
+    routing.Run(dbManager);
 
     return 0;
 }

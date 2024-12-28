@@ -17,7 +17,8 @@ private:
 	int score{ 0 };
 	bool speedBoostUsed{ false };
 public:
-    Player(std::string name, std::unique_ptr<Weapon> weapon, std::pair<int, int> position);
+    Player() = default;
+    Player(const std::string &name, std::unique_ptr<Weapon> weapon, std::pair<int, int> position);
 
     void Login();
     void Movement(Map& mapMatrix);
@@ -36,6 +37,11 @@ public:
     void SetPoints(int newPoints);
     bool IsSpeedBoostUsed() const;
     void SetSpeedBoostUsed(bool used);
+    Player(const Player&) = delete;  
+    Player& operator=(const Player&) = delete;
+    Player(Player&&) = default;     
+    Player& operator=(Player&&) = default;
+    ~Player() = default;
 
 
 };

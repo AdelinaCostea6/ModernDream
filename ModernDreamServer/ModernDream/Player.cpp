@@ -1,8 +1,8 @@
 ﻿#include "Player.h"
 #include <conio.h>
 
-Player::Player(std::string name, std::unique_ptr<Weapon> weapon, std::pair<int, int> position)
-	: name(name), weapon(std::move(weapon)), position(position), initialPosition(position), points(0), lifes(3),score(0) {
+Player::Player(const std::string& name, std::unique_ptr<Weapon> weapon, std::pair<int, int> position)
+	: name(name), weapon(std::move(weapon)), position(position), initialPosition(position){
 }
 void Player::Login()
 {
