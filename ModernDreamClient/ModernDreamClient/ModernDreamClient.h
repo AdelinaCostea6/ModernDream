@@ -9,6 +9,8 @@
 #include <QPushButton>
 #include <qlistwidget.h>
 #include <qprogressbar.h>
+#include "HttpClient.h"
+#include <qstackedwidget.h>
 enum class GameMap {
     CAR,
     HELICOPTER,
@@ -26,17 +28,19 @@ private:
     QSpinBox* playerCountSpinBox;
     QComboBox* mapComboBox;
     QPushButton* startGameButton;
-
-    void setupWaitingRoom();
-    void updateWaitingRoom(int current, int required);
-
     QWidget* waitingRoomWidget;
     QLabel* waitingStatusLabel;
     QProgressBar* playerProgress;  
     QListWidget* playerList; 
     QString currentUsername;
-
     HttpClient* httpClient;
+    QStackedWidget* mainStack;
+    GameMap currentMap;        
+    QString currentSessionId;
+    QWidget* gameWidget;
+
+    void setupWaitingRoom();
+    void updateWaitingRoom(int current, int required);
 
 private slots:
     void OnStartGame(GameMap mapType, const QString& username); 
@@ -44,5 +48,5 @@ private slots:
     void onJoinGameSuccess(const QString& sessionId, int current, int required);
     void onPlayerJoined(const QString& username, int current, int required);
     void onPlayerLeft(const QString& username, int current, int required);
-    void onGameReady(const QString& sessionId, const QJsonArray& players);
+    //void onGameReady(const QString& sessionId, const QJsonArray& players);
 };

@@ -30,7 +30,20 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     tabWidget->addTab(gameSetupTab, "Game Setup");
     setCentralWidget(tabWidget);
 
-    connect(startGameButton, &QPushButton::clicked, this, &ModernDreamClient::OnStartGame);
+    //connect(startGameButton, &QPushButton::clicked, this, &ModernDreamClient::OnStartGame);
+    connect(startGameButton, &QPushButton::clicked, [this]() {
+        QString selectedMap = mapComboBox->currentText();
+        GameMap mapType;
+
+        if (selectedMap == "Small Map") mapType = GameMap::CAR;
+        else if (selectedMap == "Medium Map") mapType = GameMap::HELICOPTER;
+        else if (selectedMap == "Large Map") mapType = GameMap::BOAT;
+
+        QString username = "YourUsername";
+
+        OnStartGame(mapType, username);
+        });
+
 }
 
 //void ModernDreamClient::OnStartGame()
@@ -102,6 +115,7 @@ void ModernDreamClient::setupWaitingRoom() {
     connect(cancelButton, &QPushButton::clicked, [this]() {
         httpClient->leaveGame(currentSessionId);
         //emit backToMapSelection();
+        mainStack->setCurrentWidget(tabWidget);
         });
 }
 
@@ -121,6 +135,7 @@ void ModernDreamClient::OnStartGame(GameMap mapType, const QString& username) {
 }
 
 void ModernDreamClient::onJoinGameSuccess(const QString& sessionId, int current, int required) {
+    currentSessionId = sessionId;
     updateWaitingRoom(current, required);
     playerList->addItem(currentUsername + " (You)");
 }
