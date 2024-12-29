@@ -20,7 +20,7 @@ class LoginDialog : public QDialog
 
 public:
     LoginDialog(QWidget *parent = nullptr);
-
+    ~LoginDialog(); 
 protected:
     void paintEvent(QPaintEvent *event) override;
 
@@ -36,9 +36,11 @@ private:
     QWidget *loginView;
     QWidget *menuView;
     QStackedWidget *stackedWidget;
+
     ModernDreamClient* modernDreamClient;
 
-    auto createStorage();
+    //ModernDreamClient* modernDreamClient{ nullptr };
+
 
     void switchToMenu();
 
@@ -46,7 +48,6 @@ private slots:
     void OnLogin();
     void OnRegister();
     //void onStartGame();
-    void onOptions();
     void onHelicopterSelected();
     void onBoatSelected();
     void onCarSelected();
@@ -55,8 +56,8 @@ private slots:
     void onLoginFailure(const QString &error);
     void onRegisterFailure(const QString &error);
     void showMessageDialog(const QString &message, const QString &color);
-    void onJoinGameSuccess(const QString& sessionId, int currentPlayers, int requiredPlayers);
-    void onJoinGameFailure(const QString& error);
+    //void onJoinGameSuccess(const QString& sessionId, int currentPlayers, int requiredPlayers);
+    //void onJoinGameFailure(const QString& error);
 
 signals:
     void switchToWaitingRoom(const QString& sessionId, int currentPlayers, int requiredPlayers);

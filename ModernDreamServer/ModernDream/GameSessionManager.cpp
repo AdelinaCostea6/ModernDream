@@ -23,7 +23,12 @@ GameSession& GameSession::operator=(GameSession&& other) noexcept {
 
 std::string GameSessionManager::CreateSession(int requiredPlayers) {
     std::string sessionId = std::to_string(rand());
-    sessions.emplace(sessionId, GameSession(sessionId, requiredPlayers));
+    sessions.emplace(sessionId, GameSession(sessionId, requiredPlayers)); 
+    /*std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, std::numeric_limits<int>::max());
+    std::string sessionId = std::to_string(dis(gen));
+    sessions.emplace(sessionId, GameSession(sessionId, requiredPlayers)); */
     return sessionId;
 }
 
@@ -37,6 +42,7 @@ bool GameSessionManager::JoinSession(const std::string& sessionId, const std::st
             auto player = std::make_unique<Player>(username, std::move(weapon), std::make_pair(0, 0));
 
             session.players[username] = std::move(player);
+            //session.players.emplace(username, std::move(player)); 
 
             if (session.players.size() >= session.requiredPlayers) {
                 session.isReady = true;

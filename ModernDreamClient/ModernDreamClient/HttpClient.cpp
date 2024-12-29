@@ -251,6 +251,7 @@ void HttpClient::onJoinGameResponse() {
     reply->deleteLater();
 }
 
+
 void HttpClient::leaveGame(const QString& sessionId) {
     QUrl url("http://localhost:8080/game/leave");
     QNetworkRequest request(url);

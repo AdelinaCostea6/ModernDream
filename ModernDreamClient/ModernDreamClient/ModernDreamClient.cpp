@@ -225,23 +225,111 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     connect(httpClient, &HttpClient::joinGameSuccess, this, &ModernDreamClient::onJoinGameSuccess);
 }
 
+//void ModernDreamClient::setupWaitingRoom() {
+//    waitingRoomWidget = new QWidget();
+//    QVBoxLayout* layout = new QVBoxLayout(waitingRoomWidget);
+//
+//    waitingStatusLabel = new QLabel("Waiting for players...");
+//    waitingStatusLabel->setAlignment(Qt::AlignCenter);
+//
+//    playerProgress = new QProgressBar();
+//    playerList = new QListWidget();
+//
+//    QPushButton* leaveButton = new QPushButton("Leave Game");
+//    connect(leaveButton, &QPushButton::clicked, this, &ModernDreamClient::onLeaveGame);
+//
+//    layout->addWidget(waitingStatusLabel);
+//    layout->addWidget(playerProgress);
+//    layout->addWidget(playerList);
+//    layout->addWidget(leaveButton);
+//
+//    mainStack->addWidget(waitingRoomWidget);
+//}
 void ModernDreamClient::setupWaitingRoom() {
     waitingRoomWidget = new QWidget();
     QVBoxLayout* layout = new QVBoxLayout(waitingRoomWidget);
+    layout->setAlignment(Qt::AlignCenter);
 
+    // Create a frame for the waiting room content
+    QFrame* waitingFrame = new QFrame();
+    waitingFrame->setStyleSheet(
+        "QFrame {"
+        "    background-color: rgba(30, 30, 30, 0.8);"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 15px;"
+        "    padding: 20px;"
+        "}");
+    QVBoxLayout* frameLayout = new QVBoxLayout(waitingFrame);
+
+    // Waiting status label
     waitingStatusLabel = new QLabel("Waiting for players...");
     waitingStatusLabel->setAlignment(Qt::AlignCenter);
+    waitingStatusLabel->setStyleSheet(
+        "color: #BF00FF;"
+        "font-size: 24px;"
+        "font-weight: bold;"
+        "margin-bottom: 20px;"
+    );
 
+    // Progress bar
     playerProgress = new QProgressBar();
+    playerProgress->setStyleSheet(
+        "QProgressBar {"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 5px;"
+        "    text-align: center;"
+        "    height: 25px;"
+        "    margin: 10px 0px;"
+        "}"
+        "QProgressBar::chunk {"
+        "    background-color: #BF00FF;"
+        "}"
+    );
+
+    // Player list
     playerList = new QListWidget();
+    playerList->setStyleSheet(
+        "QListWidget {"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 5px;"
+        "    background: rgba(0, 0, 0, 0.7);"
+        "    min-height: 200px;"
+        "}"
+        "QListWidget::item {"
+        "    color: white;"
+        "    padding: 10px;"
+        "    margin: 5px;"
+        "    background: rgba(191, 0, 255, 0.2);"
+        "    border-radius: 5px;"
+        "}"
+    );
 
+    // Leave button
     QPushButton* leaveButton = new QPushButton("Leave Game");
-    connect(leaveButton, &QPushButton::clicked, this, &ModernDreamClient::onLeaveGame);
+    leaveButton->setStyleSheet(
+        "QPushButton {"
+        "    background-color: black;"
+        "    color: #BF00FF;"
+        "    border: 2px solid #BF00FF;"
+        "    border-radius: 5px;"
+        "    padding: 10px 20px;"
+        "    font-size: 16px;"
+        "    font-weight: bold;"
+        "    margin-top: 20px;"
+        "}"
+        "QPushButton:hover {"
+        "    background-color: rgba(191, 0, 255, 0.2);"
+        "}"
+    );
 
-    layout->addWidget(waitingStatusLabel);
-    layout->addWidget(playerProgress);
-    layout->addWidget(playerList);
-    layout->addWidget(leaveButton);
+    frameLayout->addWidget(waitingStatusLabel);
+    frameLayout->addWidget(playerProgress);
+    frameLayout->addWidget(playerList);
+    frameLayout->addWidget(leaveButton);
+
+    layout->addWidget(waitingFrame);
+
+    connect(leaveButton, &QPushButton::clicked, this, &ModernDreamClient::onLeaveGame);
 
     mainStack->addWidget(waitingRoomWidget);
 }
@@ -259,6 +347,11 @@ void ModernDreamClient::OnStartGame(GameMap mapType, const QString& username) {
 
     httpClient->joinGame(username, mapTypeStr, playerCountSpinBox->value());
     mainStack->setCurrentWidget(waitingRoomWidget);
+    qDebug() << "Adding waitingRoomWidget to mainStack";
+    mainStack->addWidget(waitingRoomWidget);
+    qDebug() << "Switching to waitingRoomWidget";
+    mainStack->setCurrentWidget(waitingRoomWidget); 
+
 }
 
 void ModernDreamClient::onJoinGameSuccess(const QString& sessionId, int current, int required) {
@@ -295,16 +388,31 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
     for (const QJsonValue& player : players) {
         playerNames.append(player.toString());
     }
-    qDebug() << "Game is ready with session ID:" << sessionId;
-    qDebug() << "Players in the session:" << playerNames;
-}
 
+}
+//void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) 
+//{
+//    // This will be called when all players have joined
+//    QMessageBox::information(this, "Game Ready", "All players have joined! Starting game...");
+//    // Here you would transition to your game screen
+//}
+
+//void ModernDreamClient::onLeaveGame() {
+//    if (!currentSessionId.isEmpty()) {
+//        httpClient->leaveGame(currentSessionId);
+//        mainStack->setCurrentWidget(tabWidget);
+//        playerList->clear();
+//        waitingStatusLabel->setText("Waiting for players...");
+//    }
+//}
 void ModernDreamClient::onLeaveGame() {
     if (!currentSessionId.isEmpty()) {
         httpClient->leaveGame(currentSessionId);
         mainStack->setCurrentWidget(tabWidget);
         playerList->clear();
         waitingStatusLabel->setText("Waiting for players...");
+        playerProgress->setValue(0);
     }
 }
+
 

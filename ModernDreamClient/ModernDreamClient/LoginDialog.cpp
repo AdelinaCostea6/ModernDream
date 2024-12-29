@@ -17,8 +17,10 @@
 
 LoginDialog::LoginDialog(QWidget *parent)
     : QDialog(parent), httpClient(new HttpClient(this))
-{
-
+{ 
+    /*modernDreamClient = new ModernDreamClient(this);
+    modernDreamClient->hide();*/
+     
     setWindowTitle("Titan Vanguard - Login");
     resize(850, 600);
 
@@ -287,6 +289,9 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(httpClient, &HttpClient::loginFailure, this, &LoginDialog::onLoginFailure);
     connect(httpClient, &HttpClient::registerFailure, this, &LoginDialog::onRegisterFailure);
     connect(this, &LoginDialog::switchToWaitingRoom, modernDreamClient, &ModernDreamClient::onJoinGameSuccess);
+    //connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
+    //connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);
+ 
 
 
    /* QWidget *carGamePage = new QWidget();
@@ -324,6 +329,11 @@ LoginDialog::LoginDialog(QWidget *parent)
     stackedWidget->addWidget(carGamePage);
 
     connect(startGameButton, &QPushButton::clicked, this, &LoginDialog::onStartGame);*/
+}
+
+LoginDialog::~LoginDialog()
+{
+     
 }
 
 void LoginDialog::switchToMenu()
@@ -368,97 +378,8 @@ void LoginDialog::OnRegister()
 //                                 .arg(selectedMap));
 //}
 
-void LoginDialog::onOptions()
-{
-    QDialog messageDialog(this);
-    messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-    messageDialog.setStyleSheet("background-color: black;");
 
-    QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
 
-    QLabel *messageLabel = new QLabel("Opening options menu...", &messageDialog);
-    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    messageLabel->setStyleSheet("color: #c71585; font-weight: bold;font-size: 14px;");
-
-    QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-    closeButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: white;"
-        "    color: black;"
-        "    border: 2px solid black;"
-        "    border-radius: 5px;"
-        "    padding: 5px;"
-        "    font-family: 'Italic';"
-        "    font-weight: bold;"
-        "}");
-    QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
-
-    layout->addWidget(messageLabel);
-    layout->addWidget(closeButton, 0, Qt::AlignCenter);
-
-    messageDialog.setLayout(layout);
-
-    int dialogX = this->geometry().width() / 2 - messageDialog.sizeHint().width() / 2;
-    int dialogY = this->geometry().height() - messageDialog.sizeHint().height() - 160;
-    messageDialog.move(this->mapToGlobal(QPoint(dialogX, dialogY)));
-
-    messageDialog.exec();
-    return;
-}
-
-//void LoginDialog::onCarMap() 
-//{
-//    QWidget *onCarMapPage = new QWidget();
-//    QVBoxLayout *onCarMapLayout = new QVBoxLayout();
-//    onCarMapLayout->setAlignment(Qt::AlignCenter);
-//
-//    QFrame *onCarMapFrame = new QFrame(this);
-//    QVBoxLayout *carMapFrameLayout = new QVBoxLayout(carMapFrame);
-//    carMapFrameLayout->setAlignment(Qt::AlignCenter);
-//
-//    QLabel *carMapLabel = new QLabel("Car Map", this);
-//    carMapLabel->setFixedSize(600, 400);
-//    carMapLabel->setStyleSheet(
-//        "background-color: rgba(30, 30, 30, 0.8);"
-//        "border: 2px solid #BF00FF;"
-//        "border-radius: 10px;"
-//        "color: white;"
-//        "font-size: 16px;"
-//        "font-weight: bold;"
-//        "text-align: center;"
-//        "padding: 10px;");
-//        
-//        QPushButton *backToMapOptionsButton = new QPushButton("BACK", this);
-//    backToMapOptionsButton->setFixedSize(100, 50);
-//    backToMapOptionsButton->setStyleSheet(
-//        "QPushButton {"
-//        "    background-color: black;"
-//        "    color: #BF00FF;"
-//        "    border: 2px solid #BF00FF;"
-//        "    border-radius: 5px;"
-//        "    padding: 5px;"
-//        "    font-size: 12px;"
-//        "    font-family: 'Italic';"
-//        "    font-weight: bold;"
-//        "}");
-//
-//    carMapFrameLayout->addWidget(carMapLabel);
-//    carMapFrameLayout->addWidget(backToMapOptionsButton);
-//
-//    carMapLayout->addStretch();
-//    carMapLayout->addWidget(carMapFrame);
-//    carMapLayout->addStretch();
-//
-//    carMapPage->setLayout(carMapLayout);
-//
-//    stackedWidget->addWidget(carMapPage);
-//
-//    connect(backToMapOptionsButton, &QPushButton::clicked, [=]()
-//            { stackedWidget->setCurrentWidget(mapOptionsPage); });
-//
-//    connect(carButton, &QPushButton::clicked, [=]()
-//            { stackedWidget->setCurrentWidget(carMapPage); });
-//}
 
 void LoginDialog::onHelicopterSelected()
 {
@@ -501,18 +422,22 @@ void LoginDialog::onHelicopterSelected()
 
     httpClient->joinGame(username, "helicopter", 4);
 
-    connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
-    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);
+    /*connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
+    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);*/
 }
-void LoginDialog::onJoinGameSuccess(const QString& sessionId, int currentPlayers, int requiredPlayers) {
-    showMessageDialog("You have joined the session: " + sessionId, "#7fff00");
-
-    emit switchToWaitingRoom(sessionId, currentPlayers, requiredPlayers);
-}
-
-void LoginDialog::onJoinGameFailure(const QString& error) {
-    showMessageDialog("Failed to join game: " + error, "red");
-}
+//void LoginDialog::onJoinGameSuccess(const QString& sessionId, int currentPlayers, int requiredPlayers) {
+//    showMessageDialog("You have joined the session: " + sessionId, "#7fff00");
+//
+//    emit switchToWaitingRoom(sessionId, currentPlayers, requiredPlayers);
+//    //modernDreamClient->onJoinGameSuccess(sessionId, currentPlayers, requiredPlayers); 
+//    //modernDreamClient->show(); 
+//    //this->hide();
+//    
+//}
+//
+//void LoginDialog::onJoinGameFailure(const QString& error) {
+//    showMessageDialog("Failed to join game: " + error, "red");
+//}
 
 
 void LoginDialog::onBoatSelected()
@@ -557,8 +482,8 @@ void LoginDialog::onBoatSelected()
 
     httpClient->joinGame(username, "Boat", 4);
 
-    connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
-    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);
+    /*connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
+    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);*/
 
 }
 
@@ -607,10 +532,25 @@ void LoginDialog::onCarSelected()
         return;
     }
 
-    httpClient->joinGame(username, "Car", 4);
+    httpClient->joinGame(username, "CAR", 4);
+    //emit switchToWaitingRoom(); 
 
-    connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
-    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);
+   /* connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
+    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);*/
+    //QString username = usernameEdit->text();
+    //if (username.isEmpty()) {
+    //    showMessageDialog("Username cannot be empty", "red");
+    //    return;
+    //}
+
+    //// Ensure modernDreamClient exists
+    //if (modernDreamClient) {
+    //    httpClient->joinGame(username, "Car", 4);
+    //    // Don't show here - wait for success callback
+    //}
+    ////httpClient->joinGame(username, "Car", 4);
+    ////modernDreamClient->show(); 
+    ////this->hide();
 }
 
 void LoginDialog::paintEvent(QPaintEvent *event)

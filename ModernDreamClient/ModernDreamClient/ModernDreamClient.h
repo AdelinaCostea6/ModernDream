@@ -82,7 +82,7 @@ private:
     QComboBox* mapComboBox;        
     QPushButton* startGameButton;  
 
-    QStackedWidget* mainStack;      
+    //QStackedWidget* mainStack;      
     QWidget* waitingRoomWidget;     
     QWidget* gameWidget;            
 
@@ -96,8 +96,10 @@ private:
 
     HttpClient* httpClient;        
 
+    QStackedWidget* mainStack;
+
     void setupWaitingRoom();       
-    void updateWaitingRoom(int current, int required);
+    //void updateWaitingRoom(int current, int required);
 
 public slots:
     void OnStartGame(GameMap mapType, const QString& username);
@@ -106,4 +108,5 @@ public slots:
     void onPlayerLeft(const QString& username, int current, int required);
     void onGameReady(const QString& sessionId, const QJsonArray& players);
     void onLeaveGame(); 
+    void updateWaitingRoom(int current, int required);
 };
