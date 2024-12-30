@@ -291,6 +291,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(this, &LoginDialog::switchToWaitingRoom, modernDreamClient, &ModernDreamClient::onJoinGameSuccess);
     //connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
     //connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);
+
  
 
 
@@ -419,6 +420,8 @@ void LoginDialog::onHelicopterSelected()
         showMessageDialog("Username cannot be empty", "red");
         return;
     }
+
+    connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::switchToWaitingRoom);
 
     httpClient->joinGame(username, "helicopter", 4);
 

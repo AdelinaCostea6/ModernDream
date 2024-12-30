@@ -220,21 +220,74 @@ void HttpClient::onCreateGameResponse() {
     reply->deleteLater();
 }
 
+//void HttpClient::joinGame(const QString& username, const QString& mapType, int requiredPlayers) {
+//    QUrl url("http://localhost:8080/game/join");
+//    QNetworkRequest request(url);
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QJsonObject json;
+//    json["sessionId"] = currentSessionId;
+//    json["username"] = username;
+//    json["mapType"] = mapType;
+//    json["requiredPlayers"] = requiredPlayers;
+//
+//    QByteArray data = QJsonDocument(json).toJson();
+//    QNetworkReply* reply = manager->post(request, data);
+//    connect(reply, &QNetworkReply::finished, this, &HttpClient::onJoinGameResponse);
+//}
 void HttpClient::joinGame(const QString& username, const QString& mapType, int requiredPlayers) {
     QUrl url("http://localhost:8080/game/join");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     QJsonObject json;
-    json["sessionId"] = currentSessionId;
     json["username"] = username;
     json["mapType"] = mapType;
     json["requiredPlayers"] = requiredPlayers;
 
+    // Debug: Loghează JSON-ul trimis
+    qDebug() << "JSON Sent:" << QJsonDocument(json).toJson();
+
     QByteArray data = QJsonDocument(json).toJson();
     QNetworkReply* reply = manager->post(request, data);
+
     connect(reply, &QNetworkReply::finished, this, &HttpClient::onJoinGameResponse);
 }
+
+
+//void HttpClient::onJoinGameResponse() {
+//    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+//    if (!reply) return;
+//
+//    if (reply->error() == QNetworkReply::NoError) {
+//        QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
+//        currentSessionId = response["sessionId"].toString();
+//        emit joinGameSuccess(currentSessionId, response["currentPlayers"].toInt(), response["requiredPlayers"].toInt());
+//    }
+//    else {
+//        emit joinGameFailure(reply->errorString());
+//    }
+//    reply->deleteLater();
+//}
+
+//void HttpClient::onJoinGameResponse() {
+//    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+//    if (!reply) return;
+//
+//    QByteArray responseData = reply->readAll();
+//    qDebug() << "Response from server:" << responseData;
+//
+//    if (reply->error() == QNetworkReply::NoError) {
+//        QJsonObject response = QJsonDocument::fromJson(responseData).object();
+//        QString sessionId = response["sessionId"].toString();
+//        emit joinGameSuccess(sessionId, response["currentPlayers"].toInt(), response["requiredPlayers"].toInt());
+//    }
+//    else {
+//        emit joinGameFailure(reply->errorString());
+//    }
+//
+//    reply->deleteLater();
+//}
 
 void HttpClient::onJoinGameResponse() {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
@@ -242,14 +295,31 @@ void HttpClient::onJoinGameResponse() {
 
     if (reply->error() == QNetworkReply::NoError) {
         QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
-        currentSessionId = response["sessionId"].toString();
-        emit joinGameSuccess(currentSessionId, response["currentPlayers"].toInt(), response["requiredPlayers"].toInt());
+
+        // Verifică dacă serverul trimite `sessionId`
+        if (response.contains("sessionId")) {
+            QString sessionId = response["sessionId"].toString();
+            int currentPlayers = response["currentPlayers"].toInt();
+            int requiredPlayers = response["requiredPlayers"].toInt();
+            qDebug() << "Emitting joinGameSuccess with sessionId:" << sessionId
+                << ", currentPlayers:" << currentPlayers
+                << ", requiredPlayers:" << requiredPlayers;
+
+            emit joinGameSuccess(sessionId, currentPlayers, requiredPlayers);
+        }
+        else {
+            qDebug() << "Error: No sessionId in server response.";
+        }
     }
     else {
         emit joinGameFailure(reply->errorString());
     }
+
     reply->deleteLater();
+
 }
+
+
 
 
 void HttpClient::leaveGame(const QString& sessionId) {

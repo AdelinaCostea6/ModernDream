@@ -32,6 +32,26 @@ std::string GameSessionManager::CreateSession(int requiredPlayers) {
     return sessionId;
 }
 
+//bool GameSessionManager::JoinSession(const std::string& sessionId, const std::string& username) {
+//    auto it = sessions.find(sessionId);
+//    if (it != sessions.end() && !it->second.isReady) {
+//        auto& session = it->second;
+//
+//        if (session.players.find(username) == session.players.end()) {
+//            auto weapon = std::make_unique<Weapon>();
+//            auto player = std::make_unique<Player>(username, std::move(weapon), std::make_pair(0, 0));
+//
+//            session.players[username] = std::move(player);
+//            //session.players.emplace(username, std::move(player)); 
+//
+//            if (session.players.size() >= session.requiredPlayers) {
+//                session.isReady = true;
+//            }
+//            return true;
+//        }
+//    }
+//    return false;
+//}
 bool GameSessionManager::JoinSession(const std::string& sessionId, const std::string& username) {
     auto it = sessions.find(sessionId);
     if (it != sessions.end() && !it->second.isReady) {
@@ -42,7 +62,6 @@ bool GameSessionManager::JoinSession(const std::string& sessionId, const std::st
             auto player = std::make_unique<Player>(username, std::move(weapon), std::make_pair(0, 0));
 
             session.players[username] = std::move(player);
-            //session.players.emplace(username, std::move(player)); 
 
             if (session.players.size() >= session.requiredPlayers) {
                 session.isReady = true;
@@ -52,6 +71,7 @@ bool GameSessionManager::JoinSession(const std::string& sessionId, const std::st
     }
     return false;
 }
+
 
 void GameSessionManager::LeaveSession(const std::string& sessionId, const std::string& username) {
     auto it = sessions.find(sessionId);

@@ -219,10 +219,12 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
 
     setupWaitingRoom();
 
+    connect(httpClient, &HttpClient::joinGameSuccess, this, &ModernDreamClient::onJoinGameSuccess);
+
     connect(httpClient, &HttpClient::gameReady, this, &ModernDreamClient::onGameReady);
     connect(httpClient, &HttpClient::playerJoined, this, &ModernDreamClient::onPlayerJoined);
     connect(httpClient, &HttpClient::playerLeft, this, &ModernDreamClient::onPlayerLeft);
-    connect(httpClient, &HttpClient::joinGameSuccess, this, &ModernDreamClient::onJoinGameSuccess);
+    
 }
 
 //void ModernDreamClient::setupWaitingRoom() {
@@ -355,6 +357,8 @@ void ModernDreamClient::OnStartGame(GameMap mapType, const QString& username) {
 }
 
 void ModernDreamClient::onJoinGameSuccess(const QString& sessionId, int current, int required) {
+    qDebug() << "onJoinGameSuccess called with sessionId:" << sessionId
+        << "current:" << current << "required:" << required;
     currentSessionId = sessionId;
     updateWaitingRoom(current, required);
     playerList->addItem(currentUsername + " (You)");

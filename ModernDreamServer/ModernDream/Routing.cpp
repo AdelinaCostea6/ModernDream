@@ -103,7 +103,7 @@ crow::response Routing::CreateSessionRoute(const crow::request& req) {
     return crow::response(200, response);
 }
 
-crow::response Routing::JoinSessionRoute(const crow::request& req) {
+//crow::response Routing::JoinSessionRoute(const crow::request& req) {
    /* crow::json::rvalue data = crow::json::load(req.body);
     if (!data) {
         return crow::response(400, "Invalid JSON");
@@ -121,38 +121,83 @@ crow::response Routing::JoinSessionRoute(const crow::request& req) {
     }
 
     return crow::response(400, "Failed to join session");*/
-    auto json = crow::json::load(req.body);
+    //auto json = crow::json::load(req.body);
 
-    if (!json) {
-        CROW_LOG_ERROR << "Invalid JSON format";
-        return crow::response(400, "Invalid JSON format");
-    }
-    if (!json.has("username")) {
-        CROW_LOG_ERROR << "Missing 'username'";
-        return crow::response(400, "Missing 'username'");
-    }
-    if (!json.has("mapType")) {
-        CROW_LOG_ERROR << "Missing 'mapType'";
-        return crow::response(400, "Missing 'mapType'");
-    }
-    if (!json.has("requiredPlayers")) {
-        CROW_LOG_ERROR << "Missing 'requiredPlayers'";
-        return crow::response(400, "Missing 'requiredPlayers'");
+    //if (!json) {
+    //    CROW_LOG_ERROR << "Invalid JSON format";
+    //    return crow::response(400, "Invalid JSON format");
+    //}
+    //if (!json.has("username")) {
+    //    CROW_LOG_ERROR << "Missing 'username'";
+    //    return crow::response(400, "Missing 'username'");
+    //}
+    //if (!json.has("mapType")) {
+    //    CROW_LOG_ERROR << "Missing 'mapType'";
+    //    return crow::response(400, "Missing 'mapType'");
+    //}
+    //if (!json.has("requiredPlayers")) {
+    //    CROW_LOG_ERROR << "Missing 'requiredPlayers'";
+    //    return crow::response(400, "Missing 'requiredPlayers'");
+    //}
+
+    //std::string username = json["username"].s();
+    //std::string mapType = json["mapType"].s();
+    //std::string sessionId = json["sessionId"].s();
+    //int requiredPlayers = json["requiredPlayers"].i();
+
+    //CROW_LOG_INFO << "Join request received: username=" << username
+    //    << ", mapType=" << mapType
+    //    << ", requiredPlayers=" << requiredPlayers
+    //    << " si id: " << sessionId;
+
+    //// Logică pentru sesiune...
+    //return crow::response(200, "Successfully joined game");
+    crow::response Routing::JoinSessionRoute(const crow::request & req) {
+        auto json = crow::json::load(req.body);
+
+        if (!json) {
+            CROW_LOG_ERROR << "Invalid JSON format";
+            return crow::response(400, "Invalid JSON format");
+        }
+        if (!json.has("username")) {
+            CROW_LOG_ERROR << "Missing 'username'";
+            return crow::response(400, "Missing 'username'");
+        }
+        if (!json.has("mapType")) {
+            CROW_LOG_ERROR << "Missing 'mapType'";
+            return crow::response(400, "Missing 'mapType'");
+        }
+        if (!json.has("requiredPlayers")) {
+            CROW_LOG_ERROR << "Missing 'requiredPlayers'";
+            return crow::response(400, "Missing 'requiredPlayers'");
+        }
+
+        std::string username = json["username"].s();
+        std::string mapType = json["mapType"].s();
+        std::string sessionId = json.has("sessionId") ? std::string(json["sessionId"].s()) : "new";
+        int requiredPlayers = json["requiredPlayers"].i();
+
+        if (std::string(sessionId) == "new") {
+            sessionId = m_gameSessionManager.CreateSession(requiredPlayers);
+        }
+
+        if (!m_gameSessionManager.JoinSession(sessionId, username)) {
+            return crow::response(400, "Failed to join session");
+        }
+
+        CROW_LOG_INFO << "Join request processed: username=" << username
+            << ", mapType=" << mapType
+            << ", sessionId=" << sessionId;
+
+        crow::json::wvalue response;
+        response["message"] = "Player joined successfully";
+        response["sessionId"] = sessionId;
+        response["username"] = username;
+        response["requiredPlayers"] = requiredPlayers;
+
+        return crow::response(200, response);
     }
 
-    std::string username = json["username"].s();
-    std::string mapType = json["mapType"].s();
-    std::string sessionId = json["sessionId"].s();
-    int requiredPlayers = json["requiredPlayers"].i();
-
-    CROW_LOG_INFO << "Join request received: username=" << username
-        << ", mapType=" << mapType
-        << ", requiredPlayers=" << requiredPlayers
-        << " si id: " << sessionId;
-
-    // Logică pentru sesiune...
-    return crow::response(200, "Successfully joined game");
-}
 
 
 crow::response Routing::LeaveSessionRoute(const crow::request& req) {
