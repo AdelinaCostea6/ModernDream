@@ -15,7 +15,8 @@ namespace http {
         crow::response CreateSessionRoute(const crow::request& req);
         crow::response JoinSessionRoute(const crow::request& req);
         crow::response LeaveSessionRoute(const crow::request& req);
-        crow::response GetSessionStatusRoute(const crow::request& req);
+        //crow::response GetSessionStatusRoute(const crow::request& req);
+        crow::response GetSessionStatusRoute(const std::string& sessionId); 
 
     private:
         DatabaseManager m_db;

@@ -20,6 +20,7 @@ LoginDialog::LoginDialog(QWidget *parent)
 { 
     /*modernDreamClient = new ModernDreamClient(this);
     modernDreamClient->hide();*/
+    modernDreamClient = new ModernDreamClient(nullptr);
      
     setWindowTitle("Titan Vanguard - Login");
     resize(850, 600);
@@ -535,7 +536,11 @@ void LoginDialog::onCarSelected()
         return;
     }
 
+    modernDreamClient->OnStartGame(GameMap::CAR, username);
+    modernDreamClient->show();
+    this->hide();
     httpClient->joinGame(username, "CAR", 4);
+   
     //emit switchToWaitingRoom(); 
 
    /* connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);

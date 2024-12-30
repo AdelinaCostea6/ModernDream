@@ -305,6 +305,16 @@ void HttpClient::onJoinGameResponse() {
                 << ", currentPlayers:" << currentPlayers
                 << ", requiredPlayers:" << requiredPlayers;
 
+            // Initialize and start status check timer
+            if (!statusCheckTimer) { 
+                statusCheckTimer = new QTimer(this); 
+                statusCheckTimer->setInterval(2000); // Check every 2 seconds
+                connect(statusCheckTimer, &QTimer::timeout, [this]() {
+                    checkGameStatus(currentSessionId);
+                    });
+            }
+            statusCheckTimer->start();
+
             emit joinGameSuccess(sessionId, currentPlayers, requiredPlayers);
         }
         else {
@@ -356,26 +366,64 @@ void HttpClient::checkGameStatus(const QString& sessionId) {
     connect(reply, &QNetworkReply::finished, this, &HttpClient::onCheckStatusResponse);
 }
 
+//void HttpClient::onCheckStatusResponse() {
+//    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
+//    if (!reply) return;
+//
+//    if (reply->error() == QNetworkReply::NoError) {
+//        QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
+//
+//        int currentPlayers = response["currentPlayers"].toInt();
+//        int requiredPlayers = response["requiredPlayers"].toInt();
+//
+//        if (response["status"].toString() == "ready") {
+//            statusCheckTimer->stop();
+//            emit gameReady(currentSessionId, response["players"].toArray());
+//        }
+//        else if (response["status"].toString() == "waiting") {
+//            if (response.contains("lastJoined")) {
+//                emit playerJoined(response["lastJoined"].toString(), currentPlayers, requiredPlayers);
+//            }
+//            if (response.contains("lastLeft")) {
+//                emit playerLeft(response["lastLeft"].toString(), currentPlayers, requiredPlayers);
+//            }
+//        }
+//    }
+//    reply->deleteLater();
+//}
+
 void HttpClient::onCheckStatusResponse() {
     QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
     if (!reply) return;
 
     if (reply->error() == QNetworkReply::NoError) {
-        QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
+        QByteArray responseData = reply->readAll();
+        qDebug() << "Status response:" << responseData;  // Debug log
+
+        QJsonObject response = QJsonDocument::fromJson(responseData).object();
 
         int currentPlayers = response["currentPlayers"].toInt();
         int requiredPlayers = response["requiredPlayers"].toInt();
 
-        if (response["status"].toString() == "ready") {
+        QString status = response["status"].toString();
+        qDebug() << "Game status:" << status;  // Debug log
+
+        if (status == "ready") {
             statusCheckTimer->stop();
-            emit gameReady(currentSessionId, response["players"].toArray());
+            if (response.contains("players")) {
+                emit gameReady(currentSessionId, response["players"].toArray());
+            }
         }
-        else if (response["status"].toString() == "waiting") {
+        else if (status == "waiting") {
             if (response.contains("lastJoined")) {
-                emit playerJoined(response["lastJoined"].toString(), currentPlayers, requiredPlayers);
+                QString lastJoined = response["lastJoined"].toString();
+                qDebug() << "Player joined:" << lastJoined;  // Debug log
+                emit playerJoined(lastJoined, currentPlayers, requiredPlayers);
             }
             if (response.contains("lastLeft")) {
-                emit playerLeft(response["lastLeft"].toString(), currentPlayers, requiredPlayers);
+                QString lastLeft = response["lastLeft"].toString();
+                qDebug() << "Player left:" << lastLeft;  // Debug log
+                emit playerLeft(lastLeft, currentPlayers, requiredPlayers);
             }
         }
     }

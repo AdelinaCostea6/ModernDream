@@ -10,6 +10,9 @@ struct GameSession {
     std::map<std::string, std::unique_ptr<Player>> players;
     bool isReady = false;
 
+    std::string lastJoinedPlayer; 
+    std::string lastLeftPlayer; 
+
     GameSession() : sessionId(""), requiredPlayers(0), isReady(false) {}
 
     GameSession(const std::string& id, int reqPlayers)

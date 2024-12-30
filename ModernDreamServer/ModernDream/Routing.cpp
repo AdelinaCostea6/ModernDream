@@ -34,9 +34,13 @@ void Routing::Run(DatabaseManager& storage) {
         return LeaveSessionRoute(req);
         });
 
-    CROW_ROUTE(m_app, "/game/status").methods("POST"_method)([this](const crow::request& req) {
+    /*CROW_ROUTE(m_app, "/game/status").methods("POST"_method)([this](const crow::request& req) {
         return GetSessionStatusRoute(req);
-        });
+        });*/
+    CROW_ROUTE(m_app, "/game/status/<string>")
+        .methods("GET"_method)([this](std::string sessionId) {
+        return GetSessionStatusRoute(sessionId);
+            });
 
     m_app.port(8080).multithreaded().run();
 }
@@ -219,14 +223,52 @@ crow::response Routing::LeaveSessionRoute(const crow::request& req) {
     return crow::response(200, response);
 }
 
-crow::response Routing::GetSessionStatusRoute(const crow::request& req) {
-    crow::json::rvalue data = crow::json::load(req.body);
-    if (!data) {
-        return crow::response(400, "Invalid JSON");
-    }
-
-    std::string sessionId = data["sessionId"].s();
-
+//crow::response Routing::GetSessionStatusRoute(const crow::request& req) {
+//    crow::json::rvalue data = crow::json::load(req.body);
+//    if (!data) {
+//        return crow::response(400, "Invalid JSON");
+//    }
+//
+//    std::string sessionId = data["sessionId"].s();
+//
+//    try {
+//        auto session = m_gameSessionManager.GetSessionStatus(sessionId);
+//
+//        crow::json::wvalue response;
+//        response["sessionId"] = session.sessionId;
+//        response["requiredPlayers"] = session.requiredPlayers;
+//        response["currentPlayers"] = session.players.size();
+//        response["isReady"] = session.isReady;
+//
+//        response["status"] = session.isReady ? "ready" : "waiting";
+//
+//        /*crow::json::wvalue playersJson;
+//        for (const auto& [username, player] : session.players) {
+//            playersJson[username] = player->GetName();
+//        }
+//        response["players"] = std::move(playersJson);*/
+//        // Create player list
+//        std::vector<std::string> playerList;
+//        for (const auto& [username, player] : session.players) {
+//            playerList.push_back(username);
+//        }
+//        response["players"] = std::move(playerList);
+//
+//        // Include last joined/left players if available
+//        if (session.lastJoinedPlayer != "") { 
+//            response["lastJoined"] = session.lastJoinedPlayer;
+//        }
+//        if (session.lastLeftPlayer != "") {
+//            response["lastLeft"] = session.lastLeftPlayer;
+//        }
+//
+//        return crow::response(200, response);
+//    }
+//    catch (const std::out_of_range&) {
+//        return crow::response(404, "Session not found");
+//    }
+//}
+crow::response Routing::GetSessionStatusRoute(const std::string& sessionId) {
     try {
         auto session = m_gameSessionManager.GetSessionStatus(sessionId);
 
@@ -234,17 +276,28 @@ crow::response Routing::GetSessionStatusRoute(const crow::request& req) {
         response["sessionId"] = session.sessionId;
         response["requiredPlayers"] = session.requiredPlayers;
         response["currentPlayers"] = session.players.size();
-        response["isReady"] = session.isReady;
 
-        crow::json::wvalue playersJson;
+        // Set status based on session state
+        response["status"] = session.isReady ? "ready" : "waiting";
+
+        // Create player list
+        std::vector<std::string> playerList;
         for (const auto& [username, player] : session.players) {
-            playersJson[username] = player->GetName();
+            playerList.push_back(username);
         }
-        response["players"] = std::move(playersJson);
+        response["players"] = std::move(playerList);
+
+        // Include last joined/left players if available
+        if (session.lastJoinedPlayer != "") {
+            response["lastJoined"] = session.lastJoinedPlayer;
+        }
+        if (session.lastLeftPlayer != "") {
+            response["lastLeft"] = session.lastLeftPlayer;
+        }
 
         return crow::response(200, response);
     }
     catch (const std::out_of_range&) {
         return crow::response(404, "Session not found");
-    }
+    } 
 }
