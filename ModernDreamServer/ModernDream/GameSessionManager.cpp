@@ -8,7 +8,8 @@ GameSession::GameSession(GameSession&& other) noexcept
     : sessionId(std::move(other.sessionId)),
     requiredPlayers(other.requiredPlayers),
     players(std::move(other.players)),
-    isReady(other.isReady) {}
+    isReady(other.isReady) {
+}
 
 // Operator de atribuire prin mutare
 GameSession& GameSession::operator=(GameSession&& other) noexcept {
@@ -20,9 +21,15 @@ GameSession& GameSession::operator=(GameSession&& other) noexcept {
     }
     return *this;
 }
-
 std::string GameSessionManager::CreateSession(int requiredPlayers) {
-    std::string sessionId = std::to_string(rand());
+
+    // Utilizare random_device pentru seed unic
+    std::random_device rd;
+    std::mt19937 gen(rd()); // Motorul Mersenne Twister
+    std::uniform_int_distribution<> dis(1, 1000000);
+
+    std::string sessionId = std::to_string(dis(gen));
+   // std::string sessionId = std::to_string(rand());
     sessions.emplace(sessionId, GameSession(sessionId, requiredPlayers)); 
     /*std::random_device rd;
     std::mt19937 gen(rd());
@@ -64,6 +71,9 @@ bool GameSessionManager::JoinSession(const std::string& sessionId, const std::st
             session.players[username] = std::move(player);
             session.lastJoinedPlayer = username;  // Track last joined player
             session.lastLeftPlayer = "";  // Reset last left
+
+            std::cout << "Player " << username << " joined session " << sessionId
+                << ". Total players: " << session.players.size() << std::endl;
 
             if (session.players.size() >= session.requiredPlayers) {
                 session.isReady = true;
@@ -120,10 +130,18 @@ void GameSessionManager::LeaveSession(const std::string& sessionId, const std::s
 //    }
 //}
 
- GameSession GameSessionManager::GetSessionStatus(const std::string& sessionId) {
+ /*GameSession GameSessionManager::GetSessionStatus(const std::string& sessionId) {
     auto it = sessions.find(sessionId);
     if (it != sessions.end()) {
         return std::move(it->second);
+    }
+    throw std::out_of_range("Session not found");
+}*/
+
+const GameSession& GameSessionManager::GetSessionStatus(const std::string& sessionId) const {
+    auto it = sessions.find(sessionId);
+    if (it != sessions.end()) {
+        return it->second; // Returnează sesiunea prin referință
     }
     throw std::out_of_range("Session not found");
 }

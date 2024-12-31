@@ -270,7 +270,8 @@ crow::response Routing::LeaveSessionRoute(const crow::request& req) {
 //}
 crow::response Routing::GetSessionStatusRoute(const std::string& sessionId) {
     try {
-        auto session = m_gameSessionManager.GetSessionStatus(sessionId);
+        //auto session = m_gameSessionManager.GetSessionStatus(sessionId);
+        const auto& session = m_gameSessionManager.GetSessionStatus(sessionId);
 
         crow::json::wvalue response;
         response["sessionId"] = session.sessionId;

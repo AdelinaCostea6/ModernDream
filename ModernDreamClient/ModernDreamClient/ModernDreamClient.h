@@ -75,6 +75,7 @@ class ModernDreamClient : public QMainWindow {
 
 public:
     explicit ModernDreamClient(QWidget* parent = nullptr);
+    ~ModernDreamClient();
 
 private:
     QTabWidget* tabWidget;          

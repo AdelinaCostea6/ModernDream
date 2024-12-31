@@ -19,6 +19,8 @@ void HttpClient::login(const QString& username)
     connect(reply, &QNetworkReply::finished, this, &HttpClient::onLoginResponse);
 }
 
+
+
 void HttpClient::registerUser(const QString& username)
 {
     
@@ -236,6 +238,17 @@ void HttpClient::onCreateGameResponse() {
 //    connect(reply, &QNetworkReply::finished, this, &HttpClient::onJoinGameResponse);
 //}
 void HttpClient::joinGame(const QString& username, const QString& mapType, int requiredPlayers) {
+    if (!currentSessionId.isEmpty()) {
+        qDebug() << "Already in a session. Session ID:" << currentSessionId;
+        return;
+    }
+
+    if (joiningInProgress) {
+        qDebug() << "joinGame already in progress. Skipping...";
+        return;
+    }
+
+    joiningInProgress = true;
     QUrl url("http://localhost:8080/game/join");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -250,8 +263,15 @@ void HttpClient::joinGame(const QString& username, const QString& mapType, int r
 
     QByteArray data = QJsonDocument(json).toJson();
     QNetworkReply* reply = manager->post(request, data);
+    static int connectionCount = 0;
+    connectionCount++;
+    qDebug() << "Connecting finished signal. Connection count:" << connectionCount;
 
-    connect(reply, &QNetworkReply::finished, this, &HttpClient::onJoinGameResponse);
+    //connect(reply, &QNetworkReply::finished, this, &HttpClient::onJoinGameResponse);
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        joiningInProgress = false;  // Resetează flag-ul când cererea este finalizată
+        onJoinGameResponse(reply);
+        });
 }
 
 
@@ -289,44 +309,43 @@ void HttpClient::joinGame(const QString& username, const QString& mapType, int r
 //    reply->deleteLater();
 //}
 
-void HttpClient::onJoinGameResponse() {
-    QNetworkReply* reply = qobject_cast<QNetworkReply*>(sender());
-    if (!reply) return;
+void HttpClient::onJoinGameResponse(QNetworkReply* reply) {
+if (!reply) return;
 
-    if (reply->error() == QNetworkReply::NoError) {
-        QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
+QByteArray responseData = reply->readAll();
+QJsonObject response = QJsonDocument::fromJson(responseData).object();
 
-        // Verifică dacă serverul trimite `sessionId`
-        if (response.contains("sessionId")) {
-            QString sessionId = response["sessionId"].toString();
-            int currentPlayers = response["currentPlayers"].toInt();
-            int requiredPlayers = response["requiredPlayers"].toInt();
-            qDebug() << "Emitting joinGameSuccess with sessionId:" << sessionId
-                << ", currentPlayers:" << currentPlayers
-                << ", requiredPlayers:" << requiredPlayers;
+if (reply->error() == QNetworkReply::NoError) {
+    if (response.contains("sessionId")) {
+        currentSessionId = response["sessionId"].toString();
+        int currentPlayers = response["currentPlayers"].toInt();
+        int requiredPlayers = response["requiredPlayers"].toInt();
 
-            // Initialize and start status check timer
-            if (!statusCheckTimer) { 
-                statusCheckTimer = new QTimer(this); 
-                statusCheckTimer->setInterval(2000); // Check every 2 seconds
-                connect(statusCheckTimer, &QTimer::timeout, [this]() {
-                    checkGameStatus(currentSessionId);
-                    });
-            }
-            statusCheckTimer->start();
+        qDebug() << "Emitting joinGameSuccess with sessionId:" << currentSessionId
+            << ", currentPlayers:" << currentPlayers
+            << ", requiredPlayers:" << requiredPlayers;
 
-            emit joinGameSuccess(sessionId, currentPlayers, requiredPlayers);
+        if (!statusCheckTimer) {
+            statusCheckTimer = new QTimer(this);
+            statusCheckTimer->setInterval(2000); // Check every 2 seconds
+            connect(statusCheckTimer, &QTimer::timeout, [this]() {
+                checkGameStatus(currentSessionId);
+                });
         }
-        else {
-            qDebug() << "Error: No sessionId in server response.";
-        }
+        statusCheckTimer->start();
+
+        emit joinGameSuccess(currentSessionId, currentPlayers, requiredPlayers);
     }
     else {
-        emit joinGameFailure(reply->errorString());
+        qDebug() << "Error: sessionId missing in server response.";
     }
+}
+else {
+    qDebug() << "Join game failed:" << reply->errorString();
+    emit joinGameFailure(reply->errorString());
+}
 
-    reply->deleteLater();
-
+reply->deleteLater();
 }
 
 
@@ -359,6 +378,11 @@ void HttpClient::onLeaveGameResponse() {
 }
 
 void HttpClient::checkGameStatus(const QString& sessionId) {
+    if (sessionId.isEmpty()) {
+        qDebug() << "Session ID is empty, cannot check status.";
+        return;
+    }
+
     QUrl url(QString("http://localhost:8080/game/status/%1").arg(sessionId));
     QNetworkRequest request(url);
 

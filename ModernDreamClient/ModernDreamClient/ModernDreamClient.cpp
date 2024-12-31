@@ -6,12 +6,22 @@
 
 ModernDreamClient::ModernDreamClient(QWidget* parent)
     : QMainWindow(parent), mainStack(new QStackedWidget(this)), httpClient(new HttpClient(this)) {
-    //setWindowTitle("Battle City - Modern Dream");
     resize(800, 600);
+
+    // Inițializăm waitingRoomWidget
     setupWaitingRoom();
+    qDebug() << "setupWaitingRoom initialized waitingRoomWidget:" << waitingRoomWidget;
 
+    // Inițializăm gameWidget o singură dată
+    gameWidget = new QWidget(this);
+    QVBoxLayout* layout = new QVBoxLayout(gameWidget);
+    QLabel* gameLabel = new QLabel("Game is starting...", gameWidget);
+    layout->addWidget(gameLabel);
+    mainStack->addWidget(gameWidget);
+    qDebug() << "gameWidget created and added to mainStack:" << gameWidget;
+
+    // Inițializăm tabWidget
     tabWidget = new QTabWidget(this);
-
     QWidget* gameSetupTab = new QWidget();
     QVBoxLayout* setupLayout = new QVBoxLayout(gameSetupTab);
 
@@ -19,35 +29,32 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     playerCountSpinBox = new QSpinBox(this);
     playerCountSpinBox->setRange(1, 4);
 
-    /*QLabel* mapLabel = new QLabel("Select Map:", this);
-    mapComboBox = new QComboBox(this);
-    mapComboBox->addItems({ "Small Map", "Medium Map", "Large Map" });*/
-
     startGameButton = new QPushButton("Start Game", this);
 
     setupLayout->addWidget(playerCountLabel);
     setupLayout->addWidget(playerCountSpinBox);
-    //setupLayout->addWidget(mapLabel);
-    //setupLayout->addWidget(mapComboBox);
     setupLayout->addWidget(startGameButton);
 
     tabWidget->addTab(gameSetupTab, "Game Setup");
-
     mainStack->addWidget(tabWidget);
+    qDebug() << "tabWidget created and added to mainStack:" << tabWidget;
+
+    // Setăm widget-ul implicit ca tabWidget
+    mainStack->setCurrentWidget(tabWidget);
     setCentralWidget(mainStack);
 
+    // Conectăm butonul Start Game
     connect(startGameButton, &QPushButton::clicked, this, [this]() {
         OnStartGame(currentMap, currentUsername);
         });
 
-    setupWaitingRoom();
-
+    // Conectăm semnalele relevante
     connect(httpClient, &HttpClient::joinGameSuccess, this, &ModernDreamClient::onJoinGameSuccess);
-
-    connect(httpClient, &HttpClient::gameReady, this, &ModernDreamClient::onGameReady);
+    //connect(httpClient, &HttpClient::gameReady, this, &ModernDreamClient::onGameReady);
     connect(httpClient, &HttpClient::playerJoined, this, &ModernDreamClient::onPlayerJoined);
     connect(httpClient, &HttpClient::playerLeft, this, &ModernDreamClient::onPlayerLeft);
-    
+
+    qDebug() << "ModernDreamClient initialized successfully.";
 }
 
 //void ModernDreamClient::setupWaitingRoom() {
@@ -70,6 +77,15 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
 //
 //    mainStack->addWidget(waitingRoomWidget);
 //}
+
+
+ModernDreamClient::~ModernDreamClient() {
+    qDebug() << "ModernDreamClient destroyed.";
+    if (gameWidget) {
+        qDebug() << "gameWidget still exists in destructor:" << gameWidget;
+    }
+}
+
 void ModernDreamClient::setupWaitingRoom() {
     waitingRoomWidget = new QWidget();
     QVBoxLayout* layout = new QVBoxLayout(waitingRoomWidget);
@@ -185,6 +201,16 @@ void ModernDreamClient::onJoinGameSuccess(const QString& sessionId, int current,
     currentSessionId = sessionId;
     updateWaitingRoom(current, required);
     playerList->addItem(currentUsername + " (You)");
+    if (!waitingRoomWidget) {
+        qDebug() << "Error: waitingRoomWidget is nullptr!";
+        return;
+    }
+
+    // Adaugă widget-ul la mainStack dacă nu există
+    if (mainStack->indexOf(waitingRoomWidget) == -1) {
+        qDebug() << "Adding waitingRoomWidget to mainStack.";
+        mainStack->addWidget(waitingRoomWidget);
+    }
     mainStack->setCurrentWidget(waitingRoomWidget);
 }
 
@@ -211,11 +237,23 @@ void ModernDreamClient::updateWaitingRoom(int current, int required) {
 }
 
 void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
+    qDebug() << "onGameReady called. Session ID:" << sessionId;
+
+    if (!gameWidget) {
+        qDebug() << "Error: gameWidget is nullptr!";
+        return;
+    }
+
+    if (mainStack->indexOf(gameWidget) == -1) {
+        qDebug() << "Adding gameWidget to mainStack.";
+        mainStack->addWidget(gameWidget);
+    }
     mainStack->setCurrentWidget(gameWidget);
     QVector<QString> playerNames;
     for (const QJsonValue& player : players) {
         playerNames.append(player.toString());
     }
+    qDebug() << "Switched to gameWidget successfully.";
 
 }
 //void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) 

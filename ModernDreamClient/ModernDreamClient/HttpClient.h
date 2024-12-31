@@ -39,7 +39,7 @@ private slots:
     void onRegisterResponse();
     void onCreateGameResponse();
 
-    void onJoinGameResponse();
+    void onJoinGameResponse(QNetworkReply* reply);
     void onCheckStatusResponse();
     void onLeaveGameResponse();
 
@@ -48,6 +48,7 @@ private:
 
     QTimer* statusCheckTimer; 
     QString currentSessionId; 
+    bool joiningInProgress = false;
 };
 
 #endif  // HTTPCLIENT_H

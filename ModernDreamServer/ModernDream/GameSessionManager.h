@@ -16,7 +16,10 @@ struct GameSession {
     GameSession() : sessionId(""), requiredPlayers(0), isReady(false) {}
 
     GameSession(const std::string& id, int reqPlayers)
-        : sessionId(id), requiredPlayers(reqPlayers), isReady(false) {}
+        : sessionId(id), requiredPlayers(reqPlayers), isReady(false) {
+        std::cout << "GameSession created with sessionId: " << sessionId
+            << ". Players map size: " << players.size() << std::endl;
+    }
 
     GameSession(GameSession&& other) noexcept;
     GameSession& operator=(GameSession&& other) noexcept;
@@ -35,6 +38,6 @@ public:
     std::string CreateSession(int requiredPlayers);
     bool JoinSession(const std::string& sessionId, const std::string& username);
     void LeaveSession(const std::string& sessionId, const std::string& username);
-    GameSession GetSessionStatus(const std::string& sessionId);
+    const GameSession& GetSessionStatus(const std::string& sessionId) const;
 };
 

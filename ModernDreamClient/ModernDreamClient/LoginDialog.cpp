@@ -290,6 +290,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(httpClient, &HttpClient::loginFailure, this, &LoginDialog::onLoginFailure);
     connect(httpClient, &HttpClient::registerFailure, this, &LoginDialog::onRegisterFailure);
     connect(this, &LoginDialog::switchToWaitingRoom, modernDreamClient, &ModernDreamClient::onJoinGameSuccess);
+    
     //connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
     //connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);
 
@@ -422,9 +423,21 @@ void LoginDialog::onHelicopterSelected()
         return;
     }
 
-    connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::switchToWaitingRoom);
+    if (!modernDreamClient) {
+        qDebug() << "Error: modernDreamClient is nullptr!";
+        return;
+    }
 
-    httpClient->joinGame(username, "helicopter", 4);
+    //modernDreamClient = new ModernDreamClient(this); // Creăm ModernDreamClient
+    connect(httpClient, &HttpClient::gameReady, modernDreamClient, &ModernDreamClient::onGameReady); 
+    modernDreamClient->OnStartGame(GameMap::HELICOPTER, username);
+    modernDreamClient->show();
+    this->hide();
+    //httpClient->joinGame(username, "HELICOPTER", 4);
+
+   // connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::switchToWaitingRoom);
+
+    //httpClient->joinGame(username, "helicopter", 4);
 
     /*connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
     connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);*/
@@ -484,7 +497,17 @@ void LoginDialog::onBoatSelected()
         return;
     }
 
-    httpClient->joinGame(username, "Boat", 4);
+    if (!modernDreamClient) {
+        qDebug() << "Error: modernDreamClient is nullptr!";
+        return;
+    }
+
+    connect(httpClient, &HttpClient::gameReady, modernDreamClient, &ModernDreamClient::onGameReady);
+
+    modernDreamClient->OnStartGame(GameMap::BOAT, username);
+    modernDreamClient->show();
+    this->hide();
+    //httpClient->joinGame(username, "BOAT", 4);
 
     /*connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
     connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);*/
@@ -536,10 +559,17 @@ void LoginDialog::onCarSelected()
         return;
     }
 
+    if (!modernDreamClient) {
+        qDebug() << "Error: modernDreamClient is nullptr!";
+        return;
+    }
+
+    connect(httpClient, &HttpClient::gameReady, modernDreamClient, &ModernDreamClient::onGameReady);
+
     modernDreamClient->OnStartGame(GameMap::CAR, username);
     modernDreamClient->show();
     this->hide();
-    httpClient->joinGame(username, "CAR", 4);
+    //httpClient->joinGame(username, "CAR", 4);
    
     //emit switchToWaitingRoom(); 
 
