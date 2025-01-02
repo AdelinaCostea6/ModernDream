@@ -39,7 +39,6 @@ private:
 
     ModernDreamClient* modernDreamClient;
 
-    //ModernDreamClient* modernDreamClient{ nullptr };
 
 
     void switchToMenu();
@@ -47,7 +46,6 @@ private:
 private slots:
     void OnLogin();
     void OnRegister();
-    //void onStartGame();
     void onHelicopterSelected();
     void onBoatSelected();
     void onCarSelected();
@@ -56,8 +54,7 @@ private slots:
     void onLoginFailure(const QString &error);
     void onRegisterFailure(const QString &error);
     void showMessageDialog(const QString &message, const QString &color);
-    //void onJoinGameSuccess(const QString& sessionId, int currentPlayers, int requiredPlayers);
-    //void onJoinGameFailure(const QString& error);
+
 
 signals:
     void switchToWaitingRoom(const QString& sessionId, int currentPlayers, int requiredPlayers);

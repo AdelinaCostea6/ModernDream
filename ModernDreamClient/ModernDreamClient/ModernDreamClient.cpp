@@ -8,11 +8,11 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     : QMainWindow(parent), mainStack(new QStackedWidget(this)), httpClient(new HttpClient(this)) {
     resize(800, 600);
 
-    // Inițializăm waitingRoomWidget
+    
     setupWaitingRoom();
     qDebug() << "setupWaitingRoom initialized waitingRoomWidget:" << waitingRoomWidget;
 
-    // Inițializăm gameWidget o singură dată
+    
     gameWidget = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(gameWidget);
     QLabel* gameLabel = new QLabel("Game is starting...", gameWidget);
@@ -20,7 +20,7 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     mainStack->addWidget(gameWidget);
     qDebug() << "gameWidget created and added to mainStack:" << gameWidget;
 
-    // Inițializăm tabWidget
+    
     tabWidget = new QTabWidget(this);
     QWidget* gameSetupTab = new QWidget();
     QVBoxLayout* setupLayout = new QVBoxLayout(gameSetupTab);
@@ -39,44 +39,23 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     mainStack->addWidget(tabWidget);
     qDebug() << "tabWidget created and added to mainStack:" << tabWidget;
 
-    // Setăm widget-ul implicit ca tabWidget
+    
     mainStack->setCurrentWidget(tabWidget);
     setCentralWidget(mainStack);
 
-    // Conectăm butonul Start Game
+    
     connect(startGameButton, &QPushButton::clicked, this, [this]() {
         OnStartGame(currentMap, currentUsername);
         });
 
-    // Conectăm semnalele relevante
+    
     connect(httpClient, &HttpClient::joinGameSuccess, this, &ModernDreamClient::onJoinGameSuccess);
-    //connect(httpClient, &HttpClient::gameReady, this, &ModernDreamClient::onGameReady);
+    connect(httpClient, &HttpClient::gameReady, this, &ModernDreamClient::onGameReady); 
     connect(httpClient, &HttpClient::playerJoined, this, &ModernDreamClient::onPlayerJoined);
     connect(httpClient, &HttpClient::playerLeft, this, &ModernDreamClient::onPlayerLeft);
 
     qDebug() << "ModernDreamClient initialized successfully.";
 }
-
-//void ModernDreamClient::setupWaitingRoom() {
-//    waitingRoomWidget = new QWidget();
-//    QVBoxLayout* layout = new QVBoxLayout(waitingRoomWidget);
-//
-//    waitingStatusLabel = new QLabel("Waiting for players...");
-//    waitingStatusLabel->setAlignment(Qt::AlignCenter);
-//
-//    playerProgress = new QProgressBar();
-//    playerList = new QListWidget();
-//
-//    QPushButton* leaveButton = new QPushButton("Leave Game");
-//    connect(leaveButton, &QPushButton::clicked, this, &ModernDreamClient::onLeaveGame);
-//
-//    layout->addWidget(waitingStatusLabel);
-//    layout->addWidget(playerProgress);
-//    layout->addWidget(playerList);
-//    layout->addWidget(leaveButton);
-//
-//    mainStack->addWidget(waitingRoomWidget);
-//}
 
 
 ModernDreamClient::~ModernDreamClient() {
@@ -91,7 +70,7 @@ void ModernDreamClient::setupWaitingRoom() {
     QVBoxLayout* layout = new QVBoxLayout(waitingRoomWidget);
     layout->setAlignment(Qt::AlignCenter);
 
-    // Create a frame for the waiting room content
+ 
     QFrame* waitingFrame = new QFrame();
     waitingFrame->setStyleSheet(
         "QFrame {"
@@ -102,7 +81,7 @@ void ModernDreamClient::setupWaitingRoom() {
         "}");
     QVBoxLayout* frameLayout = new QVBoxLayout(waitingFrame);
 
-    // Waiting status label
+
     waitingStatusLabel = new QLabel("Waiting for players...");
     waitingStatusLabel->setAlignment(Qt::AlignCenter);
     waitingStatusLabel->setStyleSheet(
@@ -112,7 +91,7 @@ void ModernDreamClient::setupWaitingRoom() {
         "margin-bottom: 20px;"
     );
 
-    // Progress bar
+
     playerProgress = new QProgressBar();
     playerProgress->setStyleSheet(
         "QProgressBar {"
@@ -127,7 +106,7 @@ void ModernDreamClient::setupWaitingRoom() {
         "}"
     );
 
-    // Player list
+
     playerList = new QListWidget();
     playerList->setStyleSheet(
         "QListWidget {"
@@ -145,7 +124,7 @@ void ModernDreamClient::setupWaitingRoom() {
         "}"
     );
 
-    // Leave button
+
     QPushButton* leaveButton = new QPushButton("Leave Game");
     leaveButton->setStyleSheet(
         "QPushButton {"
@@ -188,10 +167,7 @@ void ModernDreamClient::OnStartGame(GameMap mapType, const QString& username) {
 
     httpClient->joinGame(username, mapTypeStr, playerCountSpinBox->value());
     mainStack->setCurrentWidget(waitingRoomWidget);
-    /*qDebug() << "Adding waitingRoomWidget to mainStack";
-    mainStack->addWidget(waitingRoomWidget);
-    qDebug() << "Switching to waitingRoomWidget";*/
-    //mainStack->setCurrentWidget(waitingRoomWidget); 
+  
 
 }
 
@@ -206,7 +182,7 @@ void ModernDreamClient::onJoinGameSuccess(const QString& sessionId, int current,
         return;
     }
 
-    // Adaugă widget-ul la mainStack dacă nu există
+    
     if (mainStack->indexOf(waitingRoomWidget) == -1) {
         qDebug() << "Adding waitingRoomWidget to mainStack.";
         mainStack->addWidget(waitingRoomWidget);
@@ -236,7 +212,15 @@ void ModernDreamClient::updateWaitingRoom(int current, int required) {
     playerProgress->setValue(current);
 }
 
+
 void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
+    static bool gameStarted = false; 
+    if (gameStarted) {
+        qDebug() << "Game already started, ignoring additional calls.";
+        return;
+    }
+    gameStarted = true;
+
     qDebug() << "onGameReady called. Session ID:" << sessionId;
 
     if (!gameWidget) {
@@ -244,33 +228,64 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
         return;
     }
 
+  
+    QLayout* oldLayout = gameWidget->layout();
+    if (oldLayout) {
+        QLayoutItem* item;
+        while ((item = oldLayout->takeAt(0)) != nullptr) {
+            delete item->widget();
+            delete item;
+        }
+        delete oldLayout;
+    }
+
+    QVBoxLayout* layout = new QVBoxLayout(gameWidget);
+    layout->setContentsMargins(0, 0, 0, 0);  
+
+    gameWidget->setStyleSheet("background-color: #62009e;"); 
+
+    QWidget* topContainer = new QWidget(gameWidget);
+    QVBoxLayout* topLayout = new QVBoxLayout(topContainer);
+
+
+    QLabel* sessionLabel = new QLabel(QString("Session ID: %1").arg(sessionId), topContainer);
+    sessionLabel->setAlignment(Qt::AlignRight);
+    sessionLabel->setStyleSheet("font-size: 14px; color: white;");
+    topLayout->addWidget(sessionLabel);
+
+
+    QLabel* playersLabel = new QLabel("Players in the game:", topContainer);
+    playersLabel->setStyleSheet("color: white;");
+    topLayout->addWidget(playersLabel);
+
+
+    for (const QJsonValue& player : players) {
+        QLabel* playersNameLabel = new QLabel(player.toString(), topContainer);
+        playersNameLabel->setStyleSheet("color: white");
+        topLayout->addWidget(playersNameLabel);
+       
+    }
+
+    layout->addWidget(topContainer);
+
+ 
+    QLabel* gameCanvas = new QLabel("Game canvas goes here...", gameWidget);
+    gameCanvas->setStyleSheet("background-color: #eedbf9; border: 1px solid black; height: 400px; margin-top: 20px;");
+    gameCanvas->setAlignment(Qt::AlignCenter);
+    layout->addWidget(gameCanvas, 1); 
+
+    gameWidget->setLayout(layout);
+
+
     if (mainStack->indexOf(gameWidget) == -1) {
-        qDebug() << "Adding gameWidget to mainStack.";
         mainStack->addWidget(gameWidget);
     }
     mainStack->setCurrentWidget(gameWidget);
-    QVector<QString> playerNames;
-    for (const QJsonValue& player : players) {
-        playerNames.append(player.toString());
-    }
+
     qDebug() << "Switched to gameWidget successfully.";
-
 }
-//void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) 
-//{
-//    // This will be called when all players have joined
-//    QMessageBox::information(this, "Game Ready", "All players have joined! Starting game...");
-//    // Here you would transition to your game screen
-//}
 
-//void ModernDreamClient::onLeaveGame() {
-//    if (!currentSessionId.isEmpty()) {
-//        httpClient->leaveGame(currentSessionId);
-//        mainStack->setCurrentWidget(tabWidget);
-//        playerList->clear();
-//        waitingStatusLabel->setText("Waiting for players...");
-//    }
-//}
+
 void ModernDreamClient::onLeaveGame() {
     if (!currentSessionId.isEmpty()) {
         httpClient->leaveGame(currentSessionId);

@@ -18,8 +18,7 @@
 LoginDialog::LoginDialog(QWidget *parent)
     : QDialog(parent), httpClient(new HttpClient(this))
 { 
-    /*modernDreamClient = new ModernDreamClient(this);
-    modernDreamClient->hide();*/
+    
     modernDreamClient = new ModernDreamClient(nullptr);
      
     setWindowTitle("Titan Vanguard - Login");
@@ -291,47 +290,7 @@ LoginDialog::LoginDialog(QWidget *parent)
     connect(httpClient, &HttpClient::registerFailure, this, &LoginDialog::onRegisterFailure);
     connect(this, &LoginDialog::switchToWaitingRoom, modernDreamClient, &ModernDreamClient::onJoinGameSuccess);
     
-    //connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
-    //connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);
-
- 
-
-
-   /* QWidget *carGamePage = new QWidget();
-    QVBoxLayout *carGameLayout = new QVBoxLayout();
-    carGameLayout->setAlignment(Qt::AlignCenter);
-
-    QFrame *carGameFrame = new QFrame(this);
-    QVBoxLayout *carGameFrameLayout = new QVBoxLayout(carGameFrame);
-    carGameFrameLayout->setAlignment(Qt::AlignCenter);
-
-    QPushButton *startGameButton = new QPushButton("START GAME", this);
-
-    startGameButton->setFixedSize(200, 50);
-
-    startGameButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: black;"
-        "    color: #BF00FF;"
-        "    border: 2px solid #BF00FF;"
-        "    border-radius: 5px;"
-        "    padding: 5px;"
-        "    font-size: 14px;"
-        "    font-family: 'Italic';"
-        "    font-weight: bold;"
-        "}");
-
-    carGameFrameLayout->addWidget(backToMapsButton);
-
-    carGameLayout->addStretch();
-    carGameLayout->addWidget(carGameFrame);
-    carGameLayout->addStretch();
-
-    carGamePage->setLayout(carGameLayout);
-
-    stackedWidget->addWidget(carGamePage);
-
-    connect(startGameButton, &QPushButton::clicked, this, &LoginDialog::onStartGame);*/
+   
 }
 
 LoginDialog::~LoginDialog()
@@ -370,53 +329,9 @@ void LoginDialog::OnRegister()
     httpClient->registerUser(username);
 }
 
-//void LoginDialog::onStartGame()
-//{
-//    int playerCount = playerCountSpinBox->value();
-//    QString selectedMap = mapComboBox->currentText();
-//
-//    QMessageBox::information(this, "Game Start",
-//                             QString("Starting game with %1 players on map: %2")
-//                                 .arg(playerCount)
-//                                 .arg(selectedMap));
-//}
-
-
-
 
 void LoginDialog::onHelicopterSelected()
 {
-    /*QDialog messageDialog(this);
-    messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-    messageDialog.setStyleSheet("background-color: black");
-
-    QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
-
-    QLabel *messageLabel = new QLabel("You selected Helicopternage Circuit", &messageDialog);
-    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    messageLabel->setStyleSheet("color: red; font-weight: bold; font-size: 18px;");
-
-    QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-    closeButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: white;"
-        "    color: black;"
-        "    border: 2px solid black;"
-        "    border-radius: 5px;"
-        "    padding: 5px;"
-        "    font-family: 'Italic';"
-        "    font-weight: bold;"
-        "}");
-    QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
-
-    layout->addWidget(messageLabel);
-    layout->addWidget(closeButton, 0, Qt::AlignCenter);
-
-    messageDialog.setLayout(layout);
-
-    messageDialog.exec();
-
-    return;*/
     QString username = usernameEdit->text();
     if (username.isEmpty()) {
         showMessageDialog("Username cannot be empty", "red");
@@ -428,69 +343,16 @@ void LoginDialog::onHelicopterSelected()
         return;
     }
 
-    //modernDreamClient = new ModernDreamClient(this); // Creăm ModernDreamClient
-    connect(httpClient, &HttpClient::gameReady, modernDreamClient, &ModernDreamClient::onGameReady); 
+    connect(httpClient, &HttpClient::gameReady, modernDreamClient, &ModernDreamClient::onGameReady);
+
     modernDreamClient->OnStartGame(GameMap::HELICOPTER, username);
     modernDreamClient->show();
     this->hide();
-    //httpClient->joinGame(username, "HELICOPTER", 4);
-
-   // connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::switchToWaitingRoom);
-
-    //httpClient->joinGame(username, "helicopter", 4);
-
-    /*connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
-    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);*/
 }
-//void LoginDialog::onJoinGameSuccess(const QString& sessionId, int currentPlayers, int requiredPlayers) {
-//    showMessageDialog("You have joined the session: " + sessionId, "#7fff00");
-//
-//    emit switchToWaitingRoom(sessionId, currentPlayers, requiredPlayers);
-//    //modernDreamClient->onJoinGameSuccess(sessionId, currentPlayers, requiredPlayers); 
-//    //modernDreamClient->show(); 
-//    //this->hide();
-//    
-//}
-//
-//void LoginDialog::onJoinGameFailure(const QString& error) {
-//    showMessageDialog("Failed to join game: " + error, "red");
-//}
 
 
 void LoginDialog::onBoatSelected()
 {
-    /*QDialog messageDialog(this);
-    messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-    messageDialog.setStyleSheet("background-color: 	black;");
-
-    QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
-
-    QLabel *messageLabel = new QLabel("You selected Boatnage Circuit", &messageDialog);
-    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    messageLabel->setStyleSheet("color: red; font-weight: bold; font-size: 18px;");
-
-    QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-    closeButton->setStyleSheet(
-        "QPushButton {"
-        "    background-color: white;"
-        "    color: black;"
-        "    border: 2px solid black;"
-        "    border-radius: 5px;"
-        "    padding: 5px;"
-        "    font-family: 'Italic';"
-        "    font-weight: bold;"
-        "}");
-    QObject::connect(closeButton, &QPushButton::clicked, &messageDialog, &QDialog::accept);
-
-    layout->addWidget(messageLabel);
-    layout->addWidget(closeButton, 0, Qt::AlignCenter);
-
-    messageDialog.setLayout(layout);
-
-    messageDialog.exec();
-
-    return;*/
-
     QString username = usernameEdit->text();
     if (username.isEmpty()) {
         showMessageDialog("Username cannot be empty", "red");
@@ -507,51 +369,11 @@ void LoginDialog::onBoatSelected()
     modernDreamClient->OnStartGame(GameMap::BOAT, username);
     modernDreamClient->show();
     this->hide();
-    //httpClient->joinGame(username, "BOAT", 4);
-
-    /*connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
-    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);*/
 
 }
 
 void LoginDialog::onCarSelected()
 {
-//    QDialog messageDialog(this);
-//    messageDialog.setWindowFlags(Qt::FramelessWindowHint | Qt::Dialog);
-//    messageDialog.setStyleSheet("background-color: 	black;");
-//
-//    QHBoxLayout *layout = new QHBoxLayout(&messageDialog);
-//
-//    QLabel *messageLabel = new QLabel("You selected Carnage Circuit", &messageDialog);
-//    messageLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-//    messageLabel->setStyleSheet("color: red; font-weight: bold; font-size: 18px;");
-//
-//    QPushButton *closeButton = new QPushButton("OK", &messageDialog);
-//    closeButton->setStyleSheet(
-//        "QPushButton {"
-//        "    background-color: white;"
-//        "    color: black;"
-//        "    border: 2px solid black;"
-//        "    border-radius: 5px;"
-//        "    padding: 5px;"
-//        "    font-family: 'Italic';"
-//        "    font-weight: bold;"
-//        "}");
-//    QObject::connect(closeButton, &QPushButton::clicked, [&]())
-//    {
-//        messageDialog.accept();
-//        stackedWidget->setCurrentIndex(3);
-//        carGameStackedWidget->setCurrentIndex(0);
-//    }
-//
-//    layout->addWidget(messageLabel);
-//    layout->addWidget(closeButton, 0, Qt::AlignCenter);
-//
-//    messageDialog.setLayout(layout);
-//
-//    messageDialog.exec();
-//
-//    return;
 
     QString username = usernameEdit->text();
     if (username.isEmpty()) {
@@ -569,26 +391,7 @@ void LoginDialog::onCarSelected()
     modernDreamClient->OnStartGame(GameMap::CAR, username);
     modernDreamClient->show();
     this->hide();
-    //httpClient->joinGame(username, "CAR", 4);
-   
-    //emit switchToWaitingRoom(); 
-
-   /* connect(httpClient, &HttpClient::joinGameSuccess, this, &LoginDialog::onJoinGameSuccess);
-    connect(httpClient, &HttpClient::joinGameFailure, this, &LoginDialog::onJoinGameFailure);*/
-    //QString username = usernameEdit->text();
-    //if (username.isEmpty()) {
-    //    showMessageDialog("Username cannot be empty", "red");
-    //    return;
-    //}
-
-    //// Ensure modernDreamClient exists
-    //if (modernDreamClient) {
-    //    httpClient->joinGame(username, "Car", 4);
-    //    // Don't show here - wait for success callback
-    //}
-    ////httpClient->joinGame(username, "Car", 4);
-    ////modernDreamClient->show(); 
-    ////this->hide();
+    
 }
 
 void LoginDialog::paintEvent(QPaintEvent *event)
