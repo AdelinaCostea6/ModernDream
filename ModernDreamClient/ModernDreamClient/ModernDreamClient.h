@@ -12,7 +12,7 @@
 #include <QLabel>
 #include <QString>
 #include "HttpClient.h"
-
+#include "GameMapWidget.h"
 enum class GameMap {
     CAR,
     HELICOPTER,
@@ -36,7 +36,7 @@ private:
     QWidget* waitingRoomWidget;     
     QWidget* gameWidget;            
 
-    QLabel* waitingStatusLabel; 
+    QLabel* waitingStatusLabel;  
     QProgressBar* playerProgress;   
     QListWidget* playerList;        
 
@@ -47,7 +47,7 @@ private:
     HttpClient* httpClient;        
 
     QStackedWidget* mainStack;
-
+    GameMapWidget* mapWidget;
     void setupWaitingRoom();       
 
 
@@ -56,7 +56,8 @@ public slots:
     void onJoinGameSuccess(const QString& sessionId, int current, int required);
     void onPlayerJoined(const QString& username, int current, int required);
     void onPlayerLeft(const QString& username, int current, int required);
-    void onGameReady(const QString& sessionId, const QJsonArray& players);
+    //void onGameReady(const QString& sessionId, const QJsonArray& players);
+    void onGameReady(const QString& sessionId, const QJsonArray& players, const QJsonObject& mapData); 
     void onLeaveGame(); 
     void updateWaitingRoom(int current, int required);
 };

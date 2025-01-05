@@ -8,7 +8,6 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     : QMainWindow(parent), mainStack(new QStackedWidget(this)), httpClient(new HttpClient(this)) {
     resize(800, 600);
 
-    
     setupWaitingRoom();
     qDebug() << "setupWaitingRoom initialized waitingRoomWidget:" << waitingRoomWidget;
 
@@ -213,80 +212,161 @@ void ModernDreamClient::updateWaitingRoom(int current, int required) {
 }
 
 
-void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
-    static bool gameStarted = false; 
+//void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
+//    static bool gameStarted = false; 
+//    if (gameStarted) {
+//        qDebug() << "Game already started, ignoring additional calls.";
+//        return;
+//    }
+//    gameStarted = true;
+//
+//    qDebug() << "onGameReady called. Session ID:" << sessionId;
+//
+//    if (!gameWidget) {
+//        qDebug() << "Error: gameWidget is nullptr!";
+//        return;
+//    }
+//
+//  
+//    QLayout* oldLayout = gameWidget->layout();
+//    if (oldLayout) {
+//        QLayoutItem* item;
+//        while ((item = oldLayout->takeAt(0)) != nullptr) {
+//            delete item->widget();
+//            delete item;
+//        }
+//        delete oldLayout;
+//    }
+//
+//    QVBoxLayout* layout = new QVBoxLayout(gameWidget);
+//    layout->setContentsMargins(0, 0, 0, 0);  
+//
+//    gameWidget->setStyleSheet("background-color: #62009e;"); 
+//
+//    QWidget* topContainer = new QWidget(gameWidget);
+//    QVBoxLayout* topLayout = new QVBoxLayout(topContainer);
+//
+//
+//    QLabel* sessionLabel = new QLabel(QString("Session ID: %1").arg(sessionId), topContainer);
+//    sessionLabel->setAlignment(Qt::AlignRight);
+//    sessionLabel->setStyleSheet("font-size: 14px; color: white;");
+//    topLayout->addWidget(sessionLabel);
+//
+//
+//    QLabel* playersLabel = new QLabel("Players in the game:", topContainer);
+//    playersLabel->setStyleSheet("color: white;");
+//    topLayout->addWidget(playersLabel);
+//
+//
+//    for (const QJsonValue& player : players) {
+//        QLabel* playersNameLabel = new QLabel(player.toString(), topContainer);
+//        playersNameLabel->setStyleSheet("color: white");
+//        topLayout->addWidget(playersNameLabel);
+//       
+//    }
+//
+//    layout->addWidget(topContainer);
+//
+// 
+//    QLabel* gameCanvas = new QLabel("Game canvas goes here...", gameWidget);
+//    gameCanvas->setStyleSheet("background-color: #eedbf9; border: 1px solid black; height: 400px; margin-top: 20px;");
+//    gameCanvas->setAlignment(Qt::AlignCenter);
+//    layout->addWidget(gameCanvas, 1); 
+//
+//    gameWidget->setLayout(layout);
+//
+//
+//    if (mainStack->indexOf(gameWidget) == -1) {
+//        mainStack->addWidget(gameWidget);
+//    }
+//    mainStack->setCurrentWidget(gameWidget);
+//
+//    qDebug() << "Switched to gameWidget successfully.";
+//}
+
+void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players, const QJsonObject& mapData) {
+    static bool gameStarted = false;
     if (gameStarted) {
         qDebug() << "Game already started, ignoring additional calls.";
         return;
     }
     gameStarted = true;
 
-    qDebug() << "onGameReady called. Session ID:" << sessionId;
-
-    if (!gameWidget) {
-        qDebug() << "Error: gameWidget is nullptr!";
-        return;
-    }
-
-  
-    QLayout* oldLayout = gameWidget->layout();
-    if (oldLayout) {
-        QLayoutItem* item;
-        while ((item = oldLayout->takeAt(0)) != nullptr) {
-            delete item->widget();
-            delete item;
-        }
-        delete oldLayout;
-    }
-
+    // Create game widget with layout
+    gameWidget = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(gameWidget);
-    layout->setContentsMargins(0, 0, 0, 0);  
 
-    gameWidget->setStyleSheet("background-color: #62009e;"); 
+    // Session info
+    QLabel* sessionLabel = new QLabel(QString("Session ID: %1").arg(sessionId), gameWidget);
+    sessionLabel->setStyleSheet("color: white;");
+    layout->addWidget(sessionLabel);
 
-    QWidget* topContainer = new QWidget(gameWidget);
-    QVBoxLayout* topLayout = new QVBoxLayout(topContainer);
+    // Create and setup map widget
+    mapWidget = new GameMapWidget(gameWidget);
 
+    // Convert JSON map data to QVector
+    QVector<QVector<int>> gridData;
+    QJsonArray matrix = mapData["matrix"].toArray();
+    for (const QJsonValue& row : matrix) {
+        QVector<int> rowData;
+        QJsonArray rowArray = row.toArray();
+        for (const QJsonValue& cell : rowArray) {
+            rowData.append(cell.toInt());
+        }
+        gridData.append(rowData);
+    }
 
-    QLabel* sessionLabel = new QLabel(QString("Session ID: %1").arg(sessionId), topContainer);
-    sessionLabel->setAlignment(Qt::AlignRight);
-    sessionLabel->setStyleSheet("font-size: 14px; color: white;");
-    topLayout->addWidget(sessionLabel);
+    // Set map data and tile size
+    mapWidget->setMapData(gridData);
+    mapWidget->setTileSize(40);  // Set desired tile size
 
+    layout->addWidget(mapWidget, 1); // Add with stretch factor
 
-    QLabel* playersLabel = new QLabel("Players in the game:", topContainer);
+    // Player list
+    QLabel* playersLabel = new QLabel("Players in the game:", gameWidget);
     playersLabel->setStyleSheet("color: white;");
-    topLayout->addWidget(playersLabel);
-
+    layout->addWidget(playersLabel);
 
     for (const QJsonValue& player : players) {
-        QLabel* playersNameLabel = new QLabel(player.toString(), topContainer);
-        playersNameLabel->setStyleSheet("color: white");
-        topLayout->addWidget(playersNameLabel);
-       
+        QLabel* playerNameLabel = new QLabel(player.toString(), gameWidget);
+        playerNameLabel->setStyleSheet("color: white;");
+        layout->addWidget(playerNameLabel);
     }
 
-    layout->addWidget(topContainer);
+    // Add legend
+    QWidget* legendWidget = new QWidget(gameWidget);
+    QHBoxLayout* legendLayout = new QHBoxLayout(legendWidget);
 
- 
-    QLabel* gameCanvas = new QLabel("Game canvas goes here...", gameWidget);
-    gameCanvas->setStyleSheet("background-color: #eedbf9; border: 1px solid black; height: 400px; margin-top: 20px;");
-    gameCanvas->setAlignment(Qt::AlignCenter);
-    layout->addWidget(gameCanvas, 1); 
+    QVector<QPair<QString, QString>> legendItems = {
+        {"Track", "#D1D5DB"},
+        {"Wall", "#5B21B6"},
+        {"Player", "#10B981"},
+        {"Bomb", "#EF4444"}
+    };
 
-    gameWidget->setLayout(layout);
+    for (const auto& item : legendItems) {
+        QLabel* colorBox = new QLabel(legendWidget);
+        colorBox->setFixedSize(20, 20);
+        colorBox->setStyleSheet(QString("background-color: %1; border: 1px solid white;").arg(item.second));
 
+        QLabel* text = new QLabel(item.first, legendWidget);
+        text->setStyleSheet("color: white;");
 
-    if (mainStack->indexOf(gameWidget) == -1) {
-        mainStack->addWidget(gameWidget);
+        legendLayout->addWidget(colorBox);
+        legendLayout->addWidget(text);
+        legendLayout->addSpacing(10);
     }
+
+    layout->addWidget(legendWidget);
+
+    // Add the game widget to the main layout and make it the current widget
+    mainStack->addWidget(gameWidget);
     mainStack->setCurrentWidget(gameWidget);
-
-    qDebug() << "Switched to gameWidget successfully.";
 }
 
 
-void ModernDreamClient::onLeaveGame() {
+void ModernDreamClient::onLeaveGame() 
+{
     if (!currentSessionId.isEmpty()) {
         httpClient->leaveGame(currentSessionId);
         mainStack->setCurrentWidget(tabWidget);
