@@ -13,8 +13,8 @@ import bomb;
 class Map
 {
 private:
-    static const size_t kHeight = 15;
-    static const size_t kWidth = 15;
+    static const size_t kHeight = 30;
+    static const size_t kWidth = 30;
     std::vector<std::unique_ptr<Wall>> walls;
     std::array<std::unique_ptr<Bomb>,3> bombs;
     std::array<std::array<int, kWidth>, kHeight> mapMatrix{};

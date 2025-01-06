@@ -56,8 +56,8 @@ public slots:
     void onJoinGameSuccess(const QString& sessionId, int current, int required);
     void onPlayerJoined(const QString& username, int current, int required);
     void onPlayerLeft(const QString& username, int current, int required);
-    //void onGameReady(const QString& sessionId, const QJsonArray& players);
-    void onGameReady(const QString& sessionId, const QJsonArray& players, const QJsonObject& mapData); 
+    void onGameReady(const QString& sessionId, const QJsonArray& players);
+    //void onGameReady(const QString& sessionId, const QJsonArray& players, const QJsonObject& mapData); 
     void onLeaveGame(); 
     void updateWaitingRoom(int current, int required);
 };

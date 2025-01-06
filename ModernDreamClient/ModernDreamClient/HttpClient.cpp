@@ -294,3 +294,21 @@ void HttpClient::onCheckStatusResponse() {
     }
     reply->deleteLater();
 }
+
+QByteArray HttpClient::requestMapGeneration(int numPlayers) { 
+    QUrl url("http://localhost:8080/generateMap");
+    QNetworkRequest request(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QJsonObject json;
+    json["numPlayers"] = numPlayers;
+
+    QByteArray data = QJsonDocument(json).toJson();
+    QNetworkReply* reply = manager->post(request, data);
+
+    QEventLoop loop;
+    connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    return reply->readAll();
+}

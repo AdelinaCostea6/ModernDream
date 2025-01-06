@@ -20,6 +20,7 @@ public:
     void joinGame(const QString& username, const QString& mapType, int requiredPlayers);
     void checkGameStatus(const QString& sessionId);
     void leaveGame(const QString& sessionId);
+    QByteArray requestMapGeneration(int numPlayers);
 
 signals:
     void loginSuccess(const QString& username, int score);  
@@ -42,6 +43,7 @@ private slots:
     void onJoinGameResponse(QNetworkReply* reply);
     void onCheckStatusResponse();
     void onLeaveGameResponse();
+
 
 private:
     QNetworkAccessManager* manager;

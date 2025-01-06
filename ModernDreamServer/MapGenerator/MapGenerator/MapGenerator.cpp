@@ -19,10 +19,7 @@ void MapGenerator::GenerateMap(int numPlayers)
     DisplayMap();
   
 }
-//
-//void MapGenerator::InitializeMapMatrix() {
-//    mapMatrix.resize(size.first, std::vector<int>(size.second, FreeSpace));
-//}
+
 void MapGenerator::InitializeMapMatrix() {
     
     for (size_t i = 0; i < MapGenerator::kHeightG; ++i) {
@@ -41,8 +38,8 @@ void MapGenerator::GenerateClusters() {
     std::uniform_int_distribution<> wallTypeDist(0, 1);
 
     for (int cluster = 0; cluster < numClusters; cluster++) {
-        int startY = std::uniform_int_distribution<>(2,MapGenerator::kHeightG /*size.first*/ - 4)(gen);
-        int startX = std::uniform_int_distribution<>(2, MapGenerator::kWidthG/*size.second*/ - 4)(gen);
+        int startY = std::uniform_int_distribution<>(2,MapGenerator::kHeightG  - 4)(gen);
+        int startX = std::uniform_int_distribution<>(2, MapGenerator::kWidthG - 4)(gen);
 
         int clusterHeight = clusterSizeDist(gen);
         int clusterWidth = clusterSizeDist(gen);
@@ -67,7 +64,7 @@ void MapGenerator::GenerateClusters() {
                         mapMatrix[x][y] = DestructibleWall;
                         bool isDestructible = (wallTypeDist(gen) == 1);
                         wallPositions.emplace_back(std::make_pair(x, y)); 
-                        wallDurabilities.push_back(1); // Durability set to 1 initially
+                        wallDurabilities.push_back(1); 
                         wallDestructibleFlags.push_back(isDestructible); 
                     }
                 }
@@ -98,7 +95,7 @@ void MapGenerator::PlaceConnectorWalls() {
                     mapMatrix[y][x] = DestructibleWall;
                     bool isDestructible = (wallTypeDist(gen) == 1);
                     wallPositions.emplace_back(std::make_pair(x, y));
-                    wallDurabilities.push_back(1); // Durability set to 1
+                    wallDurabilities.push_back(1); 
                     wallDestructibleFlags.push_back(isDestructible);
                 }
             }
@@ -144,7 +141,7 @@ void MapGenerator::PlaceBombs() {
             auto position = wallPositions[wallIndex];
             bombPositions.emplace_back(position);
             mapMatrix[position.first][position.second] = DestructibleWallWithBomb;
-            bombStatuses.push_back(true);  // Bomb is active initially
+            bombStatuses.push_back(true);  
         }
     }
 }

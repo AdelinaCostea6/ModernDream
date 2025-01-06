@@ -1,129 +1,131 @@
-#include "GameMapWidget.h"
-
-GameMapWidget::GameMapWidget(QWidget* parent)
-    : QWidget(parent), tileSize(40) /*,playerPosition(-1, -1)*/ {
-    setAutoFillBackground(true);
-    QPalette pal = palette();
-    pal.setColor(QPalette::Window, QColor("#1F2937")); // Dark background
-    setPalette(pal);
-
-    tileImages[1] = QImage("../ModernDreamImages/tire1.png");  // Wall image
-    
-
-}
-
-void GameMapWidget::setMapData(const QVector<QVector<int>>& data) {
-    mapData = data;
-
-    // Adjust widget size based on map dimensions
-    if (!mapData.isEmpty()) {
-        int width = mapData[0].size() * tileSize;
-        int height = mapData.size() * tileSize;
-        setMinimumSize(width, height);
-        setMaximumSize(width, height);
-    }
-
-    update(); // Trigger repaint
-}
-
-void GameMapWidget::setTileSize(int size) {
-    tileSize = size; 
-    if (!mapData.isEmpty()) {
-        int width = mapData[0].size() * tileSize;
-        int height = mapData.size() * tileSize;
-        setMinimumSize(width, height);
-        setMaximumSize(width, height);
-    }
-    update();
-}
-
-void GameMapWidget::setTileImages(const QMap<int, QImage>& images) {
-    tileImages = images;
-}
-
-
-
+//#include "GameMapWidget.h"
+//#include <QPainter>
 //
-//void GameMapWidget::paintEvent(QPaintEvent* /*event*/) {
+//GameMapWidget::GameMapWidget(QWidget* parent) : QWidget(parent) {
+//    loadTextures();
+//    setFixedSize(1200, 800);
+//}
+//
+//void GameMapWidget::loadTextures() {
+//    wallTexture.load("../ModernDreamImages/tire1.png");
+//    wallTexture = wallTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio);
+//
+//    bombTexture.load("../ModernDreamImages/tire1.png");
+//    bombTexture = bombTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio);
+//
+//    playerTextures.resize(4);
+//    playerTextures[0].load("../ModernDreamImages/carBlueRight.png");
+//    playerTextures[1].load("../ModernDreamImages/carGreenRight.png");
+//    playerTextures[2].load("../ModernDreamImages/carPinkRight.png");
+//    playerTextures[3].load("../ModernDreamImages/carYellowRight.png");
+//
+//    for (auto& texture : playerTextures) {
+//        texture = texture.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio);
+//    }
+//}
+//
+//void GameMapWidget::initializeMap(const QVector<QVector<int>>& mapData) {
+//    map = mapData;
+//    update();
+//}
+//
+//void GameMapWidget::paintEvent(QPaintEvent* event) {
 //    QPainter painter(this);
 //    painter.setRenderHint(QPainter::Antialiasing);
 //
-//    for (int i = 0; i < mapData.size(); ++i) {
-//        for (int j = 0; j < mapData[i].size(); ++j) {
-//            QRect tileRect(j * tileSize, i * tileSize, tileSize, tileSize);
-//            drawTile(painter, mapData[i][j], tileRect);
+//    for (int y = 0; y < map.size(); ++y) {
+//        for (int x = 0; x < map[y].size(); ++x) {
+//            QRect cellRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+//
+//            switch (map[y][x]) {
+//            case 0: // Player position
+//                painter.fillRect(cellRect, QColor("#ffffff"));
+//                painter.drawPixmap(cellRect, playerTextures[0]); 
+//                break;
+//            case 1: // Free space
+//                painter.fillRect(cellRect, QColor("#d3d3d3"));
+//                break;
+//            case 2: // Destructible wall
+//                painter.fillRect(cellRect, QColor("#008000"));
+//                painter.drawPixmap(cellRect, wallTexture);
+//                break;
+//            case 3: // Destructible wall with bomb
+//                painter.fillRect(cellRect, QColor("#ff0000"));
+//                painter.drawPixmap(cellRect, bombTexture);
+//                break;
+//            case 4: // Non-destructible wall
+//                painter.fillRect(cellRect, QColor("#0000ff"));
+//                painter.drawPixmap(cellRect, wallTexture);
+//                break;
+//            }
 //        }
 //    }
-//
-//    // Draw player
-//    //if (playerPosition.first != -1 && playerPosition.second != -1) {
-//    //    QRect playerRect(playerPosition.second * tileSize, playerPosition.first * tileSize, tileSize, tileSize);
-//    //    drawTile(painter, 3, playerRect); // Assuming 3 represents the player
-//    //}
 //}
+#include "GameMapWidget.h"
+#include <QPainter>
+
+GameMapWidget::GameMapWidget(QWidget* parent) : QWidget(parent) {
+    loadTextures();
+    setMinimumSize(1400, 800);  // Optional: Set a minimum size to avoid too small cells
+}
+
+void GameMapWidget::loadTextures() {
+    wallTexture.load("../ModernDreamImages/tire2.png");
+    wallTexture = wallTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
+
+    bombTexture.load("../ModernDreamImages/tire2.png");
+    bombTexture = bombTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
+
+    playerTextures.resize(4);
+    playerTextures[0].load("../ModernDreamImages/carBlueRight.png");
+    playerTextures[1].load("../ModernDreamImages/carGreenRight.png");
+    playerTextures[2].load("../ModernDreamImages/carPinkRight.png");
+    playerTextures[3].load("../ModernDreamImages/carYellowRight.png");
+
+    for (auto& texture : playerTextures) {
+        texture = texture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
+    }
+}
+
+void GameMapWidget::initializeMap(const QVector<QVector<int>>& mapData) {
+    map = mapData;
+    update();
+}
+
 void GameMapWidget::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
 
-    for (int row = 0; row < mapData.size(); ++row) {
-        for (int col = 0; col < mapData[row].size(); ++col) {
-            int x = col * tileSize;
-            int y = row * tileSize;
+    // Calculate the cell size dynamically based on the widget size
+    float cellWidth = width() / map[0].size()+0.9;
+    float cellHeight = height() / map.size()+0.9;
+    float cellSize = qMin(cellWidth, cellHeight); // Use the smaller of the two to keep cells square
 
-            int tileType = mapData[row][col];
+    for (int y = 0; y < map.size(); ++y) {
+        for (int x = 0; x < map[y].size(); ++x) {
+            QRect cellRect(x * cellSize, y * cellSize, cellSize, cellSize);
 
-            // Draw the track (empty space) as a colored square
-            if (tileType == 0) {
-                painter.fillRect(x, y, tileSize, tileSize, trackColor);
-            }
-            // Draw the image corresponding to the tile type if available in tileImages map
-            else if (tileImages.contains(tileType)) {
-                painter.drawImage(x, y, tileImages[tileType].scaled(tileSize, tileSize));
+            switch (map[y][x]) {
+            case 0: // Player position
+                painter.fillRect(cellRect, QColor("#ffffff"));
+                painter.drawPixmap(cellRect, playerTextures[0]);
+                break;
+            case 1: // Free space
+                painter.fillRect(cellRect, QColor("#878787"));
+                break;
+            case 2: // Destructible wall
+                painter.fillRect(cellRect, QColor("#008000"));
+                painter.drawPixmap(cellRect, wallTexture);
+                break;
+            case 3: // Destructible wall with bomb
+                painter.fillRect(cellRect, QColor("#ff0000"));
+                painter.drawPixmap(cellRect, bombTexture);
+                break;
+            case 4: // Non-destructible wall
+                painter.fillRect(cellRect, QColor("#0000ff"));
+                painter.drawPixmap(cellRect, wallTexture);
+                break;
             }
         }
     }
 }
-
-
-void GameMapWidget::drawTile(QPainter& painter, int tileType, const QRect& rect) {
-    switch (tileType) {
-    case 1: // Free space (track)
-        painter.fillRect(rect, QColor("#D1D5DB")); // Light gray for track
-        painter.setPen(QPen(QColor("#000000"), 1)); // Black border
-        painter.drawRect(rect);
-        break;
-
-    case 2: // Normal wall
-    case 4: // Wall with a bomb (disguised as a normal wall)
-        if (tileImages.contains(2)) {
-            // Draw the normal wall image for both tileType 2 and 4
-            painter.drawImage(rect, tileImages[2]);
-        }
-        else {
-            // Fallback if the image isn't available
-            painter.fillRect(rect, QColor("#5B21B6")); // Purple for wall
-            painter.setPen(QPen(QColor("#000000"), 1));
-            painter.drawRect(rect);
-        }
-        break;
-
-    case 3: // Player
-        if (tileImages.contains(3)) {
-            painter.drawImage(rect, tileImages[3]);
-        }
-        else {
-            // Fallback for player
-            painter.fillRect(rect, QColor("#10B981")); // Green for player
-            painter.setPen(QPen(QColor("#000000"), 1));
-            painter.drawRect(rect);
-        }
-        break;
-
-    default: // Unknown tile type
-        painter.fillRect(rect, QColor("#F3F4F6")); // Light gray for unknown
-        painter.setPen(QPen(QColor("#000000"), 1));
-        painter.drawRect(rect);
-        break;
-    }
-}
-
-

@@ -34,14 +34,16 @@ void Routing::Run(DatabaseManager& storage) {
         return LeaveSessionRoute(req);
         });
 
-    /*CROW_ROUTE(m_app, "/game/status").methods("POST"_method)([this](const crow::request& req) {
-        return GetSessionStatusRoute(req);
-        });*/
+    
     CROW_ROUTE(m_app, "/game/status/<string>")
         .methods("GET"_method)([this](std::string sessionId) {
         return GetSessionStatusRoute(sessionId);
             });
 
+    CROW_ROUTE(m_app, "/generateMap")
+        .methods("POST"_method)([this](const crow::request& req) {
+        return GenerateMapRoute(req); 
+            });
     m_app.port(8080).multithreaded().run();
 }
 
@@ -301,4 +303,29 @@ crow::response Routing::GetSessionStatusRoute(const std::string& sessionId) {
     catch (const std::out_of_range&) {
         return crow::response(404, "Session not found");
     } 
+}
+
+crow::response Routing::GenerateMapRoute(const crow::request& req) {
+    crow::json::rvalue data = crow::json::load(req.body);
+    if (!data) {
+        return crow::response(400, "Invalid JSON");
+    }
+
+    int numPlayers = data["numPlayers"].i();
+    MapGenerator mapGen;
+    mapGen.GenerateMap(numPlayers);
+
+    crow::json::wvalue response;
+    std::vector<crow::json::wvalue> mapJson;
+
+    for (const auto& row : mapGen.GetMapMatrix()) {
+        std::vector<crow::json::wvalue> rowJson;
+        for (int val : row) {
+            rowJson.push_back(crow::json::wvalue(val));  // Convert each element to a wvalue
+        }
+        mapJson.push_back(crow::json::wvalue(rowJson));
+    }
+
+    response["map"] = crow::json::wvalue(mapJson);
+    return crow::response(200, response);
 }

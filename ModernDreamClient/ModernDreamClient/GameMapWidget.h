@@ -1,31 +1,22 @@
 #pragma once
-
 #include <QWidget>
-#include <QPainter>
-#include <QMap>
-#include <QImage>
-#include <QTimer>
+#include <QPixmap>
+#include <QVector>
 
 class GameMapWidget : public QWidget {
     Q_OBJECT
-
 public:
-    explicit GameMapWidget(QWidget* parent = nullptr);
-
-    void setMapData(const QVector<QVector<int>>& data);
-
-    void setTileSize(int size);
-    void setTileImages(const QMap<int, QImage>& images);
+    GameMapWidget(QWidget* parent = nullptr);
+    void initializeMap(const QVector<QVector<int>>& mapData);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
-    int tileSize;
-    QVector<QVector<int>> mapData;
+    static const int CELL_SIZE = 40;
+    QVector<QVector<int>> map;
+    QPixmap wallTexture, bombTexture;
+    QVector<QPixmap> playerTextures;
 
-    QMap<int, QImage> tileImages; // Mapping of tile types to images
-    QColor trackColor;
-    void drawTile(QPainter& painter, int tileType, const QRect& rect);
-    
+    void loadTextures();
 };
