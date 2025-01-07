@@ -13,16 +13,20 @@ import bomb;
 class Map
 {
 private:
-    static const size_t kHeight = 18;
-    static const size_t kWidth = 30;
+    /*static const size_t kHeight = 18;
+    static const size_t kWidth = 30;*/
+    size_t height;
+    size_t width;
+
     std::vector<std::unique_ptr<Wall>> walls;
     std::array<std::unique_ptr<Bomb>, 3> bombs;
-    std::array<std::array<int, kWidth>, kHeight> mapMatrix{};
+    std::vector<std::vector<int>> mapMatrix;
     
 
 public:
     Map();
     Map(MapGenerator& generator);
+    Map(size_t h, size_t w);
 
     bool IsPositionFree(std::pair<int, int> position) const;
     bool IsMovable(int x, int y) const;
@@ -36,6 +40,6 @@ public:
     void SetFreePosition(int x, int y);
     void SetWalls(std::vector<std::unique_ptr<Wall>> newWalls);
     void SetBombs(const std::array<std::unique_ptr<Bomb>, 3>& newBombs);
-    const std::array<std::array<int, kWidth>, kHeight>& GetMapMatrix() const;
+    const std::vector<std::vector<int>>& GetMapMatrix() const;
     std::vector<std::pair<int, int>> GetPlayerStartPositions() const;
 };

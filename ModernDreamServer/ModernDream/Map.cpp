@@ -1,16 +1,61 @@
 ﻿#include "Map.h"
 
 
-Map::Map() {
-    for (auto& row : mapMatrix) {
-        row.fill(1);  // Initialize map matrix with free space
-    }
+Map::Map() : height(18), width(30) {
+    mapMatrix.resize(height, std::vector<int>(width, 1));
 }
+
+Map::Map(size_t h, size_t w) : height(h), width(w) {
+    mapMatrix.resize(height, std::vector<int>(width, 1));
+}
+
+//Map::Map(MapGenerator& generator) {
+//    // Initialize mapMatrix from the generator
+//    for (size_t i = 0; i < mapMatrix.size(); ++i) {
+//        for (size_t j = 0; j < mapMatrix[i].size(); ++j) {
+//            mapMatrix[i][j] = generator.GetMapMatrix()[i][j];
+//        }
+//    }
+//
+//    // Use walls from the generator
+//    const auto& wallPositions = generator.GetWallPositions();
+//    const auto& wallDurabilities = generator.GetWallDurabilities();
+//    const auto& wallDestructibles = generator.GetWallDestructibleFlags();
+//
+//    // Assuming wallPositions, wallDurabilities, and wallDestructibles are all of the same size
+//    for (size_t i = 0; i < wallPositions.size(); ++i) {
+//        walls.push_back(std::make_unique<Wall>(
+//            wallPositions[i],  // Position from GetWallPositions
+//            wallDestructibles[i] ? WallType::DestructibleWall : WallType::NonDestructibleWall,  // Fixed enum usage
+//            wallDurabilities[i],  // Durability from GetWallDurabilities
+//            wallDestructibles[i]  // Destructibility status from GetWallDestructibleFlags
+//        ));
+//    }
+//
+//    // Use bombs from the generator
+//    const auto& bombPositions = generator.GetBombPositions();
+//    const auto& bombStatuses = generator.GetBombStatuses();
+//
+//    size_t bombIndex = 0;  // Index to insert bombs into the array
+//    for (size_t i = 0; i < bombPositions.size(); ++i) {
+//        if (bombStatuses[i] && bombIndex < bombs.size()) {
+//            bombs[bombIndex++] = std::make_unique<Bomb>(bombPositions[i]);
+//        }
+//    }
+//}
 Map::Map(MapGenerator& generator) {
-    // Initialize mapMatrix from the generator
-    for (size_t i = 0; i < mapMatrix.size(); ++i) {
-        for (size_t j = 0; j < mapMatrix[i].size(); ++j) {
-            mapMatrix[i][j] = generator.GetMapMatrix()[i][j];
+    // Get dimensions from generator
+    height = generator.GetHeightG();
+    width = generator.GetWidthG();
+
+    // Initialize mapMatrix with the correct size
+    mapMatrix.resize(height, std::vector<int>(width));
+
+    // Copy the map data
+    const auto& generatorMatrix = generator.GetMapMatrix();
+    for (size_t i = 0; i < height; ++i) {
+        for (size_t j = 0; j < width; ++j) {
+            mapMatrix[i][j] = generatorMatrix[i][j];
         }
     }
 
@@ -19,13 +64,12 @@ Map::Map(MapGenerator& generator) {
     const auto& wallDurabilities = generator.GetWallDurabilities();
     const auto& wallDestructibles = generator.GetWallDestructibleFlags();
 
-    // Assuming wallPositions, wallDurabilities, and wallDestructibles are all of the same size
     for (size_t i = 0; i < wallPositions.size(); ++i) {
         walls.push_back(std::make_unique<Wall>(
-            wallPositions[i],  // Position from GetWallPositions
-            wallDestructibles[i] ? WallType::Destructible : WallType::NonDestructible,  // Wall type based on destructibility
-            wallDurabilities[i],  // Durability from GetWallDurabilities
-            wallDestructibles[i]  // Destructibility status from GetWallDestructibleFlags
+            wallPositions[i],
+            wallDestructibles[i] ? WallType::DestructibleWall : WallType::NonDestructibleWall,
+            wallDurabilities[i],
+            wallDestructibles[i]
         ));
     }
 
@@ -33,10 +77,10 @@ Map::Map(MapGenerator& generator) {
     const auto& bombPositions = generator.GetBombPositions();
     const auto& bombStatuses = generator.GetBombStatuses();
 
-    size_t bombIndex = 0;  // Index to insert bombs into the array
+    size_t bombIndex = 0;
     for (size_t i = 0; i < bombPositions.size(); ++i) {
         if (bombStatuses[i] && bombIndex < bombs.size()) {
-            bombs[bombIndex++] = std::make_unique<Bomb>(bombPositions[i]);  // Manually insert bombs
+            bombs[bombIndex++] = std::make_unique<Bomb>(bombPositions[i]);
         }
     }
 }
@@ -64,14 +108,14 @@ bool Map::IsPositionFree(std::pair<int, int> position) const
     return true;
 }
 
-const std::array<std::array<int, Map::kWidth>, Map::kHeight>& Map::GetMapMatrix() const {
+const std::vector<std::vector<int>>& Map::GetMapMatrix() const {
     return mapMatrix;
 }
 
 
 bool Map::IsMovable(int x, int y) const 
 {
-    if (x < 0 || x >= kHeight || y < 0 || y >= kWidth) { 
+    if (x < 0 || x >= height || y < 0 || y >= width) { 
         return false;
     }
     if (!IsPositionFree({ x, y })) {
@@ -93,12 +137,12 @@ const std::array<std::unique_ptr<Bomb>, 3>& Map::GetBombs()
 
 size_t Map::GetHeight() const 
 {
-    return kHeight;
+    return height;
 }
 
 size_t Map::GetWidth() const
 {
-    return kWidth;
+    return width;
 }
 
 //std::pair<int, int> Map::GetSize()

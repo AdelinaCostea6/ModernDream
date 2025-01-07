@@ -23,12 +23,18 @@ private:
     void PlaceConnectorWalls();
     void SetPlayerStartPosition(int numPlayers);
     void PlaceBombs(); 
+    void GenerateNonDestructibleWalls();
 
-
-    static const size_t kHeightG = 18;
+    /*static const size_t kHeightG = 18;
     static const size_t kWidthG = 30;
-    std::array<std::array<int, kWidthG>, kHeightG> mapMatrix;
-
+    std::array<std::array<int, kWidthG>, kHeightG> mapMatrix;*/
+    static const size_t kMinHeight = 12;
+    static const size_t kMaxHeight = 24;
+    static const size_t kMinWidth = 20;
+    static const size_t kMaxWidth = 40;
+    size_t currentHeight;
+    size_t currentWidth;
+    std::vector<std::vector<int>> mapMatrix;
 
     std::vector<std::pair<int, int>> wallPositions;
     std::vector<int> wallDurabilities;
@@ -66,8 +72,6 @@ public:
     size_t GetWidthG() const;
 
     
-    const std::array<std::array<int, kWidthG>, kHeightG>& GetMapMatrix() const {
-        return mapMatrix;
-    }
+    const std::vector<std::vector<int>>& GetMapMatrix() const { return mapMatrix; }
 
 };

@@ -15,8 +15,8 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     
     gameWidget = new QWidget(this);
     QVBoxLayout* layout = new QVBoxLayout(gameWidget);
-    QLabel* gameLabel = new QLabel("Game is starting...", gameWidget);
-    layout->addWidget(gameLabel);
+    /*QLabel* gameLabel = new QLabel("Game is starting...", gameWidget);
+    layout->addWidget(gameLabel);*/
     mainStack->addWidget(gameWidget);
     qDebug() << "gameWidget created and added to mainStack:" << gameWidget;
 
@@ -25,13 +25,13 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     QWidget* gameSetupTab = new QWidget();
     QVBoxLayout* setupLayout = new QVBoxLayout(gameSetupTab);
 
-    QLabel* playerCountLabel = new QLabel("Number of Players: ", this);
+    /*QLabel* playerCountLabel = new QLabel("Number of Players: ", this);*/
     playerCountSpinBox = new QSpinBox(this);
     playerCountSpinBox->setRange(1, 4);
 
     startGameButton = new QPushButton("Start Game", this);
 
-    setupLayout->addWidget(playerCountLabel);
+    //setupLayout->addWidget(playerCountLabel);
     setupLayout->addWidget(playerCountSpinBox);
     setupLayout->addWidget(startGameButton);
 
@@ -56,7 +56,7 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
    // connect(httpClient, &HttpClient::playerMoved, this, &ModernDreamClient::updatePlayerPosition);
     bool success = connect(httpClient, &HttpClient::playerMoved, this, &ModernDreamClient::updatePlayerPosition);
     if (!success) {
-        qDebug() << "Eroare: `connect` a eșuat!";
+        qDebug() << "Eroare: `connect` a esuat!";
     }
 
     qDebug() << "ModernDreamClient initialized successfully.";
@@ -510,14 +510,14 @@ void ModernDreamClient::keyPressEvent(QKeyEvent* event) {
             qDebug() << "Key not recognized. Use W, A, S, D for movement.";
             return;
         }
-        qDebug() << "Trimitem direcția: " << direction;
+        qDebug() << "Trimitem directia: " << direction;
         httpClient->movePlayer(currentSessionId, currentUsername, direction);
     }
 }
 
 
 void ModernDreamClient::updatePlayerPosition(int x, int y) {
-    qDebug() << "Primim poziția nouă de la server: (" << x << ", " << y << ")";
+    qDebug() << "Primim pozitia nouă de la server: (" << x << ", " << y << ")";
     if (mapWidget) {
         mapWidget->updatePlayerPosition(x, y);  // Redesenăm harta cu noua poziție
     }

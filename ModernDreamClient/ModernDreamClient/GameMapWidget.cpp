@@ -64,12 +64,13 @@
 #include "GameMapWidget.h"
 #include <QPainter>
 #include <QLabel>
-#include < QPropertyAnimation>
+#include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
+
 
 GameMapWidget::GameMapWidget(QWidget* parent) : QWidget(parent) {
     loadTextures();
-    setMinimumSize(1400, 800);  // Optional: Set a minimum size to avoid too small cells
+    setMinimumSize(1400, 800);  
 }
 
 void GameMapWidget::loadTextures() {
@@ -123,36 +124,45 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
     pen.setWidth(0.2);  
     painter.setPen(pen);
 
+    int playerIndex = 0;
+
     for (int y = 0; y < rows; ++y) {
         for (int x = 0; x < cols; ++x) {
             QRectF cellRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
 
             switch (map[y][x]) {
             case 0: // Jucător
-                painter.fillRect(cellRect, QColor("#ffffff"));  
+                /*painter.fillRect(cellRect, QColor("#d3d3d3"));
                 painter.drawPixmap(cellRect.toRect(), playerTextures[0].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+                break;*/
+                painter.fillRect(cellRect, QColor("#d3d3d3"));
+
+                painter.drawPixmap(cellRect.toRect(), playerTextures[playerIndex].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+
+                playerIndex = (playerIndex + 1) % 4;
                 break;
-            case 1: // Spațiu liber
+            
+            case 1: 
                 painter.fillRect(cellRect, QColor("#d3d3d3"));  
                 break;
-            case 2: // Zid destructibil
+            case 2: 
                 painter.fillRect(cellRect, QColor("#008000"));  
                 painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 break;
-            case 3: // Zid destructibil cu bombă
+            case 3: 
                 painter.fillRect(cellRect, QColor("#ff0000"));  
                 painter.drawPixmap(cellRect.toRect(), bombTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 break;
-            case 4: // Zid nedestructibil
-                painter.fillRect(cellRect, QColor("#0000ff"));  // Albastru pentru zid nedestructibil
+            case 4: 
+                painter.fillRect(cellRect, QColor("#0000ff")); 
                 painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 break;
             }
 
-            // Desenează conturul celulei
             painter.drawRect(cellRect);
         }
     }
+   
 }
 
 

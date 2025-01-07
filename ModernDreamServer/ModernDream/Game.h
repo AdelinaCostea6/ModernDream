@@ -51,6 +51,10 @@ private:
 
 public:
     Game() = default;
+    //Game() {
+    //    MapGenerator generator;
+    //    GenerateMap(4); // Default to 4 players
+    //}
     Game(std::vector<std::unique_ptr<Wall>> walls,
         std::array<std::unique_ptr<Bomb>, 3> bombs,
         std::array<std::unique_ptr<Player>, 4> players);
