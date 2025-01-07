@@ -21,7 +21,7 @@ public:
     Player(const std::string &name, std::unique_ptr<Weapon> weapon, std::pair<int, int> position);
 
     void Login();
-    void Movement(Map& mapMatrix);
+   // void Movement(Map& mapMatrix);
     void Shoot();
     void ResetPosition();
     void Hit();
@@ -31,12 +31,13 @@ public:
     std::pair<int, int> GetPosition() const;
     const std::string& GetName() const;
     int GetScore() const;
-
+    void Movement(const Map& mapMatrix, char direction);
     Weapon& GetWeapon();
     void SetScore(int newScore);
     void SetPoints(int newPoints);
     bool IsSpeedBoostUsed() const;
     void SetSpeedBoostUsed(bool used);
+    void SetPosition(std::pair<int, int> pos);
     Player(const Player&) = delete;  
     Player& operator=(const Player&) = delete;
     Player(Player&&) = default;     

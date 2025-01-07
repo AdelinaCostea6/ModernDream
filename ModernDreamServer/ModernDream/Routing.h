@@ -18,6 +18,8 @@ namespace http {
         //crow::response GetSessionStatusRoute(const crow::request& req);
         crow::response GetSessionStatusRoute(const std::string& sessionId); 
         crow::response GenerateMapRoute(const crow::request& req);
+        crow::response MovePlayerRoute(const crow::request& req);
+
     private:
         DatabaseManager m_db;
         GameSessionManager m_gameSessionManager;

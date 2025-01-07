@@ -1,4 +1,4 @@
-//#include "GameMapWidget.h"
+﻿//#include "GameMapWidget.h"
 //#include <QPainter>
 //
 //GameMapWidget::GameMapWidget(QWidget* parent) : QWidget(parent) {
@@ -63,6 +63,9 @@
 //}
 #include "GameMapWidget.h"
 #include <QPainter>
+#include <QLabel>
+#include < QPropertyAnimation>
+#include <QParallelAnimationGroup>
 
 GameMapWidget::GameMapWidget(QWidget* parent) : QWidget(parent) {
     loadTextures();
@@ -90,42 +93,92 @@ void GameMapWidget::loadTextures() {
 void GameMapWidget::initializeMap(const QVector<QVector<int>>& mapData) {
     map = mapData;
     update();
+    //qDebug() << "Harta reinițializată. Poziția jucătorului: (" << playerX << ", " << playerY << ")";
+
 }
 
+
+
 void GameMapWidget::paintEvent(QPaintEvent* event) {
+   // qDebug() << "paintEvent apelat pentru poziția jucătorului: (" << playerX << ", " << playerY << ")";
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // Calculate the cell size dynamically based on the widget size
-    float cellWidth = width() / map[0].size()+0.9;
-    float cellHeight = height() / map.size()+0.9;
-    float cellSize = qMin(cellWidth, cellHeight); // Use the smaller of the two to keep cells square
+    if (map.isEmpty() || map[0].isEmpty()) {
+        return;
+    }
 
-    for (int y = 0; y < map.size(); ++y) {
-        for (int x = 0; x < map[y].size(); ++x) {
-            QRect cellRect(x * cellSize, y * cellSize, cellSize, cellSize);
+    int rows = map.size();        
+    int cols = map[0].size();     
+
+    // Dimensiunea fiecărei celule
+    float cellWidth = width() / float(cols);
+    float cellHeight = height() / float(rows);
+    float cellSize = qMin(cellWidth, cellHeight);  
+
+    float offsetX = (width() - cellSize * cols) / 2.0f;  
+    float offsetY = (height() - cellSize * rows) / 2.0f; 
+
+    QPen pen(Qt::gray);  
+    pen.setWidth(0.2);  
+    painter.setPen(pen);
+
+    for (int y = 0; y < rows; ++y) {
+        for (int x = 0; x < cols; ++x) {
+            QRectF cellRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
 
             switch (map[y][x]) {
-            case 0: // Player position
-                painter.fillRect(cellRect, QColor("#ffffff"));
-                painter.drawPixmap(cellRect, playerTextures[0]);
+            case 0: // Jucător
+                painter.fillRect(cellRect, QColor("#ffffff"));  
+                painter.drawPixmap(cellRect.toRect(), playerTextures[0].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 break;
-            case 1: // Free space
-                painter.fillRect(cellRect, QColor("#878787"));
+            case 1: // Spațiu liber
+                painter.fillRect(cellRect, QColor("#d3d3d3"));  
                 break;
-            case 2: // Destructible wall
-                painter.fillRect(cellRect, QColor("#008000"));
-                painter.drawPixmap(cellRect, wallTexture);
+            case 2: // Zid destructibil
+                painter.fillRect(cellRect, QColor("#008000"));  
+                painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 break;
-            case 3: // Destructible wall with bomb
-                painter.fillRect(cellRect, QColor("#ff0000"));
-                painter.drawPixmap(cellRect, bombTexture);
+            case 3: // Zid destructibil cu bombă
+                painter.fillRect(cellRect, QColor("#ff0000"));  
+                painter.drawPixmap(cellRect.toRect(), bombTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 break;
-            case 4: // Non-destructible wall
-                painter.fillRect(cellRect, QColor("#0000ff"));
-                painter.drawPixmap(cellRect, wallTexture);
+            case 4: // Zid nedestructibil
+                painter.fillRect(cellRect, QColor("#0000ff"));  // Albastru pentru zid nedestructibil
+                painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 break;
             }
+
+            // Desenează conturul celulei
+            painter.drawRect(cellRect);
         }
     }
 }
+
+
+
+
+
+void GameMapWidget::updatePlayerPosition(int x, int y) {
+    qDebug() << "Actualizare poziție jucător la: (" << x << ", " << y << ")";
+    for (int i = 0; i < map.size(); ++i) {
+        for (int j = 0; j < map[i].size(); ++j) {
+            if (map[i][j] == 0) {  // Poziția veche a jucătorului
+                map[i][j] = 1;  // Setăm spațiu liber
+            }
+        }
+    }
+
+    map[x][y] = 0;  // Setăm noua poziție a jucătorului
+   // playerX = x;  // Actualizează poziția curentă a jucătorului
+   // playerY = y;
+    repaint();  // Redesenăm harta
+    //animatePlayerMove(playerX, playerY, x, y);
+}
+
+
+
+
+
+
+

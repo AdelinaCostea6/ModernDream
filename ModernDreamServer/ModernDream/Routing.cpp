@@ -44,6 +44,36 @@ void Routing::Run(DatabaseManager& storage) {
         .methods("POST"_method)([this](const crow::request& req) {
         return GenerateMapRoute(req); 
             });
+
+    CROW_ROUTE(m_app, "/game/move").methods("POST"_method)([this](const crow::request& req) {
+        return MovePlayerRoute(req);
+        });
+
+    CROW_ROUTE(m_app, "/game/positions").methods("GET"_method)([this](const crow::request& req) {
+        auto json = crow::json::load(req.body);
+        if (!json) {
+            return crow::response(400, "Invalid JSON format");
+        }
+
+        std::string sessionId = json["sessionId"].s();
+        auto session = m_gameSessionManager.GetSession(sessionId);
+
+        if (!session) {
+            return crow::response(404, "Session not found");
+        }
+
+        crow::json::wvalue response;
+        for (const auto& player : session->players) {
+            auto pos = player.second->GetPosition();
+            // Construim array-ul JSON pentru poziție
+            response["players"][player.first] = crow::json::wvalue::list({ pos.first, pos.second });
+        }
+
+        return crow::response(200, response);
+        });
+
+
+
     m_app.port(8080).multithreaded().run();
 }
 
@@ -305,23 +335,108 @@ crow::response Routing::GetSessionStatusRoute(const std::string& sessionId) {
     } 
 }
 
+//crow::response Routing::GenerateMapRoute(const crow::request& req) {
+//    crow::json::rvalue data = crow::json::load(req.body);
+//    if (!data) {
+//        return crow::response(400, "Invalid JSON");
+//    }
+//
+//    int numPlayers = data["numPlayers"].i();
+//    MapGenerator mapGen;
+//    mapGen.GenerateMap(numPlayers);
+//
+//    crow::json::wvalue response;
+//    std::vector<crow::json::wvalue> mapJson;
+//
+//    for (const auto& row : mapGen.GetMapMatrix()) {
+//        std::vector<crow::json::wvalue> rowJson;
+//        for (int val : row) {
+//            rowJson.push_back(crow::json::wvalue(val));  // Convert each element to a wvalue
+//        }
+//        mapJson.push_back(crow::json::wvalue(rowJson));
+//    }
+//
+//    response["map"] = crow::json::wvalue(mapJson);
+//    return crow::response(200, response);
+//}
+
+
+//crow::response Routing::GenerateMapRoute(const crow::request& req) {
+//    crow::json::rvalue data = crow::json::load(req.body);
+//    if (!data) {
+//        return crow::response(400, "Invalid JSON");
+//    }
+//
+//    if (!data.has("numPlayers")) {
+//        return crow::response(400, "Missing required keys: 'numPlayers' or 'sessionId'");
+//    }
+//
+//    int numPlayers = data["numPlayers"].i();
+//    //std::string sessionId = data["sessionId"].s();
+//
+//   /* auto session = m_gameSessionManager.GetSession(sessionId);
+//    if (!session) {
+//        return crow::response(404, "Session not found");
+//    }*/
+//
+//
+//    Game game;
+//    game.GenerateMap(numPlayers);  // Generăm harta prin clasa `Game`
+//
+//    crow::json::wvalue response;
+//    std::vector<crow::json::wvalue> mapJson;
+//
+//    for (const auto& row :game.GetMap().GetMapMatrix()) {
+//        std::vector<crow::json::wvalue> rowJson;
+//        for (int val : row) {
+//            rowJson.push_back(crow::json::wvalue(val));
+//        }
+//        mapJson.push_back(crow::json::wvalue(rowJson));
+//    }
+//
+//    response["map"] = crow::json::wvalue(mapJson);
+//    return crow::response(200, response);
+//}
+
+
 crow::response Routing::GenerateMapRoute(const crow::request& req) {
     crow::json::rvalue data = crow::json::load(req.body);
     if (!data) {
         return crow::response(400, "Invalid JSON");
     }
 
+    if (!data.has("numPlayers") || !data.has("sessionId")) {
+        return crow::response(400, "Missing required keys: 'numPlayers' or 'sessionId'");
+    }
+
     int numPlayers = data["numPlayers"].i();
-    MapGenerator mapGen;
-    mapGen.GenerateMap(numPlayers);
+    std::string sessionId = data["sessionId"].s();
+
+    auto session = m_gameSessionManager.GetSession(sessionId);  // Obține sesiunea activă
+    if (!session) {
+        return crow::response(404, "Session not found");
+    }
+
+    session->game.GenerateMap(numPlayers);  // Generează harta pentru sesiunea curentă
+
+    // Actualizează pozițiile jucătorilor după generarea hărții
+    auto startPositions = session->game.GetMap().GetPlayerStartPositions();
+    int i = 0;
+    for (auto& player : session->players) {
+        if (i < startPositions.size()) {
+            player.second->SetPosition(startPositions[i]);
+            std::cout << "Jucătorul " << player.first << " este plasat la ("
+                << startPositions[i].first << ", " << startPositions[i].second << ")\n";
+            ++i;
+        }
+    }
 
     crow::json::wvalue response;
     std::vector<crow::json::wvalue> mapJson;
-
-    for (const auto& row : mapGen.GetMapMatrix()) {
+    for (const auto& row : session->game.GetMap().GetMapMatrix()) {
         std::vector<crow::json::wvalue> rowJson;
         for (int val : row) {
-            rowJson.push_back(crow::json::wvalue(val));  // Convert each element to a wvalue
+            rowJson.push_back(crow::json::wvalue(val));
         }
         mapJson.push_back(crow::json::wvalue(rowJson));
     }
@@ -329,3 +444,40 @@ crow::response Routing::GenerateMapRoute(const crow::request& req) {
     response["map"] = crow::json::wvalue(mapJson);
     return crow::response(200, response);
 }
+
+
+
+crow::response Routing::MovePlayerRoute(const crow::request& req) {
+    auto json = crow::json::load(req.body);
+    if (!json) {
+        return crow::response(400, "Invalid JSON format");
+    }
+
+    std::string sessionId = json["sessionId"].s();
+    std::string username = json["username"].s();
+    std::string direction = json["direction"].s();  // "w", "a", "s", "d"
+
+    auto session = m_gameSessionManager.GetSession(sessionId);
+    if (!session) {
+        return crow::response(404, "Session not found");
+    }
+
+    auto playerIt = session->players.find(username);
+    if (playerIt == session->players.end()) {
+        return crow::response(404, "Player not found");
+    }
+
+    auto& player = playerIt->second;
+    player->Movement(session->GetMap(), direction[0]);
+
+
+    // Creează un `crow::json::wvalue::list`
+    crow::json::wvalue response;
+    response["position"] = crow::json::wvalue::list({ player->GetPosition().first, player->GetPosition().second });
+
+    response["message"] = "Player moved successfully";
+
+    return crow::response(200, response);
+}
+
+

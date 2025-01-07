@@ -9,54 +9,134 @@ void Player::Login()
 	std::cout << "Player :" << name << "logged in" << std::endl;
 }
 
-void Player::Movement(Map& mapMatrix)
-{
-    if (_kbhit()) 
-    {
-        char key = _getch();
-        int newX = position.first;
-        int newY = position.second;
+//void Player::Movement(Map& mapMatrix)
+//{
+//    if (_kbhit()) 
+//    {
+//        char key = _getch();
+//        int newX = position.first;
+//        int newY = position.second;
+//
+//        switch (key)
+//        {
+//        case 'w':
+//            newX -= 1; 
+//            break;
+//        case 's':
+//            newX += 1; 
+//            break;
+//        case 'a':
+//            newY -= 1; 
+//            break;
+//        case 'd':
+//            newY += 1; 
+//            break;
+//        default:
+//            std::cout << "WRONG! USE W, A, S, D FOR MOVEMENT.\n";
+//            return;
+//        }
+//
+//        if (newX >= 0 && newX < mapMatrix.GetHeight() &&
+//            newY >= 0 && newY < mapMatrix.GetWidth())
+//        {
+//            if (mapMatrix.IsMovable(newX, newY))
+//            {
+//                position.first = newX;
+//                position.second = newY;
+//                std::cout << "Player " << name << " moved to position("
+//                    << position.first << ", " << position.second << ")" << std::endl;
+//            }
+//            else
+//            {
+//                std::cout << "Cannot move to wall or occupied space!\n";
+//            }
+//        }
+//        else
+//        {
+//            std::cout << "Cannot move outside map boundaries!\n";
+//        }
+//    }
+//}
 
-        switch (key)
-        {
-        case 'w':
-            newX -= 1; 
-            break;
-        case 's':
-            newX += 1; 
-            break;
-        case 'a':
-            newY -= 1; 
-            break;
-        case 'd':
-            newY += 1; 
-            break;
-        default:
-            std::cout << "WRONG! USE W, A, S, D FOR MOVEMENT.\n";
-            return;
-        }
+//void Player::Movement(const Map& mapMatrix, char direction)
+//{
+//    int newX = position.first;
+//    int newY = position.second;
+//
+//    switch (direction)
+//    {
+//    case 'w':  // Up
+//        newX -= 1;
+//        break;
+//    case 's':  // Down
+//        newX += 1;
+//        break;
+//    case 'a':  // Left
+//        newY -= 1;
+//        break;
+//    case 'd':  // Right
+//        newY += 1;
+//        break;
+//    default:
+//        std::cout << "Invalid direction! Use W, A, S, D.\n";
+//        return;
+//    }
+//
+//    // Verifică dacă poziția este validă
+//    if (newX >= 0 && newX < mapMatrix.GetHeight() &&
+//        newY >= 0 && newY < mapMatrix.GetWidth())
+//    {
+//        if (mapMatrix.IsMovable(newX, newY))
+//        {
+//            position.first = newX;
+//            position.second = newY;
+//            std::cout << "Player " << name << " moved to position ("
+//                << position.first << ", " << position.second << ")\n";
+//        }
+//        else
+//        {
+//            std::cout << "Cannot move to wall or occupied space!\n";
+//        }
+//    }
+//    else
+//    {
+//        std::cout << "Cannot move outside map boundaries!\n";
+//    }
+//}
 
-        if (newX >= 0 && newX < mapMatrix.GetHeight() &&
-            newY >= 0 && newY < mapMatrix.GetWidth())
-        {
-            if (mapMatrix.IsMovable(newX, newY))
-            {
-                position.first = newX;
-                position.second = newY;
-                std::cout << "Player " << name << " moved to position("
-                    << position.first << ", " << position.second << ")" << std::endl;
-            }
-            else
-            {
-                std::cout << "Cannot move to wall or occupied space!\n";
-            }
-        }
-        else
-        {
-            std::cout << "Cannot move outside map boundaries!\n";
-        }
-    }
+void Player::Movement(const Map& mapMatrix, char direction) {
+	int newX = position.first;
+	int newY = position.second;
+
+	switch (direction) {
+	case 'w': newX -= 1; break;  // Sus
+	case 's': newX += 1; break;  // Jos
+	case 'a': newY -= 1; break;  // Stânga
+	case 'd': newY += 1; break;  // Dreapta
+	}
+
+	if (newX >= 0 && newX < mapMatrix.GetHeight()&&
+		        newY >= 0 && newY < mapMatrix.GetWidth())
+		    {
+		        if (mapMatrix.IsMovable(newX, newY))
+		        {
+		            position.first = newX;
+		            position.second = newY;
+		            std::cout << "Player " << name << " moved to position ("
+		                << position.first << ", " << position.second << ")\n";
+		        }
+		        else
+		        {
+		            std::cout << "Cannot move to wall or occupied space!\n";
+		        }
+		    }
+		    else
+		    {
+		        std::cout << "Cannot move outside map boundaries!\n";
+		    }
 }
+
+
 
 void Player::Shoot() 
 {
@@ -135,3 +215,6 @@ Weapon& Player::GetWeapon()
 	return *weapon; 
 }
 
+void Player::SetPosition(std::pair<int, int> pos) {
+	position = pos; 
+}

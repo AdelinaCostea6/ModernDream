@@ -41,9 +41,20 @@ Map::Map(MapGenerator& generator) {
     }
 }
  
+std::vector<std::pair<int, int>> Map::GetPlayerStartPositions() const {
+    std::vector<std::pair<int, int>> startPositions;
+    for (size_t i = 0; i < mapMatrix.size(); ++i) {
+        for (size_t j = 0; j < mapMatrix[i].size(); ++j) {
+            if (mapMatrix[i][j] == 0) {  // 0 indică poziția unui jucător
+                startPositions.emplace_back(i, j);
+            }
+        }
+    }
+    return startPositions;
+}
 
 
-bool Map::IsPositionFree(std::pair<int, int> position)
+bool Map::IsPositionFree(std::pair<int, int> position) const 
 {
     for (const auto& wall : walls) {  // Use reference to avoid copying
         if (wall->GetPosition() == position && wall->GetDurability() < 0) {
@@ -53,8 +64,12 @@ bool Map::IsPositionFree(std::pair<int, int> position)
     return true;
 }
 
+const std::array<std::array<int, Map::kWidth>, Map::kHeight>& Map::GetMapMatrix() const {
+    return mapMatrix;
+}
 
-bool Map::IsMovable(int x, int y)
+
+bool Map::IsMovable(int x, int y) const 
 {
     if (x < 0 || x >= kHeight || y < 0 || y >= kWidth) { 
         return false;
@@ -76,12 +91,12 @@ const std::array<std::unique_ptr<Bomb>, 3>& Map::GetBombs()
     return bombs; 
 }
 
-size_t Map::GetHeight()
+size_t Map::GetHeight() const 
 {
     return kHeight;
 }
 
-size_t Map::GetWidth()
+size_t Map::GetWidth() const
 {
     return kWidth;
 }

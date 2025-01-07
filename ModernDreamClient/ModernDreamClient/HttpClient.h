@@ -20,7 +20,9 @@ public:
     void joinGame(const QString& username, const QString& mapType, int requiredPlayers);
     void checkGameStatus(const QString& sessionId);
     void leaveGame(const QString& sessionId);
-    QByteArray requestMapGeneration(int numPlayers);
+    QByteArray requestMapGeneration(const QString& sessionId, int numPlayers);
+    void movePlayer(const QString& sessionId, const QString& username, const QString& direction);
+
 
 signals:
     void loginSuccess(const QString& username, int score);  
@@ -33,6 +35,7 @@ signals:
     void gameReady(const QString& sessionId, const QJsonArray& players);
     void playerJoined(const QString& username, int currentPlayers, int requiredPlayers);
     void playerLeft(const QString& username, int currentPlayers, int requiredPlayers);
+    void playerMoved(int x, int y);
 
 
 private slots:

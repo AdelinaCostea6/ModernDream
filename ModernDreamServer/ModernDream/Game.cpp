@@ -1,4 +1,4 @@
-#include "Game.h"
+﻿#include "Game.h"
 /*
 Game::Game(Map map, std::vector<Player> players)
 {
@@ -331,6 +331,26 @@ void Game::TriggerBomb(int x, int y)
                 playerPtr->ResetPosition();
                 std::cout << "Player " << playerPtr->GetName() << " was hit by the explosion" << std::endl;
             }
+        }
+    }
+}
+
+
+void Game::GenerateMap(int numPlayers) {
+    MapGenerator generator;
+    generator.GenerateMap(numPlayers);
+    map = Map(generator);  // Construim `map` folosind `MapGenerator`
+
+    // Obținem pozițiile de start generate
+    auto startPositions = map.GetPlayerStartPositions();
+
+    int i = 0;
+    for (auto& playerPtr : players) {
+        if (playerPtr && i < startPositions.size()) {
+            playerPtr->SetPosition(startPositions[i]);  // Actualizăm poziția jucătorului
+            std::cout << "Jucătorul " << playerPtr->GetName() << " este plasat la ("
+                << startPositions[i].first << ", " << startPositions[i].second << ")\n";
+            ++i;
         }
     }
 }

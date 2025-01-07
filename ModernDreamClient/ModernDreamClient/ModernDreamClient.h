@@ -50,6 +50,8 @@ private:
     GameMapWidget* mapWidget;
     void setupWaitingRoom();       
 
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
 
 public slots:
     void OnStartGame(GameMap mapType, const QString& username);
@@ -60,4 +62,6 @@ public slots:
     //void onGameReady(const QString& sessionId, const QJsonArray& players, const QJsonObject& mapData); 
     void onLeaveGame(); 
     void updateWaitingRoom(int current, int required);
+    void updatePlayerPosition(int x, int y);
+
 };
