@@ -60,7 +60,7 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     }
     connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets);
 
-    // Timer pentru sincronizarea periodică a bullet-urilor
+     //Timer pentru sincronizarea periodică a bullet-urilor
     QTimer* bulletSyncTimer = new QTimer(this);
     connect(bulletSyncTimer, &QTimer::timeout, [this]() {
         if (httpClient) {

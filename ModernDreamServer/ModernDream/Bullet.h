@@ -29,7 +29,7 @@ public:
 	Coordinates GetPosition() const;
 	bool GetIsInactive() const;
 	void SetDoubleSpeed();
-	void Movement();
+	void Movement(int maxHeight, int maxWidth);
 	bool CheckCollisionWithPlayers(std::array<std::unique_ptr<Player>,4>&players);
 	bool CheckCollisionwithWalls(std::vector<std::unique_ptr<Wall>> &walls);
 	void CheckCollisionwithBullets(std::vector<std::unique_ptr<Bullet>> &bullets);

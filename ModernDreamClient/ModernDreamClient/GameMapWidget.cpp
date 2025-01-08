@@ -71,6 +71,7 @@
 GameMapWidget::GameMapWidget(QWidget* parent) : QWidget(parent) {
     loadTextures();
     setMinimumSize(1400, 800);  
+    
 }
 
 void GameMapWidget::loadTextures() {
@@ -81,7 +82,7 @@ void GameMapWidget::loadTextures() {
     bombTexture = bombTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
 
     bulletTexture.load("../ModernDreamImages/bullet.png");
-    bulletTexture = bulletTexture.scaled(CELL_SIZE/2, CELL_SIZE/2, Qt::IgnoreAspectRatio);
+    bulletTexture = bulletTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
 
 
     playerTextures.resize(4);

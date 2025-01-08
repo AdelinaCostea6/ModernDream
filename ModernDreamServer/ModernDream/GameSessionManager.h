@@ -101,5 +101,7 @@ public:
 
     // Obține starea unei sesiuni
     const GameSession& GetSessionStatus(const std::string& sessionId) const;
+
+    std::map<std::string, std::shared_ptr<GameSession>>& GetSessions();
     
 };

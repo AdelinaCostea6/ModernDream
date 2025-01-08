@@ -196,15 +196,15 @@ void Game::TriggerBomb(int x, int y)
 void Game::GenerateMap(int numPlayers) {
     MapGenerator generator;
     generator.GenerateMap(numPlayers);
-    map = Map(generator);  // Construim `map` folosind `MapGenerator`
+    map = Map(generator);  
 
-    // Obținem pozițiile de start generate
+    
     auto startPositions = map.GetPlayerStartPositions();
 
     int i = 0;
     for (auto& playerPtr : players) {
         if (playerPtr && i < startPositions.size()) {
-            playerPtr->SetPosition(startPositions[i]);  // Actualizăm poziția jucătorului
+            playerPtr->SetPosition(startPositions[i]);  
             std::cout << "Jucătorul " << playerPtr->GetName() << " este plasat la ("
                 << startPositions[i].first << ", " << startPositions[i].second << ")\n";
             ++i;
@@ -215,26 +215,32 @@ void Game::GenerateMap(int numPlayers) {
 
 void Game::ShootBullet(const Player& player) {
     Bullet newBullet(player.GetPosition(), player.GetDirection());
-    bullets.push_back(newBullet);  // Adaugă bullet la coadă
+    bullets.push_back(newBullet);  
     std::cout << "Jucătorul " << player.GetName() << " a tras un bullet la poziția: ("
         << newBullet.GetPosition().first << ", " << newBullet.GetPosition().second << ")\n";
 }
 
 void Game::UpdateBullets() {
-    for (auto& bullet : bullets) {
-        bullet.Movement();  // Mișcare
-        if (bullet.CheckCollisionWithPlayers(players) || bullet.CheckCollisionwithWalls(walls)) {
-            bullet.SetIsInactive();  // Marchează ca inactiv
+    int mapHeight = map.GetHeight();
+    int mapWidth = map.GetWidth();
+
+    for (auto it = bullets.begin(); it != bullets.end(); ) {
+        it->Movement(mapHeight, mapWidth);
+        if (it->CheckCollisionWithPlayers(players) || it->CheckCollisionwithWalls(walls)) {
+            it->SetIsInactive();
+            it = bullets.erase(it); 
         }
+        else {
+            ++it;  
+            std::cout << "Bullet declansat la pozitia " << it->GetPosition().first << " " << it->GetPosition().second << "\n";
+        }
+        
     }
 
-    // Șterge gloanțele inactive
-    while (!bullets.empty() && bullets.front().GetIsInactive()) {
-        bullets.pop_front();
-    }
 }
 
+
 const std::deque<Bullet>& Game::GetBullets() const {
-    return bullets;  // Returnează lista pentru a fi trimisă clientului
+    return bullets; 
 }
 

@@ -72,14 +72,34 @@ void Routing::Run(DatabaseManager& storage) {
     //    return crow::response(200, response);
     //    });
 
-
-    CROW_ROUTE(m_app, "/game/syncBullets").methods("POST"_method)([this](const crow::request& req) {
-        return SyncBulletsRoute(req);
-        });
  
     CROW_ROUTE(m_app, "/game/shoot").methods("POST"_method)([this](const crow::request& req) {
         return ShootBulletRoute(req);
         });
+
+    //std::thread bulletUpdateThread([this]() {
+    //    while (true) {
+    //        // Așteaptă 100 ms
+    //        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    //        // Iterează prin toate sesiunile active și actualizează bullet-urile
+    //        for (auto& sessionPair : m_gameSessionManager.GetSessions()) {
+    //            auto& session = sessionPair.second;
+    //            session->game.UpdateBullets();  // Actualizează bullet-urile în fiecare sesiune activă
+    //        }
+    //    }
+    //    });
+
+    //bulletUpdateThread.detach();  
+    CROW_ROUTE(m_app, "/game/syncBullets").methods("POST"_method)([this](const crow::request& req) {
+        return SyncBulletsRoute(req);
+        });
+    std::mutex mutex;
+    std::lock_guard<std::mutex> lock(mutex);
+    for (auto& sessionPair : m_gameSessionManager.GetSessions()) {
+        auto& session = sessionPair.second;
+        session->game.UpdateBullets();
+    }
 
 
     m_app.port(8080).multithreaded().run();
@@ -498,13 +518,13 @@ crow::response Routing::ShootBulletRoute(const crow::request& req) {
 
     std::string sessionId = json["sessionId"].s();
     std::string username = json["username"].s();
-    std::string directionStr = json["direction"].s();  // Obține direcția ca string
+    std::string directionStr = json["direction"].s();  
 
     if (directionStr.empty()) {
         return crow::response(400, "Direction is missing or invalid");
     }
 
-    char direction = directionStr[0];  // Extrage primul caracter din string
+    char direction = directionStr[0];  
 
     auto session = m_gameSessionManager.GetSession(sessionId);
     if (!session) {
@@ -517,7 +537,7 @@ crow::response Routing::ShootBulletRoute(const crow::request& req) {
     }
 
     player->SetDirection(direction);
-    session->game.ShootBullet(*player);  // Creează bullet
+    session->game.ShootBullet(*player);  
 
     crow::json::wvalue response;
     response["message"] = "Bullet shot successfully!";

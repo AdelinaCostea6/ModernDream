@@ -447,7 +447,7 @@ void HttpClient::syncBullets(const QString& sessionId) {
         QVector<BulletInfo> updatedBullets;
         for (const QJsonValue& bulletValue : bulletsArray) {
             QJsonObject bulletObj = bulletValue.toObject();
-            int x = bulletObj["x"].toInt();  // Coordonata X
+            int x = bulletObj["x"].toInt();  
             int y = bulletObj["y"].toInt();  
             char direction = bulletObj["direction"].toString().toLatin1()[0];  
             updatedBullets.push_back({ x, y, direction }); 

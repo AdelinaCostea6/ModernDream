@@ -1,4 +1,4 @@
-#include "Bullet.h"
+﻿#include "Bullet.h"
 
 
 Bullet::Bullet(const Coordinates& position, char direction) : position(position), direction(direction) {}
@@ -33,18 +33,34 @@ void Bullet::SetDoubleSpeed()
 	speed *= 2;
 }
 
-void Bullet::Movement()
-{
-	/*position.first += 1;
-	position.second += 1;*/
+//void Bullet::Movement()
+//{
+//	/*position.first += 1;
+//	position.second += 1;*/
+//	switch (direction) {
+//	case 'w': position.first -= 1; break;  
+//	case 's': position.first += 1; break;  
+//	case 'a': position.second -= 1; break; 
+//	case 'd': position.second += 1; break;  
+//	}
+//
+//}
+
+void Bullet::Movement(int maxHeight, int maxWidth) {
 	switch (direction) {
-	case 'w': position.first -= 1; break;  
-	case 's': position.first += 1; break;  
-	case 'a': position.second -= 1; break; 
-	case 'd': position.second += 1; break;  
+	case 'w': position.first -= 1; break;  // Sus
+	case 's': position.first += 1; break;  // Jos
+	case 'a': position.second -= 1; break; // Stânga
+	case 'd': position.second += 1; break; // Dreapta
 	}
-	std::cout << "The bullet was moved to (" << position.first << ", " << position.second << ") " << std::endl;
+
+	// Verificare limite hartă
+	if (position.first < 0 || position.second < 0 || position.first >= maxHeight || position.second >= maxWidth) {
+		isActive = false;  // Dezactivează bullet-ul dacă iese din hartă
+		std::cout << "Bullet-ul a ieșit din hartă și a fost dezactivat.\n";
+	}
 }
+
 
 bool Bullet::CheckCollisionWithPlayers(std::array<std::unique_ptr<Player>, 4>& players)
 {

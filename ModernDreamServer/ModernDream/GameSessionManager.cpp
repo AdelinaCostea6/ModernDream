@@ -239,3 +239,8 @@ const GameSession& GameSessionManager::GetSessionStatus(const std::string& sessi
     }
     throw std::out_of_range("Sesiunea nu a fost găsită.");
 }
+
+std::map<std::string, std::shared_ptr<GameSession>>& GameSessionManager::GetSessions()
+{
+    return sessions;
+}
