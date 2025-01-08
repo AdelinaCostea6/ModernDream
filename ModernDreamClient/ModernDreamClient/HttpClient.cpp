@@ -410,3 +410,51 @@ void HttpClient::movePlayer(const QString& sessionId, const QString& username, c
         reply->deleteLater();  // Curățăm răspunsul după terminare
         });
 }
+
+
+void HttpClient::shootBullet(const QString& sessionId, const QString& username, const QString& direction) {
+    QJsonObject data;
+    data["sessionId"] = sessionId;
+    data["username"] = username;
+    data["direction"] = direction;
+
+    QNetworkRequest request(QUrl("http://localhost:8080/game/shoot"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QNetworkReply* reply = manager->post(request, QJsonDocument(data).toJson());
+    connect(reply, &QNetworkReply::finished, [reply]() {
+        QByteArray responseData = reply->readAll();
+        qDebug() << "Răspuns server pentru glonț: " << QString(responseData);
+        reply->deleteLater();
+        });
+}
+
+
+
+void HttpClient::syncBullets(const QString& sessionId) {
+    QJsonObject data;
+    data["sessionId"] = sessionId;
+
+    QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QNetworkReply* reply = manager->post(request, QJsonDocument(data).toJson());
+    connect(reply, &QNetworkReply::finished, [this, reply]() {
+        QByteArray responseData = reply->readAll();
+        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
+        QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
+
+        QVector<BulletInfo> updatedBullets;
+        for (const QJsonValue& bulletValue : bulletsArray) {
+            QJsonObject bulletObj = bulletValue.toObject();
+            int x = bulletObj["x"].toInt();  // Coordonata X
+            int y = bulletObj["y"].toInt();  
+            char direction = bulletObj["direction"].toString().toLatin1()[0];  
+            updatedBullets.push_back({ x, y, direction }); 
+        }
+
+        emit bulletsUpdated(updatedBullets);  
+        reply->deleteLater();
+        });
+}
+

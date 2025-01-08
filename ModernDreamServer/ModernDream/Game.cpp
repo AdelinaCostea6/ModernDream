@@ -211,3 +211,30 @@ void Game::GenerateMap(int numPlayers) {
         }
     }
 }
+
+
+void Game::ShootBullet(const Player& player) {
+    Bullet newBullet(player.GetPosition(), player.GetDirection());
+    bullets.push_back(newBullet);  // Adaugă bullet la coadă
+    std::cout << "Jucătorul " << player.GetName() << " a tras un bullet la poziția: ("
+        << newBullet.GetPosition().first << ", " << newBullet.GetPosition().second << ")\n";
+}
+
+void Game::UpdateBullets() {
+    for (auto& bullet : bullets) {
+        bullet.Movement();  // Mișcare
+        if (bullet.CheckCollisionWithPlayers(players) || bullet.CheckCollisionwithWalls(walls)) {
+            bullet.SetIsInactive();  // Marchează ca inactiv
+        }
+    }
+
+    // Șterge gloanțele inactive
+    while (!bullets.empty() && bullets.front().GetIsInactive()) {
+        bullets.pop_front();
+    }
+}
+
+const std::deque<Bullet>& Game::GetBullets() const {
+    return bullets;  // Returnează lista pentru a fi trimisă clientului
+}
+

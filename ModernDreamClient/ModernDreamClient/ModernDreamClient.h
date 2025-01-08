@@ -48,6 +48,7 @@ private:
 
     QStackedWidget* mainStack;
     GameMapWidget* mapWidget;
+    QString currentDirection;
     void setupWaitingRoom();       
 
 protected:
@@ -63,5 +64,6 @@ public slots:
     void onLeaveGame(); 
     void updateWaitingRoom(int current, int required);
     void updatePlayerPosition(int x, int y);
+    void onShootButtonPressed(const QString& direction);  // Transmite direcția pentru glonț
 
 };

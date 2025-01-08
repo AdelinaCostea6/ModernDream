@@ -1,8 +1,13 @@
 ﻿#include "Player.h"
 #include <conio.h>
+#include "Game.h"
 
 Player::Player(const std::string& name, std::unique_ptr<Weapon> weapon, std::pair<int, int> position)
 	: name(name), weapon(std::move(weapon)), position(position), initialPosition(position){
+}
+ char Player::GetDirection() const
+{
+	return direction;
 }
 void Player::Login()
 {
@@ -107,7 +112,7 @@ void Player::Login()
 void Player::Movement(const Map& mapMatrix, char direction) {
 	int newX = position.first;
 	int newY = position.second;
-
+	this->direction = direction;
 	switch (direction) {
 	case 'w': newX -= 1; break;  // Sus
 	case 's': newX += 1; break;  // Jos
@@ -138,10 +143,17 @@ void Player::Movement(const Map& mapMatrix, char direction) {
 
 
 
-void Player::Shoot() 
-{
-	weapon->Shoot(); 
-	std::cout << "Player :" << name << "shoot with weapon\n"; 
+//void Player::Shoot() 
+//{
+//	weapon->Shoot(); 
+//	std::cout << "Player :" << name << "shoot with weapon\n"; 
+//}
+
+void Player::Shoot(Game& game) {
+	if (weapon->CanShoot()) {
+		game.ShootBullet(*this);  // Trimite cererea către `Game`
+		weapon->Shoot();  // Reduce cooldown-ul
+	}
 }
 
 void Player::ResetPosition()

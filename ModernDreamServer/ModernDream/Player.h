@@ -4,7 +4,10 @@
 #include <utility>
 #include "Weapon.h"
 #include "Map.h" 
-class Weapon;
+
+//class Weapon;
+class Game;
+
 class Player
 {
 private:
@@ -16,13 +19,15 @@ private:
 	std::pair<int, int> initialPosition{ 0, 0 };
 	int score{ 0 };
 	bool speedBoostUsed{ false };
+    char direction;
 public:
     Player() = default;
     Player(const std::string &name, std::unique_ptr<Weapon> weapon, std::pair<int, int> position);
-
+    void SetDirection(char newDirection) { direction = newDirection; }
+    char GetDirection() const;
     void Login();
    // void Movement(Map& mapMatrix);
-    void Shoot();
+    void Shoot(Game& game);
     void ResetPosition();
     void Hit();
 

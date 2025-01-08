@@ -32,14 +32,19 @@
 #pragma once
 #include "Map.h"
 #include "Player.h"
-#include "Wall.h"
-import bomb;
+//#include "Wall.h"
+//import bomb;
 #include <vector>
 #include <memory>
 #include <array>
 #include <algorithm>
 #include <iostream>
 #include <cmath>
+#include <deque>
+#include "Bullet.h"
+//class Player;
+//class Wall;
+//class Bullet;
 
 class Game
 {
@@ -48,6 +53,7 @@ private:
     std::array<std::unique_ptr<Player>, 4> players;
     std::vector<std::unique_ptr<Wall>> walls;
     std::array<std::unique_ptr<Bomb>, 3> bombs;
+    std::deque<Bullet> bullets;
 
 public:
     Game() = default;
@@ -69,4 +75,8 @@ public:
     void CheckAndApplyWeaponUpgrade();
     void TriggerBomb(int x, int y);
     void GenerateMap(int numPlayers);
+    void ShootBullet(const Player& player);  
+    void UpdateBullets();  
+    const std::deque<Bullet>& GetBullets() const; 
+    Player* GetPlayerByUsername(const std::string& username);
 };

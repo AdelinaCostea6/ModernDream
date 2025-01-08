@@ -7,7 +7,7 @@
 #include <array>
 #include "Wall.h"
 #include "../MapGenerator/MapGenerator/MapGenerator.h"
-import bomb;
+//import bomb;
 
 
 class Map

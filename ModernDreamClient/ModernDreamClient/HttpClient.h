@@ -7,6 +7,13 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+struct BulletInfo {
+    int x;  
+    int y; 
+    char direction;  
+};
+
+
 class HttpClient : public QObject
 {
     Q_OBJECT
@@ -22,6 +29,10 @@ public:
     void leaveGame(const QString& sessionId);
     QByteArray requestMapGeneration(const QString& sessionId, int numPlayers);
     void movePlayer(const QString& sessionId, const QString& username, const QString& direction);
+    void shootBullet(const QString& sessionId, const QString& username, const QString& direction);
+    void syncBullets(const QString& sessionId);
+
+
 
 
 signals:
@@ -36,6 +47,7 @@ signals:
     void playerJoined(const QString& username, int currentPlayers, int requiredPlayers);
     void playerLeft(const QString& username, int currentPlayers, int requiredPlayers);
     void playerMoved(int x, int y);
+    void bulletsUpdated(const QVector<BulletInfo>& updatedBullets);
 
 
 private slots:

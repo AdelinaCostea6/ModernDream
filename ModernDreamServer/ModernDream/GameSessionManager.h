@@ -68,6 +68,15 @@ struct GameSession {
     const Map& GetMap() const {
         return game.GetMap();  // Obține harta din obiectul Game
     }
+
+    Player* GetPlayerByUsername(const std::string& username) {
+        auto it = players.find(username);  // Caută username-ul în mapă
+        if (it != players.end()) {
+            return it->second.get();  // Returnează pointerul brut către `Player`
+        }
+        return nullptr;  // Returnează nullptr dacă jucătorul nu este găsit
+    }
+
 };
 
 
@@ -92,4 +101,5 @@ public:
 
     // Obține starea unei sesiuni
     const GameSession& GetSessionStatus(const std::string& sessionId) const;
+    
 };

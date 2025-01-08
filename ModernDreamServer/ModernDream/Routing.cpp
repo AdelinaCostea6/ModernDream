@@ -49,29 +49,37 @@ void Routing::Run(DatabaseManager& storage) {
         return MovePlayerRoute(req);
         });
 
-    CROW_ROUTE(m_app, "/game/positions").methods("GET"_method)([this](const crow::request& req) {
-        auto json = crow::json::load(req.body);
-        if (!json) {
-            return crow::response(400, "Invalid JSON format");
-        }
+    //CROW_ROUTE(m_app, "/game/positions").methods("GET"_method)([this](const crow::request& req) {
+    //    auto json = crow::json::load(req.body);
+    //    if (!json) {
+    //        return crow::response(400, "Invalid JSON format");
+    //    }
 
-        std::string sessionId = json["sessionId"].s();
-        auto session = m_gameSessionManager.GetSession(sessionId);
+    //    std::string sessionId = json["sessionId"].s();
+    //    auto session = m_gameSessionManager.GetSession(sessionId);
 
-        if (!session) {
-            return crow::response(404, "Session not found");
-        }
+    //    if (!session) {
+    //        return crow::response(404, "Session not found");
+    //    }
 
-        crow::json::wvalue response;
-        for (const auto& player : session->players) {
-            auto pos = player.second->GetPosition();
-            // Construim array-ul JSON pentru poziție
-            response["players"][player.first] = crow::json::wvalue::list({ pos.first, pos.second });
-        }
+    //    crow::json::wvalue response;
+    //    for (const auto& player : session->players) {
+    //        auto pos = player.second->GetPosition();
+    //        // Construim array-ul JSON pentru poziție
+    //        response["players"][player.first] = crow::json::wvalue::list({ pos.first, pos.second });
+    //    }
 
-        return crow::response(200, response);
+    //    return crow::response(200, response);
+    //    });
+
+
+    CROW_ROUTE(m_app, "/game/syncBullets").methods("POST"_method)([this](const crow::request& req) {
+        return SyncBulletsRoute(req);
         });
-
+ 
+    CROW_ROUTE(m_app, "/game/shoot").methods("POST"_method)([this](const crow::request& req) {
+        return ShootBulletRoute(req);
+        });
 
 
     m_app.port(8080).multithreaded().run();
@@ -442,6 +450,8 @@ crow::response Routing::GenerateMapRoute(const crow::request& req) {
     }
 
     response["map"] = crow::json::wvalue(mapJson);
+    std::cout << "Dimensiunea JSON trimisă: " << mapJson.size() << " linii, " << mapJson[0].size() << " coloane\n";
+    //std::cout << "Dimensiunea răspunsului JSON în bytes: " << crow::json::dump(response).size() << "\n";
     return crow::response(200, response);
 }
 
@@ -479,5 +489,74 @@ crow::response Routing::MovePlayerRoute(const crow::request& req) {
 
     return crow::response(200, response);
 }
+
+crow::response Routing::ShootBulletRoute(const crow::request& req) {
+    auto json = crow::json::load(req.body);
+    if (!json) {
+        return crow::response(400, "Invalid JSON format");
+    }
+
+    std::string sessionId = json["sessionId"].s();
+    std::string username = json["username"].s();
+    std::string directionStr = json["direction"].s();  // Obține direcția ca string
+
+    if (directionStr.empty()) {
+        return crow::response(400, "Direction is missing or invalid");
+    }
+
+    char direction = directionStr[0];  // Extrage primul caracter din string
+
+    auto session = m_gameSessionManager.GetSession(sessionId);
+    if (!session) {
+        return crow::response(404, "Session not found");
+    }
+
+    auto player = session->GetPlayerByUsername(username);
+    if (!player) {
+        return crow::response(404, "Player not found");
+    }
+
+    player->SetDirection(direction);
+    session->game.ShootBullet(*player);  // Creează bullet
+
+    crow::json::wvalue response;
+    response["message"] = "Bullet shot successfully!";
+    return crow::response(200, response);
+}
+
+
+crow::response Routing::SyncBulletsRoute(const crow::request& req) {
+    auto json = crow::json::load(req.body);
+    if (!json) {
+        return crow::response(400, "Invalid JSON format");
+    }
+
+    std::string sessionId = json["sessionId"].s();
+    auto session = m_gameSessionManager.GetSession(sessionId);
+    if (!session) {
+        return crow::response(404, "Session not found");
+    }
+
+    const auto& bullets = session->game.GetBullets(); 
+
+    crow::json::wvalue response;
+    std::vector<crow::json::wvalue> bulletsJson;
+    for (const auto& bullet : bullets) {
+        if (!bullet.GetIsInactive()) {
+            crow::json::wvalue bulletJson;
+            bulletJson["x"] = bullet.GetPosition().first;
+            bulletJson["y"] = bullet.GetPosition().second;
+            bulletJson["direction"] = std::string(1, bullet.GetDirection());
+            bulletsJson.emplace_back(std::move(bulletJson));
+        }
+    }
+
+    response["bullets"] = std::move(bulletsJson);
+    std::cout << "Trimitem " << bullets.size() << " bullet-uri către client." << std::endl;
+
+    return crow::response(200, response);
+}
+
+
 
 

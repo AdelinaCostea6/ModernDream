@@ -1,4 +1,5 @@
 #include "Weapon.h"
+#include "Bullet.h"
 
 Weapon::Weapon(float speed) : speed(speed)
 {

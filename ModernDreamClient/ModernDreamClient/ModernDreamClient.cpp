@@ -58,7 +58,16 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     if (!success) {
         qDebug() << "Eroare: `connect` a esuat!";
     }
+    connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets);
 
+    // Timer pentru sincronizarea periodică a bullet-urilor
+    QTimer* bulletSyncTimer = new QTimer(this);
+    connect(bulletSyncTimer, &QTimer::timeout, [this]() {
+        if (httpClient) {
+            httpClient->syncBullets(currentSessionId);  // Trimite cererea pentru sincronizarea bullet-urilor
+        }
+        });
+    bulletSyncTimer->start(1000);  // Sincronizare la fiecare 100ms
     qDebug() << "ModernDreamClient initialized successfully.";
 }
 
@@ -500,20 +509,50 @@ void ModernDreamClient::onLeaveGame()
 void ModernDreamClient::keyPressEvent(QKeyEvent* event) {
     if (!currentSessionId.isEmpty()) {
         QString direction;
-
         switch (event->key()) {
-        case Qt::Key_W: direction = "w"; break;  // Sus
-        case Qt::Key_A: direction = "a"; break;  // Stânga
-        case Qt::Key_S: direction = "s"; break;  // Jos
-        case Qt::Key_D: direction = "d"; break;  // Dreapta
+        case Qt::Key_W:
+            direction = "w";
+            currentDirection = direction;
+            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Trimite cererea de deplasare la server
+            break;
+        case Qt::Key_A:
+            direction = "a";
+            currentDirection = direction;
+            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare la stânga
+            break;
+        case Qt::Key_S:
+            direction = "s";
+            currentDirection = direction;
+            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare în jos
+            break;
+        case Qt::Key_D:
+            direction = "d";
+            currentDirection = direction;
+            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare la dreapta
+            break;
+        case Qt::Key_Space:
+            qDebug() << "Glooont";
+            if (!currentDirection.isEmpty()) {
+                onShootButtonPressed(currentDirection);  // Trage glonțul în direcția curentă
+            }
+            break;
         default:
-            qDebug() << "Key not recognized. Use W, A, S, D for movement.";
+            QMainWindow::keyPressEvent(event);
             return;
         }
-        qDebug() << "Trimitem directia: " << direction;
-        httpClient->movePlayer(currentSessionId, currentUsername, direction);
+
+        // Actualizează direcția curentă doar dacă s-a apăsat `w`, `a`, `s` sau `d`
+        if (event->key() == Qt::Key_W || event->key() == Qt::Key_A || event->key() == Qt::Key_S || event->key() == Qt::Key_D) {
+            direction = direction;  // Actualizează direcția curentă pentru `Space`
+        }
     }
 }
+
+void ModernDreamClient::onShootButtonPressed(const QString& direction) {
+    if (!httpClient) return;
+    httpClient->shootBullet(currentSessionId, currentUsername, direction);  // Trimite cererea de tras bullet-ul
+}
+
 
 
 void ModernDreamClient::updatePlayerPosition(int x, int y) {
@@ -523,4 +562,5 @@ void ModernDreamClient::updatePlayerPosition(int x, int y) {
     }
 }
 
+  
 

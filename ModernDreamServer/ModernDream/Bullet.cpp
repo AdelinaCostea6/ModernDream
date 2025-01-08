@@ -1,7 +1,7 @@
 #include "Bullet.h"
 
 
-Bullet::Bullet(Coordinates position) : position(position) {}
+Bullet::Bullet(const Coordinates& position, char direction) : position(position), direction(direction) {}
 
 void Bullet::SetIsInactive()
 {
@@ -35,8 +35,14 @@ void Bullet::SetDoubleSpeed()
 
 void Bullet::Movement()
 {
-	position.first += 1;
-	position.second += 1;
+	/*position.first += 1;
+	position.second += 1;*/
+	switch (direction) {
+	case 'w': position.first -= 1; break;  
+	case 's': position.first += 1; break;  
+	case 'a': position.second -= 1; break; 
+	case 'd': position.second += 1; break;  
+	}
 	std::cout << "The bullet was moved to (" << position.first << ", " << position.second << ") " << std::endl;
 }
 
@@ -95,4 +101,9 @@ void Bullet::CheckCollisionwithBullets(std::vector<std::unique_ptr<Bullet>>& bul
 			}
 		}
 	}
+}
+
+char Bullet::GetDirection() const
+{
+	return direction;
 }

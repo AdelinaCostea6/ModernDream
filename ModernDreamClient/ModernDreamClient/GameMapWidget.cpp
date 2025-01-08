@@ -80,6 +80,10 @@ void GameMapWidget::loadTextures() {
     bombTexture.load("../ModernDreamImages/tire2.png");
     bombTexture = bombTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
 
+    bulletTexture.load("../ModernDreamImages/bullet.png");
+    bulletTexture = bulletTexture.scaled(CELL_SIZE/2, CELL_SIZE/2, Qt::IgnoreAspectRatio);
+
+
     playerTextures.resize(4);
     playerTextures[0].load("../ModernDreamImages/carBlueRight.png");
     playerTextures[1].load("../ModernDreamImages/carGreenRight.png");
@@ -162,7 +166,10 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             painter.drawRect(cellRect);
         }
     }
-   
+    for (const auto& bullet : bullets) {
+        QRect bulletRect(bullet.x * CELL_SIZE, bullet.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        painter.drawPixmap(bulletRect, bulletTexture);
+    }
 }
 
 
@@ -188,7 +195,10 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
 
 
 
-
+void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
+    bullets = newBullets;  
+    update();  
+}
 
 
 

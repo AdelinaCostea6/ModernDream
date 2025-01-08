@@ -1,4 +1,4 @@
-
+﻿
 #include "MapGenerator.h"
 #include<random>
 #include <algorithm>
@@ -6,7 +6,7 @@
 
 
 MapGenerator::MapGenerator() {
-    InitializeMapMatrix(); 
+   // InitializeMapMatrix(); 
 
     // Generate random dimensions in constructor
     std::random_device rd;
@@ -20,14 +20,16 @@ MapGenerator::MapGenerator() {
 
 void MapGenerator::GenerateMap(int numPlayers)
 {
-    // Generate new random dimensions for this map
-    std::random_device rd;
+     //Generate new random dimensions for this map
+    /*std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> heightDist(kMinHeight, kMaxHeight);
     std::uniform_int_distribution<> widthDist(kMinWidth, kMaxWidth);
 
     currentHeight = heightDist(gen);
-    currentWidth = widthDist(gen);
+    currentWidth = widthDist(gen);*/
+
+    std::cout << "Inițializăm matricea cu dimensiunea: (" << currentHeight << ", " << currentWidth << ")\n";
 
     InitializeMapMatrix();
     GenerateClusters();
@@ -39,8 +41,11 @@ void MapGenerator::GenerateMap(int numPlayers)
   
 }
 
+
 void MapGenerator::InitializeMapMatrix() {
-    
+    if (currentHeight <= 0 || currentWidth <= 0) {
+        throw std::runtime_error("Dimensiunile matricei sunt nevalide!");
+    }
     mapMatrix.resize(currentHeight, std::vector<int>(currentWidth, FreeSpace));
 }
 //void MapGenerator::GenerateNonDestructibleWalls() {
