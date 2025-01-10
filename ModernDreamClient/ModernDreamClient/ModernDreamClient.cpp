@@ -43,6 +43,8 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     mainStack->setCurrentWidget(tabWidget);
     setCentralWidget(mainStack);
 
+
+
     
     connect(startGameButton, &QPushButton::clicked, this, [this]() {
         OnStartGame(currentMap, currentUsername);
@@ -59,6 +61,9 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
         qDebug() << "Eroare: `connect` a esuat!";
     }
     connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets);
+    /*Q_ASSERT(httpClient);
+    Q_ASSERT(mapWidget);
+    Q_ASSERT(QObject::connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets));*/
 
      //Timer pentru sincronizarea periodică a bullet-urilor
     QTimer* bulletSyncTimer = new QTimer(this);
@@ -69,6 +74,7 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
         });
     bulletSyncTimer->start(1000);  // Sincronizare la fiecare 100ms
     qDebug() << "ModernDreamClient initialized successfully.";
+
 }
 
 
