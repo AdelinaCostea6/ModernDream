@@ -545,6 +545,39 @@ crow::response Routing::ShootBulletRoute(const crow::request& req) {
 }
 
 
+//crow::response Routing::SyncBulletsRoute(const crow::request& req) {
+//    auto json = crow::json::load(req.body);
+//    if (!json) {
+//        return crow::response(400, "Invalid JSON format");
+//    }
+//
+//    std::string sessionId = json["sessionId"].s();
+//    auto session = m_gameSessionManager.GetSession(sessionId);
+//    if (!session) {
+//        return crow::response(404, "Session not found");
+//    }
+//
+//    const auto& bullets = session->game.GetBullets(); 
+//
+//    crow::json::wvalue response;
+//    std::vector<crow::json::wvalue> bulletsJson;
+//    for (const auto& bullet : bullets) {
+//        if (!bullet.GetIsInactive()) {
+//            crow::json::wvalue bulletJson;
+//            bulletJson["x"] = bullet.GetPosition().first;
+//            bulletJson["y"] = bullet.GetPosition().second;
+//            bulletJson["direction"] = std::string(1, bullet.GetDirection());
+//            bulletsJson.emplace_back(std::move(bulletJson));
+//        }
+//    }
+//
+//    response["bullets"] = std::move(bulletsJson);
+//    std::cout << "Trimitem " << bullets.size() << " bullet-uri către client." << std::endl;
+//
+//    return crow::response(200, response);
+//
+//}
+
 crow::response Routing::SyncBulletsRoute(const crow::request& req) {
     auto json = crow::json::load(req.body);
     if (!json) {
@@ -557,25 +590,70 @@ crow::response Routing::SyncBulletsRoute(const crow::request& req) {
         return crow::response(404, "Session not found");
     }
 
-    const auto& bullets = session->game.GetBullets(); 
+    const auto& bullets = session->game.GetBullets();
 
     crow::json::wvalue response;
     std::vector<crow::json::wvalue> bulletsJson;
+
     for (const auto& bullet : bullets) {
-        if (!bullet.GetIsInactive()) {
+        if (bullet.GetIsActive()) {  // Only include active bullets 
             crow::json::wvalue bulletJson;
             bulletJson["x"] = bullet.GetPosition().first;
             bulletJson["y"] = bullet.GetPosition().second;
             bulletJson["direction"] = std::string(1, bullet.GetDirection());
+            bulletJson["isActive"] = true;  // Explicitly include isActive
             bulletsJson.emplace_back(std::move(bulletJson));
+        }
+        else {
+            std::cout << "Inactive bullet at position: (" << bullet.GetPosition().first
+                << ", " << bullet.GetPosition().second << ")\n";
         }
     }
 
     response["bullets"] = std::move(bulletsJson);
-    std::cout << "Trimitem " << bullets.size() << " bullet-uri către client." << std::endl;
+    std::cout << "Sending " << bulletsJson.size() << " active bullets to the client.\n";
 
     return crow::response(200, response);
 }
+
+//crow::response Routing::SyncBulletsRoute(const crow::request& req) {
+//    auto json = crow::json::load(req.body);
+//    if (!json) {
+//        return crow::response(400, "Invalid JSON format");
+//    }
+//
+//    std::string sessionId = json["sessionId"].s();
+//    auto session = m_gameSessionManager.GetSession(sessionId);
+//    if (!session) {
+//        return crow::response(404, "Session not found");
+//    }
+//
+//    const auto& bullets = session->game.GetBullets();
+//    crow::json::wvalue response;
+//    std::vector<crow::json::wvalue> bulletsJson;
+//
+//    std::cout << "Syncing bullets for session " << sessionId << "\n";
+//
+//    for (const auto& bullet : bullets) {
+//        if (!bullet.GetIsInactive()) {
+//            std::cout << "Bullet at position (" << bullet.GetPosition().first << ", " << bullet.GetPosition().second
+//                << ") direction: " << bullet.GetDirection() << "\n";
+//            crow::json::wvalue bulletJson;
+//            bulletJson["x"] = bullet.GetPosition().first;
+//            bulletJson["y"] = bullet.GetPosition().second;
+//            bulletJson["direction"] = std::string(1, bullet.GetDirection());
+//            bulletsJson.emplace_back(std::move(bulletJson));
+//        }
+//    }
+//
+//    response["bullets"] = std::move(bulletsJson);
+//    std::cout << "Sent " << bulletsJson.size() << " bullets to client.\n";
+//
+//    return crow::response(200, response);
+//}
+
+
+
 
 
 

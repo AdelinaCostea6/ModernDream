@@ -24,10 +24,11 @@ public:
 	Bullet() = default;
 	Bullet(const Coordinates& position, char direction);
 	void SetIsInactive();
+	void SetIsActive();
 	void SetPosition(const Coordinates &pos);
 	float GetSpeed() const;
 	Coordinates GetPosition() const;
-	bool GetIsInactive() const;
+	bool GetIsActive() const;
 	void SetDoubleSpeed();
 	void Movement(int maxHeight, int maxWidth);
 	bool CheckCollisionWithPlayers(std::array<std::unique_ptr<Player>,4>&players);

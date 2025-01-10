@@ -19,6 +19,7 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent* event) override;
+    
 
 private:
     static const int CELL_SIZE = 40;
@@ -27,5 +28,7 @@ private:
     QVector<QPixmap> playerTextures;
     QPixmap bulletTexture;
     QVector<BulletInfo> bullets;
+    
+
     void loadTextures();
 };

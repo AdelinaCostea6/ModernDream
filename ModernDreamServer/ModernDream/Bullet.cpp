@@ -7,7 +7,10 @@ void Bullet::SetIsInactive()
 {
 	isActive = false;
 }
-
+void Bullet::SetIsActive()
+{
+	isActive = true;
+}
 void Bullet::SetPosition(const Coordinates &pos)
 {
 	position = pos;
@@ -23,7 +26,7 @@ Coordinates Bullet::GetPosition() const
 	return position;
 }
 
-bool Bullet::GetIsInactive() const
+bool Bullet::GetIsActive() const
 {
 	return isActive;
 }

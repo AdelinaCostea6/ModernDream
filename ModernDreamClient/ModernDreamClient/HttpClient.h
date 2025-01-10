@@ -10,7 +10,8 @@
 struct BulletInfo {
     int x;  
     int y; 
-    char direction;  
+    char direction; 
+    bool isActive;
 };
 
 

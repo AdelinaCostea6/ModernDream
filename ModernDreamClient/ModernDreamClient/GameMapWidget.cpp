@@ -81,7 +81,7 @@ void GameMapWidget::loadTextures() {
     bombTexture.load("../ModernDreamImages/tire2.png");
     bombTexture = bombTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
 
-    bulletTexture.load("../ModernDreamImages/bullet.png");
+    bulletTexture.load("../ModernDreamImages/bullet2.png");
     bulletTexture = bulletTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
 
 
@@ -94,6 +94,8 @@ void GameMapWidget::loadTextures() {
     for (auto& texture : playerTextures) {
         texture = texture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
     }
+    
+
 }
 
 void GameMapWidget::initializeMap(const QVector<QVector<int>>& mapData) {
@@ -168,9 +170,12 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
         }
     }
     for (const auto& bullet : bullets) {
-        QRect bulletRect(bullet.x * CELL_SIZE, bullet.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        painter.drawPixmap(bulletRect, bulletTexture);
+        QRectF bulletRect(offsetX + bullet.x * cellSize, offsetY + bullet.y * cellSize, cellSize, cellSize);
+        painter.drawPixmap(bulletRect.toRect(), bulletTexture.scaled(cellSize, cellSize, Qt::IgnoreAspectRatio));
     }
+    
+
+     
 }
 
 
@@ -196,10 +201,40 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
 
 
 
+//void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
+//    bullets = newBullets;  
+//    update();  
+//}
+
 void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
-    bullets = newBullets;  
-    update();  
+    qDebug() << "Updating bullets with positions:";
+    for (const auto& bullet : newBullets) {
+        qDebug() << "Bullet at (" << bullet.x << ", " << bullet.y << ")";
+    }
+    bullets = newBullets;  // Update the internal state
+    update();  // Trigger a repaint
 }
+
+//void GameMapWidget::updateBullets(const QVector<BulletInfo>& bullets) {
+//    if (bullets.isEmpty()) {
+//        qDebug() << "No bullets to update.";
+//        return;
+//    }
+//
+//    QVector<BulletInfo> validBullets;
+//    for (const auto& bullet : bullets) {
+//        if (bullet.x >= 0 && bullet.x < mapWidth && bullet.y >= 0 && bullet.y < mapHeight) {
+//            validBullets.push_back(bullet);
+//        }
+//        else {
+//            qDebug() << "Invalid bullet position: (" << bullet.x << ", " << bullet.y << ")";
+//        }
+//    }
+//
+//    this->bullets = validBullets; // Only update with valid data
+//    update(); // Trigger repaint
+//}
+
 
 
 

@@ -213,31 +213,107 @@ void Game::GenerateMap(int numPlayers) {
 }
 
 
+//void Game::ShootBullet(const Player& player) {
+//    Bullet newBullet(player.GetPosition(), player.GetDirection());
+//    bullets.push_back(newBullet);  
+//    std::cout << "Jucătorul " << player.GetName() << " a tras un bullet la poziția: ("
+//        << newBullet.GetPosition().first << ", " << newBullet.GetPosition().second << ")\n";
+//}
+//void Game::ShootBullet(const Player& player) {
+//    bullets.emplace_back(player.GetPosition(), player.GetDirection());
+//    std::cout << "Added bullet at (" << player.GetPosition().first << ", "
+//        << player.GetPosition().second << ") in direction " << player.GetDirection()
+//        << ". Total bullets: " << bullets.size() << "\n";
+//}
 void Game::ShootBullet(const Player& player) {
-    Bullet newBullet(player.GetPosition(), player.GetDirection());
-    bullets.push_back(newBullet);  
-    std::cout << "Jucătorul " << player.GetName() << " a tras un bullet la poziția: ("
-        << newBullet.GetPosition().first << ", " << newBullet.GetPosition().second << ")\n";
+    std::pair<int, int> initialPosition = player.GetPosition();
+    char direction = player.GetDirection();
+
+    Bullet newBullet(initialPosition, direction);
+    newBullet.SetIsActive();
+    std::cout << "Shooting bullet at (" << initialPosition.first << ", " << initialPosition.second
+        << ") in direction: " << direction << "\n";
+
+    bullets.push_back(newBullet);
 }
+
+
+//void Game::UpdateBullets() {
+//    int mapHeight = map.GetHeight();
+//    int mapWidth = map.GetWidth();
+//
+//    for (auto it = bullets.begin(); it != bullets.end(); ) {
+//        it->Movement(mapHeight, mapWidth);
+//        if (it->CheckCollisionWithPlayers(players) || it->CheckCollisionwithWalls(walls)) {
+//            it->SetIsInactive();
+//            it = bullets.erase(it); 
+//        }
+//        else {
+//            ++it;  
+//            std::cout << "Bullet declansat la pozitia " << it->GetPosition().first << " " << it->GetPosition().second << "\n";
+//        }
+//        
+//    }
+//
+//}
+
+
+//void Game::UpdateBullets() {
+//    int mapHeight = map.GetHeight();
+//    int mapWidth = map.GetWidth();
+//
+//    for (auto it = bullets.begin(); it != bullets.end(); ) {
+//        it->Movement(mapHeight, mapWidth); // Move the bullet
+//
+//        // Check for collisions with players or walls
+//        if (it->CheckCollisionWithPlayers(players) || it->CheckCollisionwithWalls(walls)) {
+//            it->SetIsInactive();    // Mark as inactive
+//            it = bullets.erase(it); // Remove the bullet and update iterator
+//        }
+//        else {
+//            std::cout << "Bullet at position ("
+//                << it->GetPosition().first << ", "
+//                << it->GetPosition().second << ")\n";
+//            ++it; // Safely move to the next bullet
+//        }
+//    }
+//}
 
 void Game::UpdateBullets() {
     int mapHeight = map.GetHeight();
     int mapWidth = map.GetWidth();
 
-    for (auto it = bullets.begin(); it != bullets.end(); ) {
+    for (auto it = bullets.begin(); it != bullets.end();) {
         it->Movement(mapHeight, mapWidth);
-        if (it->CheckCollisionWithPlayers(players) || it->CheckCollisionwithWalls(walls)) {
+
+        // Log bullet state after movement
+        std::cout << "Bullet at (" << it->GetPosition().first << ", " << it->GetPosition().second
+            << "), active: " << !it->GetIsActive() << "\n";
+
+        if (it->CheckCollisionWithPlayers(players)|| it->CheckCollisionwithWalls(walls)) {
+            std::cout << "Bullet collided with a player at (" << it->GetPosition().first << ", "
+                << it->GetPosition().second << ")\n";
             it->SetIsInactive();
-            it = bullets.erase(it); 
+            //it = bullets.erase(it); // Remove collided bullet
+        }
+        //else if (it->CheckCollisionwithWalls(walls)) {
+        //    std::cout << "Bullet collided with a wall at (" << it->GetPosition().first << ", "
+        //        << it->GetPosition().second << ")\n";
+        //    it->SetIsInactive();
+        //    it = bullets.erase(it); // Remove collided bullet
+        //}
+        //else {
+        //    ++it; // Move to the next bullet
+        //}
+        if (!it->GetIsActive()) {
+            it = bullets.erase(it);  // Remove inactive bullets
         }
         else {
-            ++it;  
-            std::cout << "Bullet declansat la pozitia " << it->GetPosition().first << " " << it->GetPosition().second << "\n";
+            ++it;
         }
-        
     }
-
 }
+
 
 
 const std::deque<Bullet>& Game::GetBullets() const {
