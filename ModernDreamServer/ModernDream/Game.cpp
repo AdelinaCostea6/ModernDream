@@ -291,10 +291,10 @@ void Game::UpdateBullets() {
             << "), active: " << !it->GetIsActive() << "\n";
 
         if (it->CheckCollisionWithPlayers(players)|| it->CheckCollisionwithWalls(walls)) {
-            std::cout << "Bullet collided with a player at (" << it->GetPosition().first << ", "
+            std::cout << "Bullet collided with a player or a wall at (" << it->GetPosition().first << ", "
                 << it->GetPosition().second << ")\n";
             it->SetIsInactive();
-            //it = bullets.erase(it); // Remove collided bullet
+            it = bullets.erase(it); // Remove collided bullet
         }
         //else if (it->CheckCollisionwithWalls(walls)) {
         //    std::cout << "Bullet collided with a wall at (" << it->GetPosition().first << ", "

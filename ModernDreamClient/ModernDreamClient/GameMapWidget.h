@@ -28,7 +28,8 @@ private:
     QVector<QPixmap> playerTextures;
     QPixmap bulletTexture;
     QVector<BulletInfo> bullets;
-    
+    std::mutex bulletsMutex;
+    QTimer updateTimer; 
 
     void loadTextures();
 };

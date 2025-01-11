@@ -43,7 +43,7 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     mainStack->setCurrentWidget(tabWidget);
     setCentralWidget(mainStack);
 
-
+    
 
     
     connect(startGameButton, &QPushButton::clicked, this, [this]() {
@@ -60,10 +60,12 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     if (!success) {
         qDebug() << "Eroare: `connect` a esuat!";
     }
-    connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets);
-    /*Q_ASSERT(httpClient);
-    Q_ASSERT(mapWidget);
-    Q_ASSERT(QObject::connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets));*/
+    //connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets);
+    qDebug() << "HttpClient instance: " << httpClient;
+    qDebug() << "GameMapWidget instance: " << mapWidget;
+
+    
+
 
      //Timer pentru sincronizarea periodică a bullet-urilor
     QTimer* bulletSyncTimer = new QTimer(this);
@@ -465,11 +467,14 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
 
     if (!mapWidget) {
         mapWidget = new GameMapWidget(gameWidget);  // Folosește instanța unică
+        bool connected = connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets);
+        qDebug() << "Bullet update connection established: " << connected;
     }
 
     qDebug() << "Using existing mapWidget:" << mapWidget;
     layout->addWidget(mapWidget, 1);
 
+    
     // Cerere de generare a hărții
     QByteArray response = httpClient->requestMapGeneration(sessionId, players.size());
     QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
