@@ -6,12 +6,12 @@
 #include <QtNetwork>
 #include <QJsonDocument>
 #include <QJsonObject>
-
+ 
 struct BulletInfo {
-    int x;  
-    int y; 
-    char direction; 
-    bool isActive;
+    int x;
+    int y;
+    char direction;
+
 };
 
 
@@ -30,6 +30,7 @@ public:
     void leaveGame(const QString& sessionId);
     QByteArray requestMapGeneration(const QString& sessionId, int numPlayers);
     void movePlayer(const QString& sessionId, const QString& username, const QString& direction);
+    
     void shootBullet(const QString& sessionId, const QString& username, const QString& direction);
     void syncBullets(const QString& sessionId);
 
@@ -48,8 +49,8 @@ signals:
     void playerJoined(const QString& username, int currentPlayers, int requiredPlayers);
     void playerLeft(const QString& username, int currentPlayers, int requiredPlayers);
     void playerMoved(int x, int y);
-    void bulletsUpdated(const QVector<BulletInfo>& updatedBullets);
-
+    
+    void bulletsUpdated(const QVector<BulletInfo>& bullets); 
 
 private slots:
     void onLoginResponse();

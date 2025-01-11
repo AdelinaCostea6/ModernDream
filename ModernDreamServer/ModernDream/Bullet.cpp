@@ -73,7 +73,7 @@ bool Bullet::CheckCollisionWithPlayers(std::array<std::unique_ptr<Player>, 4>& p
 	return std::any_of(players.begin(), players.end(), [this](const auto& player) {
 		if (player->GetPosition() == position)
 		{
-			player->ResetPosition();
+			player->Hit();
 			std::cout << std::format("Player {} has been shot\n", player->GetName());
 			isActive = false;
 			return true;
@@ -103,24 +103,43 @@ bool Bullet::CheckCollisionwithWalls(std::vector<std::unique_ptr<Wall>>& walls)
 		});
 }
 
-void Bullet::CheckCollisionwithBullets(std::vector<std::unique_ptr<Bullet>>& bullets)
-{
-	if (bullets.size() <= 1)
-		return;
+//void Bullet::CheckCollisionwithBullets(std::vector<std::unique_ptr<Bullet>>& bullets)
+//{
+//	if (bullets.size() <= 1)
+//		return;
+//
+//	for (auto it1 = bullets.begin(); it1 != bullets.end(); ++it1)
+//	{
+//		for (auto it2 = it1 + 1; it2 != bullets.end(); ++it2)
+//		{
+//			if ((*it1)->isActive && (*it2)->isActive && (*it1)->GetPosition() == (*it2)->GetPosition())
+//			{
+//				std::cout << "Two bullets collided\n";
+//				(*it1)->SetIsInactive();
+//				(*it2)->SetIsInactive();
+//			}
+//		}
+//	}
+//}
+void Bullet::CheckCollisionwithBullets(std::vector<std::unique_ptr<Bullet>>& bullets) {
+	if (bullets.size() <= 1) return;
 
-	for (auto it1 = bullets.begin(); it1 != bullets.end(); ++it1)
-	{
-		for (auto it2 = it1 + 1; it2 != bullets.end(); ++it2)
-		{
-			if ((*it1)->isActive && (*it2)->isActive && (*it1)->GetPosition() == (*it2)->GetPosition())
-			{
-				std::cout << "Two bullets collided\n";
-				(*it1)->SetIsInactive();
-				(*it2)->SetIsInactive();
+	for (size_t i = 0; i < bullets.size(); ++i) {
+		for (size_t j = i + 1; j < bullets.size(); ++j) {
+			if (bullets[i]->GetIsActive() && bullets[j]->GetIsActive() &&
+				bullets[i]->GetPosition() == bullets[j]->GetPosition()) {
+				bullets[i]->SetIsInactive();
+				bullets[j]->SetIsInactive();
 			}
 		}
 	}
+
+	bullets.erase(
+		std::remove_if(bullets.begin(), bullets.end(),
+			[](const std::unique_ptr<Bullet>& bullet) { return !bullet->GetIsActive(); }),
+		bullets.end());
 }
+
 
 char Bullet::GetDirection() const
 {

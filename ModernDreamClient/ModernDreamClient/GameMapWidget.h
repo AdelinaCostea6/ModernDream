@@ -2,6 +2,7 @@
 #include <QWidget>
 #include <QPixmap>
 #include <QVector>
+#include <QMutex>
 #include "HttpClient.h"
 
 class GameMapWidget : public QWidget {
@@ -10,11 +11,11 @@ public:
     GameMapWidget(QWidget* parent = nullptr);
     void initializeMap(const QVector<QVector<int>>& mapData);
     void updatePlayerPosition(int x, int y);
-    //void updateBullets(const QVector<BulletInfo>& newBullets);
+    
   
 
 public slots:
-    void updateBullets(const QVector<BulletInfo>& bullets); 
+    void updateBullets(const QVector<BulletInfo>& bullets);
 
 
 protected:
@@ -24,13 +25,11 @@ protected:
 private:
     static const int CELL_SIZE = 40;
     QVector<QVector<int>> map;
-    QPixmap wallTexture, bombTexture;
+    QPixmap wallTexture, bombTexture,bulletTexture; 
     QVector<QPixmap> playerTextures;
-    QPixmap bulletTexture;
+    
     QVector<BulletInfo> bullets;
-    std::mutex bulletsMutex;
-    QTimer updateTimer; 
-    bool updatingBullets = false;
+    QMutex bulletsMutex; 
 
     void loadTextures();
 };

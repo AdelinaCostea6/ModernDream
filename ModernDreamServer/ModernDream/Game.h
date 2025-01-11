@@ -79,4 +79,5 @@ public:
     void UpdateBullets();  
     const std::deque<Bullet>& GetBullets() const; 
     Player* GetPlayerByUsername(const std::string& username);
+
 };

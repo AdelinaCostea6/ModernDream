@@ -43,7 +43,9 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     mainStack->setCurrentWidget(tabWidget);
     setCentralWidget(mainStack);
 
-    
+    qDebug() << "HttpClient instance:" << httpClient;
+    qDebug() << "GameMapWidget instance:" << mapWidget;
+
 
     
     connect(startGameButton, &QPushButton::clicked, this, [this]() {
@@ -60,30 +62,21 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     if (!success) {
         qDebug() << "Eroare: `connect` a esuat!";
     }
-    connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets);
-    //bool success = connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
-    qDebug() << "HttpClient instance: " << httpClient;
-    qDebug() << "GameMapWidget instance: " << mapWidget;
-
     
+  
+
+    connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets); 
 
 
-     //Timer pentru sincronizarea periodică a bullet-urilor
     QTimer* bulletSyncTimer = new QTimer(this);
     connect(bulletSyncTimer, &QTimer::timeout, [this]() {
-        if (httpClient) {
-            httpClient->syncBullets(currentSessionId);  // Trimite cererea pentru sincronizarea bullet-urilor
+        if (httpClient && !currentSessionId.isEmpty()) {
+            httpClient->syncBullets(currentSessionId);  // Request bullet synchronization
         }
         });
-    bulletSyncTimer->start(1000);  // Sincronizare la fiecare 100ms
-    //bulletSyncTimer->stop();
-
-   /* QTimer* bulletSyncTimer = new QTimer(this);
-    connect(bulletSyncTimer, &QTimer::timeout, this, &ModernDreamClient::syncBullets);
-    bulletSyncTimer->start(1000); */ 
+    bulletSyncTimer->start(1000);  // Sync bullets every second
 
     qDebug() << "ModernDreamClient initialized successfully.";
-
 }
 
 
@@ -243,216 +236,6 @@ void ModernDreamClient::updateWaitingRoom(int current, int required) {
 }
 
 
-//void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
-//    static bool gameStarted = false; 
-//    if (gameStarted) {
-//        qDebug() << "Game already started, ignoring additional calls.";
-//        return;
-//    }
-//    gameStarted = true;
-//
-//    qDebug() << "onGameReady called. Session ID:" << sessionId;
-//
-//    if (!gameWidget) {
-//        qDebug() << "Error: gameWidget is nullptr!";
-//        return;
-//    }
-//
-//  
-//    QLayout* oldLayout = gameWidget->layout();
-//    if (oldLayout) {
-//        QLayoutItem* item;
-//        while ((item = oldLayout->takeAt(0)) != nullptr) {
-//            delete item->widget();
-//            delete item;
-//        }
-//        delete oldLayout;
-//    }
-//
-//    QVBoxLayout* layout = new QVBoxLayout(gameWidget);
-//    layout->setContentsMargins(0, 0, 0, 0);  
-//
-//    gameWidget->setStyleSheet("background-color: #62009e;"); 
-//
-//    QWidget* topContainer = new QWidget(gameWidget);
-//    QVBoxLayout* topLayout = new QVBoxLayout(topContainer);
-//
-//
-//    QLabel* sessionLabel = new QLabel(QString("Session ID: %1").arg(sessionId), topContainer);
-//    sessionLabel->setAlignment(Qt::AlignRight);
-//    sessionLabel->setStyleSheet("font-size: 14px; color: white;");
-//    topLayout->addWidget(sessionLabel);
-//
-//
-//    QLabel* playersLabel = new QLabel("Players in the game:", topContainer);
-//    playersLabel->setStyleSheet("color: white;");
-//    topLayout->addWidget(playersLabel);
-//
-//
-//    for (const QJsonValue& player : players) {
-//        QLabel* playersNameLabel = new QLabel(player.toString(), topContainer);
-//        playersNameLabel->setStyleSheet("color: white");
-//        topLayout->addWidget(playersNameLabel);
-//       
-//    }
-//
-//    layout->addWidget(topContainer);
-//
-// 
-//    QLabel* gameCanvas = new QLabel("Game canvas goes here...", gameWidget);
-//    gameCanvas->setStyleSheet("background-color: #eedbf9; border: 1px solid black; height: 400px; margin-top: 20px;");
-//    gameCanvas->setAlignment(Qt::AlignCenter);
-//    layout->addWidget(gameCanvas, 1); 
-//
-//    gameWidget->setLayout(layout);
-//
-//
-//    if (mainStack->indexOf(gameWidget) == -1) {
-//        mainStack->addWidget(gameWidget);
-//    }
-//    mainStack->setCurrentWidget(gameWidget);
-//
-//    qDebug() << "Switched to gameWidget successfully.";
-//}
-
-
-
-
-
-
-
-
-
-//void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
-//    static bool gameStarted = false;
-//    if (gameStarted) {
-//        qDebug() << "Game already started, ignoring additional calls.";
-//        return;
-//    }
-//    gameStarted = true;
-//    qDebug() << "onGameReady called. Session ID:" << sessionId;
-//    if (!gameWidget) {
-//        qDebug() << "Error: gameWidget is nullptr!";
-//        return;
-//    }
-//
-//
-//    // Create new layout
-//    QVBoxLayout* layout = new QVBoxLayout(gameWidget);
-//    layout->setContentsMargins(0, 0, 0, 0);
-//    //gameWidget->setStyleSheet("background-color: #62009e;");
-//
-//    //// Top container for session and player info
-//    //QWidget* topContainer = new QWidget(gameWidget);
-//    //QVBoxLayout* topLayout = new QVBoxLayout(topContainer);
-//
-//    //QLabel* sessionLabel = new QLabel(QString("Session ID: %1").arg(sessionId), topContainer);
-//    //sessionLabel->setAlignment(Qt::AlignRight);
-//    //sessionLabel->setStyleSheet("font-size: 14px; color: white;");
-//    //topLayout->addWidget(sessionLabel);
-//
-//    //QLabel* playersLabel = new QLabel("Players in the game:", topContainer);
-//    //playersLabel->setStyleSheet("color: white;");
-//    //topLayout->addWidget(playersLabel);
-//
-//    //for (const QJsonValue& player : players) {
-//    //    QLabel* playersNameLabel = new QLabel(player.toString(), topContainer);
-//    //    playersNameLabel->setStyleSheet("color: white");
-//    //    topLayout->addWidget(playersNameLabel);
-//    //}
-//    //layout->addWidget(topContainer);
-//
-//    // Create and initialize game map
-//    GameMapWidget* mapWidget = new GameMapWidget(gameWidget);
-//    layout->addWidget(mapWidget, 1);
-//
-//    // Request map generation from server
-//    HttpClient httpClient;
-//    QByteArray response = httpClient.requestMapGeneration(players.size());
-//    QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
-//    QJsonObject jsonObj = jsonDoc.object();
-//
-//    if (jsonObj.contains("map")) {
-//        QJsonArray mapArray = jsonObj["map"].toArray();
-//        QVector<QVector<int>> mapData;
-//
-//        for (const QJsonValue& row : mapArray) {
-//            QVector<int> rowData;
-//            QJsonArray rowArray = row.toArray();
-//            for (const QJsonValue& cell : rowArray) {
-//                rowData.push_back(cell.toInt());
-//            }
-//            mapData.push_back(rowData);
-//        }
-//
-//        mapWidget->initializeMap(mapData);
-//    }
-//
-//    gameWidget->setLayout(layout);
-//    if (mainStack->indexOf(gameWidget) == -1) {
-//        mainStack->addWidget(gameWidget);
-//    }
-//    mainStack->setCurrentWidget(gameWidget);
-//    qDebug() << "Switched to gameWidget successfully.";
-//}
-
-
-
-
-
-
-
-//void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
-//    static bool gameStarted = false;
-//    if (gameStarted) {
-//        qDebug() << "Game already started, ignoring additional calls.";
-//        return;
-//    }
-//    gameStarted = true;
-//    qDebug() << "onGameReady called. Session ID:" << sessionId;
-//
-//    if (!gameWidget) {
-//        qDebug() << "Error: gameWidget is nullptr!";
-//        return;
-//    }
-//
-//    QVBoxLayout* layout = new QVBoxLayout(gameWidget);
-//    layout->setContentsMargins(0, 0, 0, 0);
-//
-//
-//    //GameMapWidget* mapWidget = new GameMapWidget(gameWidget);
-//    qDebug() << "Created new mapWidget:" << mapWidget;
-//    layout->addWidget(mapWidget, 1);
-//
-//    // Cerere de generare a hărții
-//    QByteArray response = httpClient->requestMapGeneration(sessionId, players.size());
-//    QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
-//    QJsonObject jsonObj = jsonDoc.object();
-//
-//    if (jsonObj.contains("map")) {
-//        QJsonArray mapArray = jsonObj["map"].toArray();
-//        QVector<QVector<int>> mapData;
-//
-//        for (const QJsonValue& row : mapArray) {
-//            QVector<int> rowData;
-//            QJsonArray rowArray = row.toArray();
-//            for (const QJsonValue& cell : rowArray) {
-//                rowData.push_back(cell.toInt());
-//            }
-//            mapData.push_back(rowData);
-//        }
-//
-//        mapWidget->initializeMap(mapData);
-//    }
-//
-//    gameWidget->setLayout(layout);
-//    if (mainStack->indexOf(gameWidget) == -1) {
-//        mainStack->addWidget(gameWidget);
-//    }
-//    mainStack->setCurrentWidget(gameWidget);
-//    qDebug() << "Switched to gameWidget successfully.";
-//}
-
 
 void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
     static bool gameStarted = false;
@@ -471,13 +254,12 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
 
     QVBoxLayout* layout = new QVBoxLayout(gameWidget);
     layout->setContentsMargins(0, 0, 0, 0);
-    //connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
+
 
     if (!mapWidget) {
-        mapWidget = new GameMapWidget(gameWidget);  // Folosește instanța unică
-       // bool connected = connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
-       // bool success = connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
-        //qDebug() << "Bullet update connection established: " << connected;
+        mapWidget = new GameMapWidget(gameWidget);
+        qDebug() << "GameMapWidget initialized successfully: " << mapWidget;// Folosește instanța unică
+
     }
 
     qDebug() << "Using existing mapWidget:" << mapWidget;
@@ -562,17 +344,13 @@ void ModernDreamClient::keyPressEvent(QKeyEvent* event) {
             return;
         }
 
-        // Actualizează direcția curentă doar dacă s-a apăsat `w`, `a`, `s` sau `d`
         if (event->key() == Qt::Key_W || event->key() == Qt::Key_A || event->key() == Qt::Key_S || event->key() == Qt::Key_D) {
             direction = direction;  // Actualizează direcția curentă pentru `Space`
         }
     }
 }
 
-void ModernDreamClient::onShootButtonPressed(const QString& direction) {
-    if (!httpClient) return;
-    httpClient->shootBullet(currentSessionId, currentUsername, direction);  // Trimite cererea de tras bullet-ul
-}
+
 
 
 
@@ -587,17 +365,8 @@ void ModernDreamClient::updatePlayerPosition(int x, int y) {
 }
 
   
-//void ModernDreamClient::syncBullets() {
-//    if (isSyncing) {
-//        qDebug() << "Already syncing, skipping...";
-//        return;
-//    }
-//    isSyncing = true;
-//
-//    httpClient->syncBullets(currentSessionId);
-//
-//    QTimer::singleShot(1000, [this]() {  // 1 secundă pentru resetare
-//        isSyncing = false;
-//        });
-//}
+void ModernDreamClient::onShootButtonPressed(const QString& direction) {
+    if (!httpClient) return;
+    httpClient->shootBullet(currentSessionId, currentUsername, direction);  // Trimite cererea de tras bullet-ul
+}
 

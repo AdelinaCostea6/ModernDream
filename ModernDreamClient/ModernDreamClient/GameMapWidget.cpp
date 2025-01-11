@@ -66,7 +66,7 @@
 #include <QLabel>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
-
+#include<QMutexLocker>
 
 GameMapWidget::GameMapWidget(QWidget* parent) : QWidget(parent) {
     loadTextures();
@@ -81,8 +81,7 @@ void GameMapWidget::loadTextures() {
     bombTexture.load("../ModernDreamImages/tire2.png");
     //bombTexture = bombTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
 
-    bulletTexture.load("../ModernDreamImages/bullet2.png");
-    //bulletTexture = bulletTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio);
+    bulletTexture.load("../ModernDreamImages/bullet2.png"); 
     
 
     playerTextures.resize(4);
@@ -113,7 +112,7 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
     
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    std::lock_guard<std::mutex> lock(bulletsMutex);
+    
 
     if (map.isEmpty() || map[0].isEmpty()) {
         return;
@@ -172,20 +171,17 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             painter.drawRect(cellRect);
         }
     }
-   // std::lock_guard<std::mutex> lock(bulletsMutex);
-
+  
+    QMutexLocker lock(&bulletsMutex);  // Ensure thread-safety for bullets
     for (const auto& bullet : bullets) {
-        if (bullet.x < 0 || bullet.x >= cols || bullet.y < 0 || bullet.y >= rows) {
-            qDebug() << "Bullet out of bounds: (" << bullet.x << ", " << bullet.y << ")";
-            continue; // Skip invalid bullets
+        if (bullet.x < 0 || bullet.y < 0 || bulletTexture.isNull()) {
+            qDebug() << "Skipping invalid bullet at (" << bullet.x << ", " << bullet.y << ")";
+            continue;  // Skip invalid bullets
         }
 
-        QRectF bulletRect(offsetX + bullet.x * cellSize, offsetY + bullet.y * cellSize, cellSize, cellSize);
-        painter.drawPixmap(bulletRect.toRect(), bulletTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+        QRect bulletRect(bullet.x * CELL_SIZE, bullet.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        painter.drawPixmap(bulletRect, bulletTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio));
     }
-
-    
-
      
 }
 
@@ -210,41 +206,13 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
     //animatePlayerMove(playerX, playerY, x, y);
 }
 
-
-
-//void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
-//    bullets = newBullets;  
-//    update();  
-//}
-
-
-
-
-
-
 void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
-
-    if (newBullets.isEmpty()) {
-        qDebug() << "Received empty bullet list!";
+    QMutexLocker lock(&bulletsMutex);  // Ensure thread-safety
+    bullets = newBullets;
+    for (const auto& bullet : bullets) {
+        qDebug() << "Updated bullet at position (" << bullet.x << ", " << bullet.y << ")";
     }
-     QVector<BulletInfo> validBullets;
-
-     for (const auto& bullet : newBullets) {
-         if (bullet.x >= 0 && bullet.x < map[0].size() && bullet.y >= 0 && bullet.y < map.size()) {
-             validBullets.append(bullet);
-         }
-         else {
-             qDebug() << "Discarding out-of-bounds bullet at:" << bullet.x << bullet.y;
-         }
-     }
-
-     {
-         std::lock_guard<std::mutex> lock(bulletsMutex);
-         bullets = validBullets;
-     }
-
-     update();
-
+    update();  // Trigger repaint
 }
 
 
