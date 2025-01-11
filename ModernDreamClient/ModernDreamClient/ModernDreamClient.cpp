@@ -60,7 +60,8 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     if (!success) {
         qDebug() << "Eroare: `connect` a esuat!";
     }
-    //connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets);
+    connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets);
+    //bool success = connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
     qDebug() << "HttpClient instance: " << httpClient;
     qDebug() << "GameMapWidget instance: " << mapWidget;
 
@@ -75,6 +76,12 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
         }
         });
     bulletSyncTimer->start(1000);  // Sincronizare la fiecare 100ms
+    //bulletSyncTimer->stop();
+
+   /* QTimer* bulletSyncTimer = new QTimer(this);
+    connect(bulletSyncTimer, &QTimer::timeout, this, &ModernDreamClient::syncBullets);
+    bulletSyncTimer->start(1000); */ 
+
     qDebug() << "ModernDreamClient initialized successfully.";
 
 }
@@ -464,11 +471,13 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
 
     QVBoxLayout* layout = new QVBoxLayout(gameWidget);
     layout->setContentsMargins(0, 0, 0, 0);
+    //connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
 
     if (!mapWidget) {
         mapWidget = new GameMapWidget(gameWidget);  // Folosește instanța unică
-        bool connected = connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets);
-        qDebug() << "Bullet update connection established: " << connected;
+       // bool connected = connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
+       // bool success = connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
+        //qDebug() << "Bullet update connection established: " << connected;
     }
 
     qDebug() << "Using existing mapWidget:" << mapWidget;
@@ -502,6 +511,7 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
     }
     mainStack->setCurrentWidget(gameWidget);
     qDebug() << "Switched to gameWidget successfully.";
+    
 }
 
 
@@ -569,9 +579,25 @@ void ModernDreamClient::onShootButtonPressed(const QString& direction) {
 void ModernDreamClient::updatePlayerPosition(int x, int y) {
     qDebug() << "Primim pozitia nouă de la server: (" << x << ", " << y << ")";
     if (mapWidget) {
-        mapWidget->updatePlayerPosition(x, y);  // Redesenăm harta cu noua poziție
+        mapWidget->updatePlayerPosition(x, y);
+    }
+    else {
+        qDebug() << "Error: mapWidget is nullptr!";
     }
 }
 
   
+//void ModernDreamClient::syncBullets() {
+//    if (isSyncing) {
+//        qDebug() << "Already syncing, skipping...";
+//        return;
+//    }
+//    isSyncing = true;
+//
+//    httpClient->syncBullets(currentSessionId);
+//
+//    QTimer::singleShot(1000, [this]() {  // 1 secundă pentru resetare
+//        isSyncing = false;
+//        });
+//}
 

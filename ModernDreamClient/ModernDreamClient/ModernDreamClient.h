@@ -50,9 +50,11 @@ private:
     GameMapWidget* mapWidget;
     QString currentDirection;
     void setupWaitingRoom();       
+   // bool isSyncing = false;
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;
+    
 
 public slots:
     void OnStartGame(GameMap mapType, const QString& username);
@@ -65,5 +67,6 @@ public slots:
     void updateWaitingRoom(int current, int required);
     void updatePlayerPosition(int x, int y);
     void onShootButtonPressed(const QString& direction);  // Transmite direcția pentru glonț
+   // void syncBullets();
 
 };

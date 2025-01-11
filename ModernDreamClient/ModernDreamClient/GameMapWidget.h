@@ -30,6 +30,7 @@ private:
     QVector<BulletInfo> bullets;
     std::mutex bulletsMutex;
     QTimer updateTimer; 
+    bool updatingBullets = false;
 
     void loadTextures();
 };

@@ -461,6 +461,40 @@ void HttpClient::shootBullet(const QString& sessionId, const QString& username, 
 //        });
 //}
 
+//void HttpClient::syncBullets(const QString& sessionId) {
+//    QJsonObject data;
+//    data["sessionId"] = sessionId;
+//
+//    QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QNetworkReply* reply = manager->post(request, QJsonDocument(data).toJson());
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        QByteArray responseData = reply->readAll();
+//        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
+//        if (!jsonResponse.contains("bullets")) {
+//            qDebug() << "Error: bullets field missing!";
+//            return;
+//        }
+//        QJsonArray bulletsArray = jsonResponse["bullets"].toArray(); 
+//
+//        QVector<BulletInfo> updatedBullets;
+//        for (const QJsonValue& bulletValue : bulletsArray) {
+//            QJsonObject bulletObj = bulletValue.toObject();  
+//            int x = bulletObj["x"].toInt();
+//            int y = bulletObj["y"].toInt();
+//            char direction = bulletObj["direction"].toString().toLatin1()[0];
+//            updatedBullets.push_back({ x, y, direction }); 
+//        }
+//
+//        qDebug() << "Emitting bulletsUpdated signal with" << updatedBullets.size() << "bullets";
+//        emit bulletsUpdated(updatedBullets);
+//
+//        reply->deleteLater();
+//        });
+//}
+
+
 void HttpClient::syncBullets(const QString& sessionId) {
     QJsonObject data;
     data["sessionId"] = sessionId;
@@ -472,20 +506,20 @@ void HttpClient::syncBullets(const QString& sessionId) {
     connect(reply, &QNetworkReply::finished, [this, reply]() {
         QByteArray responseData = reply->readAll();
         QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
-        QJsonArray bulletsArray = jsonResponse["bullets"].toArray(); 
+        QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
+
+        qDebug() << "Number of bullets received from server:" << bulletsArray.size();  // Log dimensiunea listei
 
         QVector<BulletInfo> updatedBullets;
         for (const QJsonValue& bulletValue : bulletsArray) {
-            QJsonObject bulletObj = bulletValue.toObject();  
+            QJsonObject bulletObj = bulletValue.toObject();
             int x = bulletObj["x"].toInt();
             int y = bulletObj["y"].toInt();
             char direction = bulletObj["direction"].toString().toLatin1()[0];
-            updatedBullets.push_back({ x, y, direction }); 
+            updatedBullets.push_back({ x, y, direction });
         }
 
-        qDebug() << "Emitting bulletsUpdated signal with" << updatedBullets.size() << "bullets";
         emit bulletsUpdated(updatedBullets);
-
         reply->deleteLater();
         });
 }

@@ -100,6 +100,7 @@ void GameMapWidget::loadTextures() {
 
 void GameMapWidget::initializeMap(const QVector<QVector<int>>& mapData) {
     map = mapData;
+    //qDebug() << "Client map initialized with size:" << map.size() << "rows x" << (map.isEmpty() ? 0 : map[0].size()) << "cols";
     update();
     //qDebug() << "Harta reinițializată. Poziția jucătorului: (" << playerX << ", " << playerY << ")";
 
@@ -109,8 +110,10 @@ void GameMapWidget::initializeMap(const QVector<QVector<int>>& mapData) {
 
 void GameMapWidget::paintEvent(QPaintEvent* event) {
    // qDebug() << "paintEvent apelat pentru poziția jucătorului: (" << playerX << ", " << playerY << ")";
+    
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
+    std::lock_guard<std::mutex> lock(bulletsMutex);
 
     if (map.isEmpty() || map[0].isEmpty()) {
         return;
@@ -169,13 +172,13 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             painter.drawRect(cellRect);
         }
     }
-    std::lock_guard<std::mutex> lock(bulletsMutex);
+   // std::lock_guard<std::mutex> lock(bulletsMutex);
 
     for (const auto& bullet : bullets) {
-        //if (bullet.x < 0 || bullet.x >= cols || bullet.y < 0 || bullet.y >= rows) {
-        //    qDebug() << "Bullet out of bounds: (" << bullet.x << ", " << bullet.y << ")";
-        //    continue; // Skip invalid bullets
-        //}
+        if (bullet.x < 0 || bullet.x >= cols || bullet.y < 0 || bullet.y >= rows) {
+            qDebug() << "Bullet out of bounds: (" << bullet.x << ", " << bullet.y << ")";
+            continue; // Skip invalid bullets
+        }
 
         QRectF bulletRect(offsetX + bullet.x * cellSize, offsetY + bullet.y * cellSize, cellSize, cellSize);
         painter.drawPixmap(bulletRect.toRect(), bulletTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
@@ -220,24 +223,30 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
 
 
 void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
-    QVector<BulletInfo> validBullets;
 
-    for (const auto& bullet : newBullets) {
-        if (bullet.x >= 0 && bullet.x < map[0].size() && bullet.y >= 0 && bullet.y < map.size()) {
-            validBullets.append(bullet);
-        }
-        else {
-            qDebug() << "Discarding out-of-bounds bullet at:" << bullet.x << bullet.y;
-        }
+    if (newBullets.isEmpty()) {
+        qDebug() << "Received empty bullet list!";
     }
+     QVector<BulletInfo> validBullets;
 
-    {
-        std::lock_guard<std::mutex> lock(bulletsMutex);
-        bullets = validBullets;
-    }
+     for (const auto& bullet : newBullets) {
+         if (bullet.x >= 0 && bullet.x < map[0].size() && bullet.y >= 0 && bullet.y < map.size()) {
+             validBullets.append(bullet);
+         }
+         else {
+             qDebug() << "Discarding out-of-bounds bullet at:" << bullet.x << bullet.y;
+         }
+     }
 
-    update();
+     {
+         std::lock_guard<std::mutex> lock(bulletsMutex);
+         bullets = validBullets;
+     }
+
+     update();
+
 }
+
 
 
 
