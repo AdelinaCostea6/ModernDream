@@ -16,6 +16,7 @@ public:
 
 public slots:
     void updateBullets(const QVector<BulletInfo>& bullets);
+   
 
 
 protected:
@@ -30,6 +31,6 @@ private:
     
     QVector<BulletInfo> bullets;
     QMutex bulletsMutex; 
-
+    //std::mutex bulletsMutex;
     void loadTextures();
 };

@@ -457,6 +457,7 @@ void HttpClient::syncBullets(const QString& sessionId) {
         }
 
         emit bulletsUpdated(updatedBullets);
+        qDebug() << "Emitted bulletsUpdated signal with " << updatedBullets.size() << " bullets.";
         reply->deleteLater();
         });
 

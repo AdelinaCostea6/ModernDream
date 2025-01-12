@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <QJsonArray>
 #include <QKeyEvent>
-
+#include <QDockWidget>
 ModernDreamClient::ModernDreamClient(QWidget* parent)
     : QMainWindow(parent), mainStack(new QStackedWidget(this)), httpClient(new HttpClient(this)) {
     resize(1400, 800);
@@ -65,7 +65,9 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     
   
 
-    connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets); 
+   // connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets); 
+    connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
+
 
 
     QTimer* bulletSyncTimer = new QTimer(this);
@@ -75,6 +77,23 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
         }
         });
     bulletSyncTimer->start(1000);  // Sync bullets every second
+
+   // QDockWidget* dock = new QDockWidget("Controls", this);
+   // QWidget* dockWidget = new QWidget();
+   // QVBoxLayout* dockLayout = new QVBoxLayout(dockWidget);
+
+   // QPushButton* syncButton = new QPushButton("Manual Sync", this);
+   // layout->addWidget(syncButton);
+   // connect(syncButton, &QPushButton::clicked, [this]() {
+   //     httpClient->syncBullets(currentSessionId);
+   //     });
+   //syncButton->setFocusPolicy(Qt::NoFocus);
+
+   //dockLayout->addWidget(syncButton);
+   //dockWidget->setLayout(dockLayout);
+   //dock->setWidget(dockWidget);
+
+   //addDockWidget(Qt::TopDockWidgetArea, dock);
 
     qDebug() << "ModernDreamClient initialized successfully.";
 }
@@ -259,6 +278,8 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
     if (!mapWidget) {
         mapWidget = new GameMapWidget(gameWidget);
         qDebug() << "GameMapWidget initialized successfully: " << mapWidget;// Folosește instanța unică
+        connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
+
 
     }
 

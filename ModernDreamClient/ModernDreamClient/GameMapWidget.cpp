@@ -67,6 +67,7 @@
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include<QMutexLocker>
+#include <vector>
 
 GameMapWidget::GameMapWidget(QWidget* parent) : QWidget(parent) {
     loadTextures();
@@ -82,6 +83,9 @@ void GameMapWidget::loadTextures() {
     //bombTexture = bombTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::IgnoreAspectRatio);
 
     bulletTexture.load("../ModernDreamImages/bullet2.png"); 
+    if (bulletTexture.isNull()) {
+        qDebug() << "Failed to load bullet texture from file!";
+    }
     
 
     playerTextures.resize(4);
@@ -178,12 +182,28 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             qDebug() << "Skipping invalid bullet at (" << bullet.x << ", " << bullet.y << ")";
             continue;  // Skip invalid bullets
         }
+        else qDebug() << "Drawing buulet at coordinates " << bullet.x << " " << bullet.y;
 
-        QRect bulletRect(bullet.x * CELL_SIZE, bullet.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        painter.drawPixmap(bulletRect, bulletTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio));
+       /* QRect bulletRect(bullet.x * CELL_SIZE, bullet.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        painter.drawPixmap(bulletRect, bulletTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio));*/
+
+        QRect bulletRect(offsetX+bullet.x * cellSize, offsetY+bullet.y * cellSize, cellSize, cellSize);
+        painter.setBrush(Qt::yellow);
+        painter.drawEllipse(bulletRect);  // Desenează glonțul ca un cerc simplu pentru testare
+
     }
+
+    
+
      
 }
+
+
+
+
+
+
+
 
 
 
@@ -206,14 +226,49 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
     //animatePlayerMove(playerX, playerY, x, y);
 }
 
+//void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
+//    QMutexLocker lock(&bulletsMutex);  // Ensure thread-safety
+//    bullets = newBullets;
+//    for (const auto& bullet : bullets) {
+//        qDebug() << "Updated bullet at position (" << bullet.x << ", " << bullet.y << ")";
+//    }
+//    update();  // Trigger repaint
+//}
+
+
+//void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
+//    QMetaObject::invokeMethod(this, [newBullets, this]() {
+//        QMutexLocker lock(&bulletsMutex);  // Blochează accesul
+//        bullets.detach();  // Evită accesul partajat
+//        bullets = newBullets;  // Actualizare
+//        qDebug() << "Updated bullets: " << bullets.size();
+//        update();  // Actualizare interfață
+//        }, Qt::QueuedConnection);
+//}
+
+
 void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
-    QMutexLocker lock(&bulletsMutex);  // Ensure thread-safety
-    bullets = newBullets;
-    for (const auto& bullet : bullets) {
-        qDebug() << "Updated bullet at position (" << bullet.x << ", " << bullet.y << ")";
+    if (newBullets.empty()) {
+        qDebug() << "Received empty bullet list!";
+        return;
     }
-    update();  // Trigger repaint
+    qDebug() << "Number of bullets received: " << newBullets.size();
+    for (const auto& bullet : newBullets) {
+        qDebug() << "Bullet coordinates: " << bullet.x << ", " << bullet.y;
+    }
+
+    QMutexLocker lock(&bulletsMutex);
+    //bullets = newBullets;  
+    bullets = newBullets;  // Mută datele în loc să le copiezi
+
+    update();  
 }
+
+
+
+
+
+
 
 
 
