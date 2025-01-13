@@ -177,6 +177,7 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
     }
   
     QMutexLocker lock(&bulletsMutex);  // Ensure thread-safety for bullets
+    
     for (const auto& bullet : bullets) {
         if (bullet.x < 0 || bullet.y < 0 || bulletTexture.isNull()) {
             qDebug() << "Skipping invalid bullet at (" << bullet.x << ", " << bullet.y << ")";
@@ -197,10 +198,6 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
 
      
 }
-
-
-
-
 
 
 
@@ -247,26 +244,36 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
 //}
 
 
+//void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
+//    if (newBullets.empty()) {
+//        qDebug() << "Received empty bullet list!";
+//        return;
+//    }
+//    qDebug() << "Number of bullets received: " << newBullets.size();
+//    for (const auto& bullet : newBullets) {
+//        qDebug() << "Bullet coordinates: " << bullet.x << ", " << bullet.y;
+//    }
+//
+//    QMutexLocker lock(&bulletsMutex);
+//    //bullets = newBullets;  
+//    bullets = newBullets;  // Mută datele în loc să le copiezi
+//
+//    update();  
+//}
+
+
+
+
 void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
-    if (newBullets.empty()) {
-        qDebug() << "Received empty bullet list!";
-        return;
-    }
-    qDebug() << "Number of bullets received: " << newBullets.size();
-    for (const auto& bullet : newBullets) {
-        qDebug() << "Bullet coordinates: " << bullet.x << ", " << bullet.y;
-    }
-
     QMutexLocker lock(&bulletsMutex);
-    //bullets = newBullets;  
-    bullets = newBullets;  // Mută datele în loc să le copiezi
-
-    update();  
+    bullets.clear();
+    for (const auto& bullet : newBullets) {
+        if (bullet.x >= 0 && bullet.y >= 0 && bulletTexture.isNull() == false) {
+            bullets.push_back(bullet);
+        }
+    }
+    update();
 }
-
-
-
-
 
 
 

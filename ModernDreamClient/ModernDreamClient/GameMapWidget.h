@@ -11,6 +11,12 @@ public:
     GameMapWidget(QWidget* parent = nullptr);
     void initializeMap(const QVector<QVector<int>>& mapData);
     void updatePlayerPosition(int x, int y);
+
+    ~GameMapWidget() {  
+        QMutexLocker lock(&bulletsMutex); 
+        bullets.clear();  // Ensure bullets are cleared safely
+    }
+
     
   
 
@@ -30,7 +36,7 @@ private:
     QVector<QPixmap> playerTextures;
     
     QVector<BulletInfo> bullets;
-    QMutex bulletsMutex; 
+    mutable QMutex bulletsMutex; 
     //std::mutex bulletsMutex;
     void loadTextures();
 };

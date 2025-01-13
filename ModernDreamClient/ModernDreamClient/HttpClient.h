@@ -6,6 +6,7 @@
 #include <QtNetwork>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMutex>
  
 struct BulletInfo {
     int x;
@@ -68,6 +69,9 @@ private:
     QTimer* statusCheckTimer; 
     QString currentSessionId; 
     bool joiningInProgress = false;
+
+    QVector<BulletInfo> bullets;
+    QMutex bulletsMutex;
 };
 
 #endif  // HTTPCLIENT_H

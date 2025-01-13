@@ -3,6 +3,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
+#include <QMutexLocker>
 
 
 HttpClient::HttpClient(QObject* parent)
@@ -427,40 +428,83 @@ void HttpClient::shootBullet(const QString& sessionId, const QString& username, 
         });
 }
 
+//
+//void HttpClient::syncBullets(const QString& sessionId) {
+//    QJsonObject data;
+//    data["sessionId"] = sessionId;
+//
+//    QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QNetworkReply* reply = manager->post(request, QJsonDocument(data).toJson());
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        QByteArray responseData = reply->readAll();
+//        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
+//        QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
+//
+//        QVector<BulletInfo> updatedBullets;
+//        for (const QJsonValue& bulletValue : bulletsArray) {
+//            QJsonObject bulletObj = bulletValue.toObject();
+//            int x = bulletObj["x"].toInt();
+//            int y = bulletObj["y"].toInt();
+//            char direction = bulletObj["direction"].toString().toLatin1()[0];
+//
+//            if (x < 0 || y < 0) {
+//                qDebug() << "Invalid bullet data from server: (" << x << ", " << y << ")";
+//                continue;
+//            }
+//
+//            updatedBullets.push_back({ x, y, direction });
+//        }
+//
+//        emit bulletsUpdated(updatedBullets);
+//        qDebug() << "Emitted bulletsUpdated signal with " << updatedBullets.size() << " bullets.";
+//        reply->deleteLater();
+//        });
+//
+//}
 
 void HttpClient::syncBullets(const QString& sessionId) {
-    QJsonObject data;
-    data["sessionId"] = sessionId;
+    QUrl url = QString("http://localhost:8080/game/syncBullets");
+    QJsonObject json;
+    json["sessionId"] = sessionId;
 
-    QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
+    QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    QNetworkReply* reply = manager->post(request, QJsonDocument(data).toJson());
+    QJsonDocument doc(json);
+    QNetworkReply* reply = manager->post(request, doc.toJson());
+
     connect(reply, &QNetworkReply::finished, [this, reply]() {
-        QByteArray responseData = reply->readAll();
-        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
-        QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
+        if (reply->error() == QNetworkReply::NoError) {
+            QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
+            QJsonArray bulletsArray = responseDoc.object()["bullets"].toArray();
 
-        QVector<BulletInfo> updatedBullets;
-        for (const QJsonValue& bulletValue : bulletsArray) {
-            QJsonObject bulletObj = bulletValue.toObject();
-            int x = bulletObj["x"].toInt();
-            int y = bulletObj["y"].toInt();
-            char direction = bulletObj["direction"].toString().toLatin1()[0];
+            QVector<BulletInfo> newBullets;
+            for (const auto& bulletValue : bulletsArray) {
+                QJsonObject bulletJson = bulletValue.toObject();
+                BulletInfo bullet;
+                bullet.x = bulletJson["x"].toInt();
+                bullet.y = bulletJson["y"].toInt();
+                bullet.direction = bulletJson["direction"].toString().at(0).toLatin1();
 
-            if (x < 0 || y < 0) {
-                qDebug() << "Invalid bullet data from server: (" << x << ", " << y << ")";
-                continue;
+                // Perform validation
+                if (bullet.x >= 0 && bullet.y >= 0) {
+                    newBullets.append(bullet);
+                }
             }
 
-            updatedBullets.push_back({ x, y, direction });
+            // Safely update bullets
+            {
+                QMutexLocker lock(&bulletsMutex);
+                bullets.swap(newBullets);
+            }
+            emit bulletsUpdated(bullets);
         }
-
-        emit bulletsUpdated(updatedBullets);
-        qDebug() << "Emitted bulletsUpdated signal with " << updatedBullets.size() << " bullets.";
+        else {
+            qDebug() << "Error syncing bullets:" << reply->errorString();
+        }
         reply->deleteLater();
         });
-
 }
-
 
