@@ -270,6 +270,11 @@ void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
         return;
     }
 
+    /*if (bullets == newBullets) {
+        qDebug() << "Skipping duplicate bullet update.";
+        return; 
+    }*/
+
     qDebug() << "Number of bullets received: " << newBullets.size();
     for (const auto& bullet : newBullets) {
         qDebug() << "Bullet coordinates: " << bullet.x << ", " << bullet.y;
