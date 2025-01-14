@@ -464,6 +464,54 @@ void HttpClient::shootBullet(const QString& sessionId, const QString& username, 
 //
 //}
 
+
+
+
+
+//void HttpClient::syncBullets(const QString& sessionId) {
+//    QUrl url = QString("http://localhost:8080/game/syncBullets");
+//    QJsonObject json;
+//    json["sessionId"] = sessionId;
+//
+//    QNetworkRequest request(url);
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QJsonDocument doc(json);
+//    QNetworkReply* reply = manager->post(request, doc.toJson());
+//
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        if (reply->error() == QNetworkReply::NoError) {
+//            QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
+//            QJsonArray bulletsArray = responseDoc.object()["bullets"].toArray();
+//
+//            QVector<BulletInfo> newBullets;
+//            for (const auto& bulletValue : bulletsArray) {
+//                QJsonObject bulletJson = bulletValue.toObject();
+//                BulletInfo bullet;
+//                bullet.x = bulletJson["x"].toInt();
+//                bullet.y = bulletJson["y"].toInt();
+//                bullet.direction = bulletJson["direction"].toString().at(0).toLatin1();
+//
+//                // Perform validation
+//                if (bullet.x >= 0 && bullet.y >= 0) {
+//                    newBullets.append(bullet);
+//                }
+//            }
+//
+//            // Safely update bullets
+//            {
+//                QMutexLocker lock(&bulletsMutex);
+//                bullets.swap(newBullets);
+//            }
+//            emit bulletsUpdated(bullets);
+//        }
+//        else {
+//            qDebug() << "Error syncing bullets:" << reply->errorString();
+//        }
+//        reply->deleteLater();
+//        });
+//}
+
 void HttpClient::syncBullets(const QString& sessionId) {
     QUrl url = QString("http://localhost:8080/game/syncBullets");
     QJsonObject json;
@@ -480,26 +528,33 @@ void HttpClient::syncBullets(const QString& sessionId) {
             QJsonDocument responseDoc = QJsonDocument::fromJson(reply->readAll());
             QJsonArray bulletsArray = responseDoc.object()["bullets"].toArray();
 
-            QVector<BulletInfo> newBullets;
+            QVector<QPair<int, int>> bulletPositions; // To store x, y directly
+            QVector<char> bulletDirections; // To store directions directly
+
             for (const auto& bulletValue : bulletsArray) {
                 QJsonObject bulletJson = bulletValue.toObject();
-                BulletInfo bullet;
-                bullet.x = bulletJson["x"].toInt();
-                bullet.y = bulletJson["y"].toInt();
-                bullet.direction = bulletJson["direction"].toString().at(0).toLatin1();
+
+                // Extract values directly
+                int x = bulletJson["x"].toInt();
+                int y = bulletJson["y"].toInt();
+                QString directionStr = bulletJson["direction"].toString();
+                char direction = directionStr.isEmpty() ? '\0' : directionStr[0].toLatin1();
 
                 // Perform validation
-                if (bullet.x >= 0 && bullet.y >= 0) {
-                    newBullets.append(bullet);
+                if (x >= 0 && y >= 0) {
+                    bulletPositions.append({ x, y });
+                    bulletDirections.append(direction);
                 }
             }
 
             // Safely update bullets
             {
                 QMutexLocker lock(&bulletsMutex);
-                bullets.swap(newBullets);
-            }
-            emit bulletsUpdated(bullets);
+                this->bulletPositions.swap(bulletPositions); // Assuming bulletPositions is defined
+                this->bulletDirections.swap(bulletDirections);
+            } 
+
+            emit bulletsUpdated(this->bulletPositions, this->bulletDirections); // Adjust emit if needed
         }
         else {
             qDebug() << "Error syncing bullets:" << reply->errorString();
@@ -507,4 +562,5 @@ void HttpClient::syncBullets(const QString& sessionId) {
         reply->deleteLater();
         });
 }
+
 

@@ -533,7 +533,7 @@ crow::response Routing::SyncBulletsRoute(const crow::request& req) {
     if (!session) {
         return crow::response(404, "Session not found");
     }
-
+    //session->game.UpdateBullets();
     const auto& bullets = session->game.GetBullets();  // Retrieve bullets from the game session
 
     // Prepare JSON response

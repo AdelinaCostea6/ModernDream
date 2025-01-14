@@ -46,6 +46,7 @@ void MapGenerator::InitializeMapMatrix() {
     if (currentHeight <= 0 || currentWidth <= 0) {
         throw std::runtime_error("Dimensiunile matricei sunt nevalide!");
     }
+
     mapMatrix.resize(currentHeight, std::vector<int>(currentWidth, FreeSpace));
 }
 //void MapGenerator::GenerateNonDestructibleWalls() {

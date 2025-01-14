@@ -66,17 +66,21 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
   
 
    // connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets); 
-    connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
+   
+   //httpClient->syncBullets(currentSessionId);
+    connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);   
 
 
+      // Sync bullets every second
+    // QTimer* bulletSyncTimer = new QTimer(this);
+    //connect(bulletSyncTimer, &QTimer::timeout, [this]() {
+    //    if (httpClient && !currentSessionId.isEmpty()) {
+    //        httpClient->syncBullets(currentSessionId);  // Request bullet synchronization
+    //    }
+    //    });
+    //bulletSyncTimer->start(3000);
 
-    QTimer* bulletSyncTimer = new QTimer(this);
-    connect(bulletSyncTimer, &QTimer::timeout, [this]() {
-        if (httpClient && !currentSessionId.isEmpty()) {
-            httpClient->syncBullets(currentSessionId);  // Request bullet synchronization
-        }
-        });
-    bulletSyncTimer->start(1000);  // Sync bullets every second
+
 
    // QDockWidget* dock = new QDockWidget("Controls", this);
    // QWidget* dockWidget = new QWidget();

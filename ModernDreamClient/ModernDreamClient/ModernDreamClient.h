@@ -26,6 +26,13 @@ public:
     explicit ModernDreamClient(QWidget* parent = nullptr);
     ~ModernDreamClient();
 
+protected:
+    void paintEvent(QPaintEvent* event) override
+    {
+        gameWidget->update();
+    }
+
+
 private:
     QTabWidget* tabWidget;          
     QSpinBox* playerCountSpinBox;   

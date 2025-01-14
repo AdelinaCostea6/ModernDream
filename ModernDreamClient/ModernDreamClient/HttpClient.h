@@ -8,12 +8,12 @@
 #include <QJsonObject>
 #include <QMutex>
  
-struct BulletInfo {
-    int x;
-    int y;
-    char direction;
-
-};
+//struct BulletInfo {
+//    int x;
+//    int y;
+//    char direction;
+//
+//};
 
 
 class HttpClient : public QObject
@@ -51,7 +51,8 @@ signals:
     void playerLeft(const QString& username, int currentPlayers, int requiredPlayers);
     void playerMoved(int x, int y);
     
-    void bulletsUpdated(const QVector<BulletInfo>& bullets); 
+    //void bulletsUpdated(const QVector<BulletInfo>& bullets); 
+    void bulletsUpdated(const QVector<QPair<int, int>>& positions, const QVector<char>& directions);
 
 private slots:
     void onLoginResponse();
@@ -62,6 +63,7 @@ private slots:
     void onCheckStatusResponse();
     void onLeaveGameResponse();
 
+    
 
 private:
     QNetworkAccessManager* manager;
@@ -70,8 +72,11 @@ private:
     QString currentSessionId; 
     bool joiningInProgress = false;
 
-    QVector<BulletInfo> bullets;
+   // QVector<BulletInfo> bullets;
     QMutex bulletsMutex;
+
+    QVector<QPair<int, int>> bulletPositions;
+    QVector<char> bulletDirections;
 };
 
 #endif  // HTTPCLIENT_H

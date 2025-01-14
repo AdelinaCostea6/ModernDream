@@ -113,7 +113,13 @@ void GameMapWidget::initializeMap(const QVector<QVector<int>>& mapData) {
 
 void GameMapWidget::paintEvent(QPaintEvent* event) {
    // qDebug() << "paintEvent apelat pentru poziția jucătorului: (" << playerX << ", " << playerY << ")";
-    
+    qDebug() << "Skipping recursive paintEvent!";
+    if (isPainting) {
+        qDebug() << "Skipping recursive paintEvent!";
+        return;
+    }
+    isPainting = true;
+
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     
@@ -176,27 +182,45 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
         }
     }
   
-    QMutexLocker lock(&bulletsMutex);  // Ensure thread-safety for bullets
+    painter.drawEllipse(50, 50, 20+test, 20);
+    test += 1;
+
+    //QMutexLocker lock(&bulletsMutex);  // Ensure thread-safety for bullets
    
-    for (const auto& bullet : bullets) {
-        if (bullet.x < 0 || bullet.y < 0 || bulletTexture.isNull()) {
-            qDebug() << "Skipping invalid bullet at (" << bullet.x << ", " << bullet.y << ")";
-            continue;  // Skip invalid bullets
+    //for (const auto& bullet : bullets) {
+    //    if (bullet.x < 0 || bullet.y < 0 || bulletTexture.isNull()) {
+    //        qDebug() << "Skipping invalid bullet at (" << bullet.x << ", " << bullet.y << ")";
+    //        continue;  // Skip invalid bullets
+    //    }
+    //    else qDebug() << "Drawing buulet at coordinates " << bullet.x << " " << bullet.y;
+
+    //   /* QRect bulletRect(bullet.x * CELL_SIZE, bullet.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    //    painter.drawPixmap(bulletRect, bulletTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio));*/
+
+    //    QRect bulletRect(offsetX+bullet.x * cellSize, offsetY+bullet.y * cellSize, cellSize, cellSize);
+    //    painter.setBrush(Qt::yellow);
+    //    painter.drawEllipse(bulletRect);  // Desenează glonțul ca un cerc simplu pentru testare
+    {
+        //QMutexLocker lock(&bulletsMutex);
+        auto localBulletPositions = bulletPositions; // Copy for thread safety
+        auto localBulletDirections = bulletDirections;
+        //lock.unlock();
+
+
+        for (int i = 0; i < localBulletPositions.size(); ++i) {
+            const auto& pos = localBulletPositions[i];
+            if (pos.first < 0 || pos.second < 0) {
+                continue; // Skip invalid bullets
+            }
+            QRect bulletRect(offsetX + pos.first * cellSize, offsetY + pos.second * cellSize, cellSize, cellSize);
+            painter.setBrush(Qt::yellow);
+            painter.drawEllipse(bulletRect); // Draw bullet as a circle
+
         }
-        else qDebug() << "Drawing buulet at coordinates " << bullet.x << " " << bullet.y;
-
-       /* QRect bulletRect(bullet.x * CELL_SIZE, bullet.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        painter.drawPixmap(bulletRect, bulletTexture.scaled(CELL_SIZE, CELL_SIZE, Qt::KeepAspectRatio));*/
-
-        QRect bulletRect(offsetX+bullet.x * cellSize, offsetY+bullet.y * cellSize, cellSize, cellSize);
-        painter.setBrush(Qt::yellow);
-        painter.drawEllipse(bulletRect);  // Desenează glonțul ca un cerc simplu pentru testare
-
     }
 
-    
+    isPainting = false;
 
-     
 }
 
 
@@ -219,8 +243,9 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
     map[x][y] = 0;  // Setăm noua poziție a jucătorului
    // playerX = x;  // Actualizează poziția curentă a jucătorului
    // playerY = y;
-    repaint();  // Redesenăm harta
+    //repaint(); // Redesenăm harta
     //animatePlayerMove(playerX, playerY, x, y);
+    update();
 }
 
 //void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
@@ -264,37 +289,102 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
 
 
 
-void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
-    if (newBullets.empty()) {
-        qDebug() << "Received empty bullet list!";
-        return;
-    }
+//void GameMapWidget::updateBullets(const QVector<BulletInfo>& newBullets) {
+//    if (newBullets.empty()) {
+//        qDebug() << "Received empty bullet list!";
+//        return;
+//    }
+//
+//    /*if (bullets == newBullets) {
+//        qDebug() << "Skipping duplicate bullet update.";
+//        return; 
+//    }*/
+//
+//    qDebug() << "Number of bullets received: " << newBullets.size();
+//    for (const auto& bullet : newBullets) {
+//        qDebug() << "Bullet coordinates: " << bullet.x << ", " << bullet.y;
+//    }
+//
+//    QMutexLocker lock(&bulletsMutex);
+//    bullets.clear();
+//    for (const auto& bullet : newBullets) {
+//        if (bullet.x >= 0 && bullet.y >= 0 && bulletTexture.isNull() == false) {
+//            bullets.push_back(bullet);
+//        }
+//    }
+//    update();
+//}
 
-    /*if (bullets == newBullets) {
-        qDebug() << "Skipping duplicate bullet update.";
-        return; 
-    }*/
 
-    qDebug() << "Number of bullets received: " << newBullets.size();
-    for (const auto& bullet : newBullets) {
-        qDebug() << "Bullet coordinates: " << bullet.x << ", " << bullet.y;
-    }
+//void GameMapWidget::updateBullets(const QVector<QPair<int, int>>& newPositions, const QVector<char>& newDirections) {
+//    if (newPositions.isEmpty() || newDirections.isEmpty()) {
+//        qDebug() << "Received empty bullet data!";
+//        return;
+//    }
+//
+//    if (newPositions.size() != newDirections.size()) {
+//        qDebug() << "Mismatch between bullet positions and directions!";
+//        return;
+//    }
+//
+//    qDebug() << "Number of bullets received: " << newPositions.size();
+//    for (int i = 0; i < newPositions.size(); ++i) {
+//        qDebug() << "Bullet coordinates: " << newPositions[i].first << ", " << newPositions[i].second
+//            << " Direction: " << newDirections[i];
+//    }
+//
+//    // Update the bullets (thread-safe)
+//    QMutexLocker lock(&bulletsMutex);
+//    bulletPositions = newPositions;
+//    bulletDirections = newDirections;
+//
+//    // Trigger a repaint
+//    update();
+//}
 
-    QMutexLocker lock(&bulletsMutex);
-    bullets.clear();
-    for (const auto& bullet : newBullets) {
-        if (bullet.x >= 0 && bullet.y >= 0 && bulletTexture.isNull() == false) {
-            bullets.push_back(bullet);
+//void GameMapWidget::updateBullets(const QVector<QPair<int, int>>& newPositions, const QVector<char>& newDirections) {
+//    QMutexLocker lock(&bulletsMutex);
+//
+//    if (newPositions.isEmpty() || newDirections.isEmpty()) {
+//        qDebug() << "Received empty bullet data!";
+//        return;
+//    }
+//
+//    if (newPositions == bulletPositions && newDirections == bulletDirections) {
+//        qDebug() << "Skipping duplicate update.";
+//        return;
+//    }
+//
+//    // Debug new data
+//    qDebug() << "New bullet positions:" << newPositions;
+//    qDebug() << "New bullet directions:" << newDirections;
+//
+//    // Update internal data safely
+//    bulletPositions = newPositions;
+//    bulletDirections = newDirections;
+//
+//    lock.unlock(); // Release mutex
+//
+//    // Trigger a repaint
+//    update();
+//}
+
+void GameMapWidget::updateBullets(const QVector<QPair<int, int>>& newPositions, const QVector<char>& newDirections) {
+    {
+        QMutexLocker lock(&bulletsMutex);
+
+        if (newPositions == bulletPositions && newDirections == bulletDirections) {
+            qDebug() << "Skipping duplicate update.";
+            return;
         }
-    }
-    update();
+
+        bulletPositions = newPositions;
+        bulletDirections = newDirections;
+    } // Mutex released here
+
+    // Defer repaint
+    QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
 }
-
-
-
-
-
-
 
 
 
