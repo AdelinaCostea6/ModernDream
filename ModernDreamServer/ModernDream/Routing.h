@@ -19,7 +19,7 @@ namespace http {
         crow::response GetSessionStatusRoute(const std::string& sessionId); 
         crow::response GenerateMapRoute(const crow::request& req);
         crow::response MovePlayerRoute(const crow::request& req);
-        crow::response SyncBulletsRoute(const crow::request& req);
+        //crow::response SyncBulletsRoute(const crow::request& req);
         crow::response ShootBulletRoute(const crow::request& req);
 
 

@@ -22,7 +22,7 @@ public:
 
 public slots:
     //void updateBullets(const QVector<BulletInfo>& bullets);
-    void updateBullets(const QVector<QPair<int, int>>& newPositions, const QVector<char>& newDirections);
+    void updateBullets(const QVector<QPair<int, int>>& newPositions/*, const QVector<char>& newDirections*/);
    
 
 
@@ -37,12 +37,12 @@ private:
     QVector<QPixmap> playerTextures;
     
     //QVector<BulletInfo> bullets;
-    mutable QMutex bulletsMutex; 
+     QMutex bulletsMutex; 
     //std::mutex bulletsMutex;
     void loadTextures();
 
     QVector<QPair<int, int>> bulletPositions; // Stores positions of bullets
-    QVector<char> bulletDirections;  // Stores directions of bullets
+    //QVector<char> bulletDirections;  // Stores directions of bullets
 
     bool isPainting = false;
     int test = 1;

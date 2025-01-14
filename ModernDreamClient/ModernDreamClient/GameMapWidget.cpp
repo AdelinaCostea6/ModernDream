@@ -112,8 +112,8 @@ void GameMapWidget::initializeMap(const QVector<QVector<int>>& mapData) {
 
 
 void GameMapWidget::paintEvent(QPaintEvent* event) {
-   // qDebug() << "paintEvent apelat pentru poziția jucătorului: (" << playerX << ", " << playerY << ")";
-    qDebug() << "Skipping recursive paintEvent!";
+    // qDebug() << "paintEvent apelat pentru poziția jucătorului: (" << playerX << ", " << playerY << ")";
+     //qDebug() << "Skipping recursive paintEvent!";
     if (isPainting) {
         qDebug() << "Skipping recursive paintEvent!";
         return;
@@ -122,25 +122,25 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    
+
 
     if (map.isEmpty() || map[0].isEmpty()) {
         return;
     }
 
-    int rows = map.size();        
-    int cols = map[0].size();     
+    int rows = map.size();
+    int cols = map[0].size();
 
     // Dimensiunea fiecărei celule
     float cellWidth = width() / float(cols);
     float cellHeight = height() / float(rows);
-    float cellSize = qMin(cellWidth, cellHeight);  
+    float cellSize = qMin(cellWidth, cellHeight);
 
-    float offsetX = (width() - cellSize * cols) / 2.0f;  
-    float offsetY = (height() - cellSize * rows) / 2.0f; 
+    float offsetX = (width() - cellSize * cols) / 2.0f;
+    float offsetY = (height() - cellSize * rows) / 2.0f;
 
-    QPen pen(Qt::gray);  
-    pen.setWidth(0.2);  
+    QPen pen(Qt::gray);
+    pen.setWidth(0.2);
     painter.setPen(pen);
 
     int playerIndex = 0;
@@ -160,20 +160,20 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
 
                 playerIndex = (playerIndex + 1) % 4;
                 break;
-            
-            case 1: 
-                painter.fillRect(cellRect, QColor("#d3d3d3"));  
+
+            case 1:
+                painter.fillRect(cellRect, QColor("#d3d3d3"));
                 break;
-            case 2: 
-                painter.fillRect(cellRect, QColor("#008000"));  
+            case 2:
+                painter.fillRect(cellRect, QColor("#008000"));
                 painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 break;
-            case 3: 
-                painter.fillRect(cellRect, QColor("#ff0000"));  
+            case 3:
+                painter.fillRect(cellRect, QColor("#ff0000"));
                 painter.drawPixmap(cellRect.toRect(), bombTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 break;
-            case 4: 
-                painter.fillRect(cellRect, QColor("#0000ff")); 
+            case 4:
+                painter.fillRect(cellRect, QColor("#0000ff"));
                 painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 break;
             }
@@ -181,12 +181,11 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             painter.drawRect(cellRect);
         }
     }
-  
-    painter.drawEllipse(50, 50, 20+test, 20);
-    test += 1;
+
+    
 
     //QMutexLocker lock(&bulletsMutex);  // Ensure thread-safety for bullets
-   
+
     //for (const auto& bullet : bullets) {
     //    if (bullet.x < 0 || bullet.y < 0 || bulletTexture.isNull()) {
     //        qDebug() << "Skipping invalid bullet at (" << bullet.x << ", " << bullet.y << ")";
@@ -200,30 +199,97 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
     //    QRect bulletRect(offsetX+bullet.x * cellSize, offsetY+bullet.y * cellSize, cellSize, cellSize);
     //    painter.setBrush(Qt::yellow);
     //    painter.drawEllipse(bulletRect);  // Desenează glonțul ca un cerc simplu pentru testare
-    {
+    
         //QMutexLocker lock(&bulletsMutex);
-        auto localBulletPositions = bulletPositions; // Copy for thread safety
-        auto localBulletDirections = bulletDirections;
+        //auto localBulletPositions = bulletPositions; // Copy for thread safety
+        //auto localBulletDirections = bulletDirections;
         //lock.unlock();
 
 
-        for (int i = 0; i < localBulletPositions.size(); ++i) {
-            const auto& pos = localBulletPositions[i];
-            if (pos.first < 0 || pos.second < 0) {
-                continue; // Skip invalid bullets
+        //for (int i = 0; i < localBulletPositions.size(); ++i) {
+        //    const auto& pos = localBulletPositions[i];
+        //    if (pos.first < 0 || pos.second < 0) {
+        //        continue; // Skip invalid bullets
+        //    }
+        //    QRect bulletRect(offsetX + pos.first * cellSize, offsetY + pos.second * cellSize, cellSize, cellSize);
+        //    painter.setBrush(Qt::yellow);
+        //    painter.drawEllipse(bulletRect); // Draw bullet as a circle
+
+        //}
+        // 
+        // 
+        // Paint bullets and check collisions
+        //QMutexLocker lock(&bulletsMutex);
+        //for (auto it = bulletPositions.begin(); it != bulletPositions.end();) {
+        //    const auto& bullet = *it;
+        //    QRectF bulletRect(offsetX + bullet.first * cellSize, offsetY + bullet.second * cellSize, cellSize, cellSize);
+
+        //    bool collision = false;
+
+        //    // Check collision with walls
+        //    if (map[bullet.second][bullet.first] == 1 || map[bullet.second][bullet.first] == 3) {
+        //        collision = true;
+        //    }
+
+            // Check collision with players
+            /*for (const auto& playerPos : playerPositions) {
+                if (bullet.first == playerPos.first && bullet.second == playerPos.second) {
+                    collision = true;
+                    emit playerHit(playerPos);
+                    break;
+                }
+            }*/
+
+            //if (collision) {
+            //    it = bulletPositions.erase(it);
+            //}
+            //else {
+            //    painter.setBrush(Qt::yellow);
+            //    painter.drawEllipse(bulletRect);
+            //    ++it;
+            //}
+            painter.drawEllipse(50, 50, 20 + test, 20);
+            test += 1;
+            //for (auto it = bulletPositions.begin(); it != bulletPositions.end();) {
+            //  const auto& bullet = *it;
+            //
+            //  if (bullet.first >= 0 && bullet.second >= 0) {  // Valid position
+            //      QRectF bulletRect(offsetX + bullet.first * cellSize, offsetY + bullet.second * cellSize, cellSize, cellSize);
+
+            //      //bool collision = (map[bullet.second][bullet.first] == 2 || map[bullet.second][bullet.first] == 3);
+            //      //if (collision) {
+            //      //    qDebug() << "Bullet collided at (" << bullet.first << "," << bullet.second << ")";
+            //      //    it = bulletPositions.erase(it);  // Remove collided bullet
+            //      //}
+            //      //else {
+            //      painter.setBrush(Qt::yellow);
+            //      painter.drawEllipse(bulletRect);  // Draw bullet
+            //      ++it;
+
+            //      //}
+            //  }
+            //  else {
+            //    ++it;  // Skip invalid bullets
+            //  }
+
+            //}
+            for (const auto& bullet : bulletPositions) {
+                qDebug() << "Processing bullet at position:" << bullet;
+                if (bullet.first < 0 || bullet.second < 0 || bullet.first >= cols || bullet.second >= rows) {
+                    qDebug() << "Skipping invalid bullet at position:" << bullet;
+                    continue;
+                }
+
+                QRectF bulletRect(offsetX + bullet.first * cellSize, offsetY + bullet.second * cellSize, cellSize, cellSize);
+                qDebug() << "Bullet rect:" << bulletRect;
+                painter.drawEllipse(bulletRect);  // Draw the bullet
             }
-            QRect bulletRect(offsetX + pos.first * cellSize, offsetY + pos.second * cellSize, cellSize, cellSize);
-            painter.setBrush(Qt::yellow);
-            painter.drawEllipse(bulletRect); // Draw bullet as a circle
 
-        }
-    }
+        isPainting = false;
 
-    isPainting = false;
+    
 
 }
-
-
 
 
 
@@ -369,23 +435,28 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
 //    update();
 //}
 
-void GameMapWidget::updateBullets(const QVector<QPair<int, int>>& newPositions, const QVector<char>& newDirections) {
-    {
-        QMutexLocker lock(&bulletsMutex);
+//void GameMapWidget::updateBullets(const QVector<QPair<int, int>>& newPositions, const QVector<char>& newDirections) {
+//    {
+//        QMutexLocker lock(&bulletsMutex);
+//
+//        if (newPositions == bulletPositions && newDirections == bulletDirections) {
+//            qDebug() << "Skipping duplicate update.";
+//            return;
+//        }
+//
+//        bulletPositions = newPositions;
+//        bulletDirections = newDirections;
+//    } // Mutex released here
+//
+//    // Defer repaint
+//    QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+//}
 
-        if (newPositions == bulletPositions && newDirections == bulletDirections) {
-            qDebug() << "Skipping duplicate update.";
-            return;
-        }
-
-        bulletPositions = newPositions;
-        bulletDirections = newDirections;
-    } // Mutex released here
-
-    // Defer repaint
-    QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
+void GameMapWidget::updateBullets(const QVector<QPair<int, int>>& newBulletPositions) {
+    //QMutexLocker lock(&bulletsMutex);
+    bulletPositions = newBulletPositions;
+    update();
 }
-
 
 
 

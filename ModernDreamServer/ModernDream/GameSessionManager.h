@@ -72,9 +72,15 @@ struct GameSession {
     Player* GetPlayerByUsername(const std::string& username) {
         auto it = players.find(username);  // Caută username-ul în mapă
         if (it != players.end()) {
+            std::cout << "[DEBUG] Player found: " << username << std::endl;
             return it->second.get();  // Returnează pointerul brut către `Player`
         }
-        return nullptr;  // Returnează nullptr dacă jucătorul nu este găsit
+        else
+        {
+            std::cerr << "[DEBUG] Player not found: " << username << std::endl;
+            return nullptr;
+        }
+       
     }
 
 };

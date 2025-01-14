@@ -187,10 +187,18 @@ int Player::GetPoints() const
 	return points;
 }
 
-std::pair<int, int> Player::GetPosition() const
-{
+//std::pair<int, int> Player::GetPosition() const
+//{
+//	return position;
+//}
+std::pair<int, int> Player::GetPosition() const {
+	if (!this) {
+		std::cerr << "GetPosition called on null Player object!" << std::endl;
+		throw std::runtime_error("Null Player object");
+	}
 	return position;
 }
+
 
 const std::string& Player::GetName() const
 {

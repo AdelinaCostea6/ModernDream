@@ -68,7 +68,7 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
    // connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets); 
    
    //httpClient->syncBullets(currentSessionId);
-    connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);   
+       
 
 
       // Sync bullets every second
