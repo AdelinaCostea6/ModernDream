@@ -33,7 +33,7 @@ public:
     void movePlayer(const QString& sessionId, const QString& username, const QString& direction);
     
     void shootBullet(const QString& sessionId, const QString& username, const QString& direction);
-    //void syncBullets(const QString& sessionId);
+   // void syncBullets(const QString& sessionId);
 
 
 
@@ -65,9 +65,9 @@ private slots:
 
     
 
-private:
+public:
     QNetworkAccessManager* manager;
-
+private:
     QTimer* statusCheckTimer; 
     QString currentSessionId; 
     bool joiningInProgress = false;

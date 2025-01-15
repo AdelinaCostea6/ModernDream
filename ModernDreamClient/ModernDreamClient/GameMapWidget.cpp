@@ -69,10 +69,14 @@
 #include<QMutexLocker>
 #include <vector>
 
-GameMapWidget::GameMapWidget(QWidget* parent) : QWidget(parent) {
+GameMapWidget::GameMapWidget(QWidget* parent) : QWidget(parent), httpClient(new HttpClient(this)){
     loadTextures();
     setMinimumSize(1400, 800);  
-    
+
+    //QTimer* bulletSyncTimer = new QTimer(this);  // Creează un timer
+    //connect(bulletSyncTimer, &QTimer::timeout, this, &GameMapWidget::syncBulletsFromServer);  // Conectează timeout-ul la funcția de sincronizare
+    //bulletSyncTimer->start(1000);
+    //
 }
 
 void GameMapWidget::loadTextures() {
@@ -115,7 +119,7 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
     // qDebug() << "paintEvent apelat pentru poziția jucătorului: (" << playerX << ", " << playerY << ")";
      //qDebug() << "Skipping recursive paintEvent!";
     if (isPainting) {
-        qDebug() << "Skipping recursive paintEvent!";
+        qDebug() << "Repaint already in progress!";
         return;
     }
     isPainting = true;
@@ -145,10 +149,11 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
 
     int playerIndex = 0;
 
+    qDebug() << "Intra in for\n";
     for (int y = 0; y < rows; ++y) {
         for (int x = 0; x < cols; ++x) {
             QRectF cellRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
-
+            
             switch (map[y][x]) {
             case 0: // Jucător
                 /*painter.fillRect(cellRect, QColor("#d3d3d3"));
@@ -159,22 +164,27 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
                 painter.drawPixmap(cellRect.toRect(), playerTextures[playerIndex].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
 
                 playerIndex = (playerIndex + 1) % 4;
+                qDebug() << "Desen jucator\n";
                 break;
 
             case 1:
                 painter.fillRect(cellRect, QColor("#d3d3d3"));
                 break;
+                qDebug() << "Perete 1\n";
             case 2:
                 painter.fillRect(cellRect, QColor("#008000"));
                 painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+                qDebug() << "Perete 2\n";
                 break;
             case 3:
                 painter.fillRect(cellRect, QColor("#ff0000"));
                 painter.drawPixmap(cellRect.toRect(), bombTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+                qDebug() << "Perete 3\n";
                 break;
             case 4:
                 painter.fillRect(cellRect, QColor("#0000ff"));
                 painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+                qDebug() << "Perete 4\n";
                 break;
             }
 
@@ -273,7 +283,13 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             //  }
 
             //}
+
+           
             for (const auto& bullet : bulletPositions) {
+                if (bulletPositions.isEmpty()) {
+                    qDebug() << "No bullets to draw!";
+                    return;  // Nu desenează dacă lista este goală
+                }
                 qDebug() << "Processing bullet at position:" << bullet;
                 if (bullet.first < 0 || bullet.second < 0 || bullet.first >= cols || bullet.second >= rows) {
                     qDebug() << "Skipping invalid bullet at position:" << bullet;
@@ -284,6 +300,20 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
                 qDebug() << "Bullet rect:" << bulletRect;
                 painter.drawEllipse(bulletRect);  // Draw the bullet
             }
+
+            //{
+            //    QMutexLocker lock(&bufferMutex);
+            //    bulletPositions = bulletBuffer;  // Actualizează lista doar din buffer-ul temporar
+            //}
+
+            //for (const QPair<int, int>& bullet : bulletPositions) {
+            //    int x = bullet.first;
+            //    int y = bullet.second;
+
+            //    QRect bulletRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
+            //    painter.setBrush(Qt::yellow);
+            //    painter.drawEllipse(bulletRect);  // Desenează un cerc galben la poziția (x, y)
+            //}
 
         isPainting = false;
 
@@ -455,8 +485,50 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
 void GameMapWidget::updateBullets(const QVector<QPair<int, int>>& newBulletPositions) {
     //QMutexLocker lock(&bulletsMutex);
     bulletPositions = newBulletPositions;
-    update();
+    //update();
 }
 
 
 
+void GameMapWidget::setSessionId(const QString& sessionId) {
+    currentSessionId = sessionId;
+    qDebug() << "Session ID set in GameMapWidget:" << currentSessionId;
+}
+
+
+//void GameMapWidget::syncBulletsFromServer() {
+//    if (syncInProgress) {
+//        qDebug() << "Sync in progress, skipping new sync request.";
+//        return;  // Evită trimiterea unei cereri noi dacă deja se sincronizează
+//    }
+//    syncInProgress = true;
+//    QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QJsonObject data;
+//    data["sessionId"] = currentSessionId;
+//    QNetworkReply* reply = httpClient->manager->post(request, QJsonDocument(data).toJson());
+//
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        syncInProgress = false;
+//        QByteArray responseData = reply->readAll();
+//        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
+//        QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
+//
+//        QVector<QPair<int, int>> newBulletBuffer;
+//        for (const QJsonValue& bulletValue : bulletsArray) {
+//            QJsonObject bulletObj = bulletValue.toObject();
+//            int x = bulletObj["x"].toInt();
+//            int y = bulletObj["y"].toInt();
+//            newBulletBuffer.push_back(qMakePair(x, y));
+//        }
+//
+//        {
+//            QMutexLocker lock(&bufferMutex);  // Protejează accesul la buffer
+//            bulletBuffer = std::move(newBulletBuffer);
+//        }
+//       // update();
+//        reply->deleteLater();
+//       // update();  // Redesenare
+//        });
+//}

@@ -412,7 +412,7 @@ void HttpClient::movePlayer(const QString& sessionId, const QString& username, c
         });
 }
 
-
+//
 //void HttpClient::shootBullet(const QString& sessionId, const QString& username, const QString& direction) {
 //    QJsonObject data;
 //    data["sessionId"] = sessionId;
@@ -461,7 +461,7 @@ void HttpClient::movePlayer(const QString& sessionId, const QString& username, c
 //        qDebug() << "Emitted bulletsUpdated signal with " << updatedBullets.size() << " bullets.";
 //        reply->deleteLater();
 //        });
-//
+
 //}
 
 
@@ -589,6 +589,11 @@ void HttpClient::shootBullet(const QString& sessionId, const QString& username, 
                 int x = bulletObj["x"].toInt();
                 int y = bulletObj["y"].toInt();
                 bulletPositions.append(qMakePair(x, y));
+            }
+
+            if (bulletPositions.isEmpty()) {
+                qDebug() << "Received empty bullet list from server!";
+                return;  // Evită emiterea semnalului dacă lista este goală
             }
 
             emit bulletsUpdated(bulletPositions); // Emit the updated bullet positions

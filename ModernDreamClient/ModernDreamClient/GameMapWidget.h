@@ -11,12 +11,11 @@ public:
     GameMapWidget(QWidget* parent = nullptr);
     void initializeMap(const QVector<QVector<int>>& mapData);
     void updatePlayerPosition(int x, int y);
-
-    //~GameMapWidget() {  
-    //    QMutexLocker lock(&bulletsMutex); 
-    //    bullets.clear();  // Ensure bullets are cleared safely
-    //}
-
+    void setSessionId(const QString& sessionId);
+   // void syncBulletsFromServer();
+    ~GameMapWidget() {
+        qDebug() << "GameMapWidget destructor called!";
+    }
     
   
 
@@ -31,6 +30,7 @@ protected:
     
 
 private:
+    bool syncInProgress = false;
     static const int CELL_SIZE = 40;
     QVector<QVector<int>> map;
     QPixmap wallTexture, bombTexture,bulletTexture; 
@@ -46,5 +46,10 @@ private:
 
     bool isPainting = false;
     int test = 1;
+    QString currentSessionId;
+    HttpClient *httpClient;
+
+    QVector<QPair<int, int>> bulletBuffer;  // Buffer temporar
+    QMutex bufferMutex;
     
 };

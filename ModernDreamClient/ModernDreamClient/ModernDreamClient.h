@@ -29,7 +29,7 @@ public:
 protected:
     void paintEvent(QPaintEvent* event) override
     {
-        gameWidget->update();
+       gameWidget->update();
     }
 
 

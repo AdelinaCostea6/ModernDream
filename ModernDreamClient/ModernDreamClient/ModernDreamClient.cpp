@@ -281,11 +281,13 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
 
     if (!mapWidget) {
         mapWidget = new GameMapWidget(gameWidget);
-        qDebug() << "GameMapWidget initialized successfully: " << mapWidget;// Folosește instanța unică
-        connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets, Qt::UniqueConnection);
-
-
+        qDebug() << "Instantiere noua\n";
+        mapWidget->setSessionId(currentSessionId);
     }
+    else {
+        qDebug() << "Reutilizare instanță mapWidget.\n";
+    }
+    mapWidget->setSessionId(currentSessionId);
 
     qDebug() << "Using existing mapWidget:" << mapWidget;
     layout->addWidget(mapWidget, 1);
@@ -362,6 +364,7 @@ void ModernDreamClient::keyPressEvent(QKeyEvent* event) {
             qDebug() << "Glooont";
             if (!currentDirection.isEmpty()) {
                 onShootButtonPressed(currentDirection);  // Trage glonțul în direcția curentă
+               // mapWidget->syncBulletsFromServer();
             }
             break;
         default:
@@ -393,5 +396,7 @@ void ModernDreamClient::updatePlayerPosition(int x, int y) {
 void ModernDreamClient::onShootButtonPressed(const QString& direction) {
     if (!httpClient) return;
     httpClient->shootBullet(currentSessionId, currentUsername, direction);  // Trimite cererea de tras bullet-ul
+
+    
 }
 
