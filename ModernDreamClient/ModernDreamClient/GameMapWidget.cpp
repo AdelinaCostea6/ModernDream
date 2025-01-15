@@ -484,7 +484,8 @@ GameMapWidget::GameMapWidget(const QString& sessionId, const QString& username, 
     setWindowTitle("Game Map");
     resize(1400, 800);
     bullets = QSharedPointer<QVector<BulletInfo>>::create();
-
+    
+   
     httpClient = new HttpClient(this);
 
     setupTextures();
@@ -493,7 +494,7 @@ GameMapWidget::GameMapWidget(const QString& sessionId, const QString& username, 
 }
 
 void GameMapWidget::setupTextures() {
-   /* wallTexture.load("../ModernDreamImages/tire1.png");
+    wallTexture.load("../ModernDreamImages/tire1.png");
     bombTexture.load("../ModernDreamImages/tire1.png");
     bulletTexture.load("../ModernDreamImages/bullet2.png");
 
@@ -505,7 +506,7 @@ void GameMapWidget::setupTextures() {
 
     for (auto& texture : playerTextures) {
         texture = texture.scaled(40, 40, Qt::KeepAspectRatio);
-    }*/
+    }
 }
 
 void GameMapWidget::setupConnections() {
@@ -519,7 +520,7 @@ void GameMapWidget::setupConnections() {
         if(!isUpdating)
         syncBullets(sessionId); 
         });
-    bulletSyncTimer->start(500);  // Sync every 1 second 
+    bulletSyncTimer->start(1000);  // Sync every 1 second 
 }
 
 void GameMapWidget::fetchAndInitializeMap() {
@@ -555,7 +556,7 @@ void GameMapWidget::fetchAndInitializeMap() {
                 mapData.push_back(rowData);
             }
         }
-        // update(); // Trigger a repaint
+         update(); // Trigger a repaint
 }
 
 void GameMapWidget::updateBullets(/*const QVector<QPair<int, int>>& bulletPositions*/const QVector<BulletInfo>& newBullets) {
@@ -564,6 +565,30 @@ void GameMapWidget::updateBullets(/*const QVector<QPair<int, int>>& bulletPositi
    // bullets = bulletPositions;
     update();
 }
+//void GameMapWidget::updateBullets() { 
+//    QMutexLocker lock(&bulletsMutex);  // Lock bullets for thread safety
+//    int rows = mapData.size(); 
+//    int cols = mapData[0].size();
+//    for (auto& bullet : *bullets) {
+//        // Move bullet based on its direction
+//        if (bullet.direction == "s") bullet.x++;      // Down
+//        else if (bullet.direction == "w") bullet.x--; // Up
+//        else if (bullet.direction == "d") bullet.y++; // Right
+//        else if (bullet.direction == "a") bullet.y--; // Left
+//
+//        // Debug bullet position after movement
+//        qDebug() << "Bullet moved to: (" << bullet.x << ", " << bullet.y << ")";
+//
+//        // Remove bullet if out of bounds
+//        if (bullet.x < 0 || bullet.y < 0 || bullet.x >= cols || bullet.y >= rows) {
+//            qDebug() << "Removing out-of-bounds bullet: (" << bullet.x << ", " << bullet.y << ")";
+//            bullets->removeOne(bullet);
+//        }
+//    }
+//
+//    update();  // Trigger repaint to show updated positions
+//}
+
 
 void GameMapWidget::onShootBullet(const QString& direction) {
     httpClient->shootBullet(sessionId, username, direction);
@@ -611,18 +636,18 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             QRectF cellRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
             switch (mapData[y][x]) {
             case 0: // Jucător
-              /*painter.fillRect(cellRect, QColor("#d3d3d3"));
-              painter.drawPixmap(cellRect.toRect(), playerTextures[0].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
-              break;*/
               painter.fillRect(cellRect, QColor("#d3d3d3"));
-                
-            //  painter.drawPixmap(cellRect.toRect(), playerTextures[playerIndex].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
-              painter.setBrush(Qt::yellow);  // Culoarea glonțului
-              painter.setPen(Qt::NoPen);  // Fără contur
-              painter.drawEllipse(cellRect);  // Desenăm cercul
+              painter.drawPixmap(cellRect.toRect(), playerTextures[playerIndex].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+              
+             // painter.fillRect(cellRect, QColor("#d3d3d3"));
+             //   
+             //painter.drawPixmap(cellRect.toRect(), playerTextures[playerIndex].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+             // painter.setBrush(Qt::yellow);  // Culoarea glonțului
+             // painter.setPen(Qt::NoPen);  // Fără contur
+             // painter.drawEllipse(cellRect);  // Desenăm cercul
                 
               playerIndex = (playerIndex + 1) % 4;
-              qDebug() << "Desen jucator\n";
+              //qDebug() << "Desen jucator\n";
               break;
                 
             case 1:
@@ -631,17 +656,17 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
               //qDebug() << "Perete 1\n";
             case 2:
               painter.fillRect(cellRect, QColor("#008000"));
-             // painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+              painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
               //qDebug() << "Perete 2\n";
               break;
             case 3:
               painter.fillRect(cellRect, QColor("#ff0000"));
-             // painter.drawPixmap(cellRect.toRect(), bombTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+              painter.drawPixmap(cellRect.toRect(), bombTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
              // qDebug() << "Perete 3\n";
               break;
             case 4:
               painter.fillRect(cellRect, QColor("#0000ff"));
-             // painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+              painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
               //qDebug() << "Perete 4\n";
               break;
             }
@@ -660,6 +685,12 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
     
 
    // syncBullets(sessionId);
+    QSharedPointer<QVector<BulletInfo>> localBullets;
+    {
+        QMutexLocker lock(&bulletsMutex);
+        localBullets = bullets;
+    }
+
     if (!bullets) {  // Verifică dacă pointerul este valid
         qDebug() << "Bullets pointer is null! Skipping paintEvent.";
         return;
@@ -669,7 +700,9 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
         qDebug() << "No bullets to draw.";
         return;
     }
-    for (const auto& bullet : *bullets) {
+    qDebug() << "Current bullets:";
+    for (const auto& bullet : *localBullets) {
+        qDebug() << "(" << bullet.x << ", " << bullet.y << ")"; 
         if (bullet.x < 0 || bullet.y < 0) {
             qDebug() << "Bullet out of bounds!";
             continue;
@@ -736,48 +769,70 @@ void GameMapWidget::onShootButtonPressed(const QString& direction) {
 }
 
 
-void GameMapWidget::syncBullets(const QString& sessionId) {
+//void GameMapWidget::syncBullets(const QString& sessionId) {
+//
+//    if (!httpClient) {
+//        qDebug() << "HttpClient is null!";
+//        return;
+//    }
+//    if (isUpdating) {
+//        qDebug() << "Sync already in progress, skipping!";
+//        return;
+//    }
+//
+//    isUpdating = true;
+//    QJsonObject data;
+//    data["sessionId"] = sessionId;
+//
+// 
+//    QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    // Folosește managerul din `HttpClient`
+//    QNetworkReply* reply = httpClient->manager->post(request, QJsonDocument(data).toJson());
+//
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        QByteArray responseData = reply->readAll();
+//        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
+//        QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
+//
+//        QVector<BulletInfo> newBullets;
+//        for (const QJsonValue& bulletValue : bulletsArray) {
+//            QJsonObject bulletObj = bulletValue.toObject();
+//            int x = bulletObj["x"].toInt();
+//            int y = bulletObj["y"].toInt();
+//            newBullets.append(BulletInfo(x, y));
+//        }
+//
+//        QMutexLocker lock(&bulletsMutex);  // Protecție împotriva accesului simultan
+//        bullets = QSharedPointer<QVector<BulletInfo>>::create(newBullets);
+//        qDebug() << "Number of bullets updated:" << bullets->size();
+//        QTimer::singleShot(100, [this]() {
+//            update();  // Apelăm `update()` după 100 ms
+//            });
+//        isUpdating = false;
+//        reply->deleteLater();
+//        });
+//}
+void GameMapWidget::syncBullets(const QString& response) {
+    qDebug() << "SyncBullets Response: " << response;
+    auto jsonResponse = QJsonDocument::fromJson(response.toUtf8()).object();
+    qDebug() << "Bullets array in response: " << jsonResponse["bullets"];
+    auto bulletsArray = jsonResponse["bullets"].toArray();
+    
 
-    if (!httpClient) {
-        qDebug() << "HttpClient is null!";
-        return;
+
+    bullets->clear();  // Reset local bullets
+    for (const auto& item : bulletsArray) {
+        auto obj = item.toObject();
+        bullets->append(BulletInfo(obj["x"].toInt(), obj["y"].toInt()));
+        qDebug() << "Adding Bullet at: (" << obj["x"].toInt() << ", " << obj["y"].toInt() << ")";
     }
-    if (isUpdating) {
-        qDebug() << "Sync already in progress, skipping!";
-        return;
+    QString bulletInfo;
+    for (const auto& bullet : *bullets) {
+        bulletInfo += QString("(%1, %2) ").arg(bullet.x).arg(bullet.y);
     }
+    qDebug() << "Updated bullets:" << bulletInfo;
 
-    isUpdating = true;
-    QJsonObject data;
-    data["sessionId"] = sessionId;
-
- 
-    QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-    // Folosește managerul din `HttpClient`
-    QNetworkReply* reply = httpClient->manager->post(request, QJsonDocument(data).toJson());
-
-    connect(reply, &QNetworkReply::finished, [this, reply]() {
-        QByteArray responseData = reply->readAll();
-        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
-        QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
-
-        QVector<BulletInfo> newBullets;
-        for (const QJsonValue& bulletValue : bulletsArray) {
-            QJsonObject bulletObj = bulletValue.toObject();
-            int x = bulletObj["x"].toInt();
-            int y = bulletObj["y"].toInt();
-            newBullets.append(BulletInfo(x, y));
-        }
-
-        QMutexLocker lock(&bulletsMutex);  // Protecție împotriva accesului simultan
-        bullets = QSharedPointer<QVector<BulletInfo>>::create(newBullets);
-        qDebug() << "Number of bullets updated:" << bullets->size();
-        QTimer::singleShot(100, [this]() {
-            update();  // Apelăm `update()` după 100 ms
-            });
-        isUpdating = false;
-        reply->deleteLater();
-        });
+    update();  // Trigger rendering
 }

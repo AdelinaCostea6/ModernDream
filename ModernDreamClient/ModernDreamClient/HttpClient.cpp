@@ -615,10 +615,11 @@ void HttpClient::shootBullet(const QString& sessionId, const QString& username, 
 
     QNetworkRequest request(QUrl("http://localhost:8080/game/shoot"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
+    qDebug() << "Adding bullet in direction:" << requestData["direction"].toString(); 
     QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
     connect(reply, &QNetworkReply::finished, [this, reply]() {
         reply->deleteLater();
+        
         });
 }
 
@@ -649,8 +650,14 @@ void HttpClient::syncBullets(const QString& sessionId) {
             QJsonObject bulletObj = bulletValue.toObject();
             int x = bulletObj["x"].toInt();
             int y = bulletObj["y"].toInt();
-            newBullets->append(BulletInfo(x, y));
+            qDebug() << "Updating bullet to: (" << x << ", " << y << ")";
+            /*{
+                QMutexLocker lock(&bulletsMutex);
+                bullets = newBullets;
+            }*/
+            newBullets->append(BulletInfo(x, y));  
         }
+        
 
         // emit bulletsUpdated(bulletPositions);
         emit bulletsUpdated(*newBullets);
@@ -658,3 +665,6 @@ void HttpClient::syncBullets(const QString& sessionId) {
         reply->deleteLater();
         });
 }
+
+
+

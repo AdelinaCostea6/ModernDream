@@ -70,12 +70,14 @@ private slots:
 
 public:
     QNetworkAccessManager* manager;
+
 private:
     QTimer* statusCheckTimer; 
     QString currentSessionId; 
     bool joiningInProgress = false;
 
    // QVector<BulletInfo> bullets;
+    QSharedPointer<QVector<BulletInfo>> bullets; 
     QMutex bulletsMutex;
 
     QVector<QPair<int, int>> bulletPositions;
