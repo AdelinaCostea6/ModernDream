@@ -767,6 +767,7 @@ crow::response Routing::SyncBulletsRoute(const crow::request& req) {
         return crow::response(404, "Session not found");
     }
 
+    session->game.UpdateBullets();
     const auto& bullets = session->game.GetBullets();
     crow::json::wvalue response;
     std::vector<crow::json::wvalue> bulletsJson;

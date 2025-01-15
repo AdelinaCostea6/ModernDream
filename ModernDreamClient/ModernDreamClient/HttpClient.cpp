@@ -6,6 +6,7 @@
 #include <QMutexLocker>
 
 
+
 HttpClient::HttpClient(QObject* parent)
     : QObject(parent), manager(new QNetworkAccessManager(this)) {}
 
@@ -634,15 +635,26 @@ void HttpClient::syncBullets(const QString& sessionId) {
         QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
         QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
 
-        QVector<QPair<int, int>> bulletPositions;
+        qDebug() << "Server response JSON:" << QString::fromUtf8(responseData);
+
+        /*QVector<QPair<int, int>> bulletPositions;
         for (const QJsonValue& bulletValue : bulletsArray) {
             QJsonObject bulletObj = bulletValue.toObject();
             int x = bulletObj["x"].toInt();
             int y = bulletObj["y"].toInt();
             bulletPositions.push_back(qMakePair(x, y));
+        }*/
+        auto newBullets = QSharedPointer<QVector<BulletInfo>>::create();
+        for (const QJsonValue& bulletValue : bulletsArray) {
+            QJsonObject bulletObj = bulletValue.toObject();
+            int x = bulletObj["x"].toInt();
+            int y = bulletObj["y"].toInt();
+            newBullets->append(BulletInfo(x, y));
         }
 
-        emit bulletsUpdated(bulletPositions);
+        // emit bulletsUpdated(bulletPositions);
+        emit bulletsUpdated(*newBullets);
+        
         reply->deleteLater();
         });
 }

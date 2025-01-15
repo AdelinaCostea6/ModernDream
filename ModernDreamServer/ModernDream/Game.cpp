@@ -224,16 +224,55 @@ void Game::UpdateBullets() {
     int mapWidth = map.GetWidth();
     for (auto it = bullets.begin(); it != bullets.end(); ) {
         it->Movement(mapHeight, mapWidth);
-        if (it->CheckCollisionWithPlayers(players) || it->CheckCollisionwithWalls(walls)) {
+
+        if (!it->GetIsActive()) {
+            std::cout << "Bullet out of bounds at: (" << it->GetPosition().first << ", " << it->GetPosition().second << ")";
+            it = bullets.erase(it);  // Șterge glonțul care a ieșit
+        }
+        else {
+            std::cout << "Bullet moved to: (" << it->GetPosition().first << ", " << it->GetPosition().second << ")";
+            ++it;  // Continuă iterarea
+        }
+        /*if (it->CheckCollisionWithPlayers(players) || it->CheckCollisionwithWalls(walls)) {
             it->SetIsInactive();
             it = bullets.erase(it);
         }
         else {
             ++it;
             std::cout << "Bullet declansat la pozitia " << it->GetPosition().first << " " << it->GetPosition().second << "\n";
-        }
+        }*/
     }
 }
+
+//void Game::UpdateBullets() {
+//    for (auto it = bullets.begin(); it != bullets.end();) {
+//        it->Movement(map.GetHeight(), map.GetWidth());
+//
+//        if (it->CheckCollisionWithPlayers(players)) {
+//           // qDebug() << "Bullet hit a player!";
+//            it = bullets.erase(it);  // Ștergere glonț
+//            continue;
+//        }
+//
+//        if (it->CheckCollisionwithWalls(walls)) {
+//           // qDebug() << "Bullet hit a wall!";
+//            it = bullets.erase(it);
+//            continue;
+//        }
+//
+//        auto [x, y] = it->GetPosition();
+//        if (x < 0 || y < 0 || x >= map.GetWidth() || y >= map.GetHeight()) {
+//           // qDebug() << "Bullet out of bounds!";
+//            it = bullets.erase(it);
+//        }
+//        else {
+//            ++it;
+//        }
+//    }
+//}
+
+
+
 const std::deque<Bullet>& Game::GetBullets() const {
     return bullets; 
 }

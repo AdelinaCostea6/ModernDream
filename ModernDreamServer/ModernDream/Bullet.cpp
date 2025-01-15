@@ -50,12 +50,17 @@ void Bullet::SetDoubleSpeed()
 //}
 
 void Bullet::Movement(int maxHeight, int maxWidth) {
-	switch (direction) {
-	case 'w': position.first -= 1; break;  // Sus
-	case 's': position.first += 1; break;  // Jos
-	case 'a': position.second -= 1; break; // Stânga
-	case 'd': position.second += 1; break; // Dreapta
+	if (isActive == true)
+	{
+		switch (direction) {
+		case 'w': position.first -= 1; break;  // Sus
+		case 's': position.first += 1; break;  // Jos
+		case 'a': position.second -= 1; break; // Stânga
+		case 'd': position.second += 1; break; // Dreapta
+		}
 	}
+
+	std::cout << "Noua directie: " << position.first << " " << position.second << "\n";
 
 	// Verificare limite hartă
 	if (position.first < 0 || position.second < 0 || position.first >= maxHeight || position.second >= maxWidth) {

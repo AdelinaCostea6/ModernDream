@@ -7,6 +7,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMutex>
+#include "Bulletinfo.h"
  
 //struct BulletInfo {
 //    int x;
@@ -53,7 +54,8 @@ signals:
     
     //void bulletsUpdated(const QVector<BulletInfo>& bullets); 
     //void bulletsUpdated(const QVector<QPair<int, int>>& positions/*, const QVector<char>& directions*/);
-    void bulletsUpdated(const QVector<QPair<int, int>>& bulletPositions);
+   // void bulletsUpdated(const QVector<QPair<int, int>>& bulletPositions);
+    void bulletsUpdated(const QVector<BulletInfo>& bullets);
 
 private slots:
     void onLoginResponse();
