@@ -13,12 +13,12 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     qDebug() << "setupWaitingRoom initialized waitingRoomWidget:" << waitingRoomWidget;
 
     
-    gameWidget = new QWidget(this);
-    QVBoxLayout* layout = new QVBoxLayout(gameWidget);
+    //gameWidget = new QWidget(this);
+   // QVBoxLayout* layout = new QVBoxLayout(gameWidget);
     /*QLabel* gameLabel = new QLabel("Game is starting...", gameWidget);
     layout->addWidget(gameLabel);*/
-    mainStack->addWidget(gameWidget);
-    qDebug() << "gameWidget created and added to mainStack:" << gameWidget;
+   // mainStack->addWidget(gameWidget);
+    //qDebug() << "gameWidget created and added to mainStack:" << gameWidget;
 
     
     tabWidget = new QTabWidget(this);
@@ -44,7 +44,7 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     setCentralWidget(mainStack);
 
     qDebug() << "HttpClient instance:" << httpClient;
-    qDebug() << "GameMapWidget instance:" << mapWidget;
+    //qDebug() << "GameMapWidget instance:" << mapWidget;
 
 
     
@@ -58,10 +58,10 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     connect(httpClient, &HttpClient::playerJoined, this, &ModernDreamClient::onPlayerJoined);
     connect(httpClient, &HttpClient::playerLeft, this, &ModernDreamClient::onPlayerLeft);
    // connect(httpClient, &HttpClient::playerMoved, this, &ModernDreamClient::updatePlayerPosition);
-    bool success = connect(httpClient, &HttpClient::playerMoved, this, &ModernDreamClient::updatePlayerPosition);
+   /* bool success = connect(httpClient, &HttpClient::playerMoved, this, &ModernDreamClient::updatePlayerPosition);
     if (!success) {
         qDebug() << "Eroare: `connect` a esuat!";
-    }
+    }*/
     
   
 
@@ -105,9 +105,9 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
 
 ModernDreamClient::~ModernDreamClient() {
     qDebug() << "ModernDreamClient destroyed.";
-    if (gameWidget) {
+   /* if (gameWidget) {
         qDebug() << "gameWidget still exists in destructor:" << gameWidget;
-    }
+    }*/
 }
 
 void ModernDreamClient::setupWaitingRoom() {
@@ -260,6 +260,68 @@ void ModernDreamClient::updateWaitingRoom(int current, int required) {
 
 
 
+//void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
+//    static bool gameStarted = false;
+//    if (gameStarted) {
+//        qDebug() << "Game already started, ignoring additional calls.";
+//        return;
+//    }
+//    gameStarted = true;
+//
+//    qDebug() << "onGameReady called. Session ID:" << sessionId;
+//
+//    if (!gameWidget) {
+//        qDebug() << "Error: gameWidget is nullptr!";
+//        return;
+//    }
+//
+//    QVBoxLayout* layout = new QVBoxLayout(gameWidget);
+//    layout->setContentsMargins(0, 0, 0, 0);
+//
+//
+//    if (!mapWidget) {
+//        mapWidget = new GameMapWidget(gameWidget);
+//        qDebug() << "Instantiere noua\n";
+//        mapWidget->setSessionId(currentSessionId);
+//    }
+//    else {
+//        qDebug() << "Reutilizare instanță mapWidget.\n";
+//    }
+//    mapWidget->setSessionId(currentSessionId);
+//
+//    qDebug() << "Using existing mapWidget:" << mapWidget;
+//    layout->addWidget(mapWidget, 1);
+//
+//    
+//    // Cerere de generare a hărții
+//    QByteArray response = httpClient->requestMapGeneration(sessionId, players.size());
+//    QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+//    QJsonObject jsonObj = jsonDoc.object();
+//
+//    if (jsonObj.contains("map")) {
+//        QJsonArray mapArray = jsonObj["map"].toArray();
+//        QVector<QVector<int>> mapData;
+//
+//        for (const QJsonValue& row : mapArray) {
+//            QVector<int> rowData;
+//            QJsonArray rowArray = row.toArray();
+//            for (const QJsonValue& cell : rowArray) {
+//                rowData.push_back(cell.toInt());
+//            }
+//            mapData.push_back(rowData);
+//        }
+//
+//        mapWidget->initializeMap(mapData);
+//    }
+//
+//    gameWidget->setLayout(layout);
+//    if (mainStack->indexOf(gameWidget) == -1) {
+//        mainStack->addWidget(gameWidget);
+//    }
+//    mainStack->setCurrentWidget(gameWidget);
+//    qDebug() << "Switched to gameWidget successfully.";
+//    
+//}
 void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
     static bool gameStarted = false;
     if (gameStarted) {
@@ -268,59 +330,17 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
     }
     gameStarted = true;
 
-    qDebug() << "onGameReady called. Session ID:" << sessionId;
+    qDebug() << "Game is ready. Session ID:" << sessionId;
 
-    if (!gameWidget) {
-        qDebug() << "Error: gameWidget is nullptr!";
-        return;
+    // Create and show GameMapWidget
+    if (!gameMapWidget)
+    {
+        gameMapWidget = new GameMapWidget(sessionId, currentUsername, this);
     }
+    gameMapWidget->show();
 
-    QVBoxLayout* layout = new QVBoxLayout(gameWidget);
-    layout->setContentsMargins(0, 0, 0, 0);
-
-
-    if (!mapWidget) {
-        mapWidget = new GameMapWidget(gameWidget);
-        qDebug() << "Instantiere noua\n";
-        mapWidget->setSessionId(currentSessionId);
-    }
-    else {
-        qDebug() << "Reutilizare instanță mapWidget.\n";
-    }
-    mapWidget->setSessionId(currentSessionId);
-
-    qDebug() << "Using existing mapWidget:" << mapWidget;
-    layout->addWidget(mapWidget, 1);
-
-    
-    // Cerere de generare a hărții
-    QByteArray response = httpClient->requestMapGeneration(sessionId, players.size());
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
-    QJsonObject jsonObj = jsonDoc.object();
-
-    if (jsonObj.contains("map")) {
-        QJsonArray mapArray = jsonObj["map"].toArray();
-        QVector<QVector<int>> mapData;
-
-        for (const QJsonValue& row : mapArray) {
-            QVector<int> rowData;
-            QJsonArray rowArray = row.toArray();
-            for (const QJsonValue& cell : rowArray) {
-                rowData.push_back(cell.toInt());
-            }
-            mapData.push_back(rowData);
-        }
-
-        mapWidget->initializeMap(mapData);
-    }
-
-    gameWidget->setLayout(layout);
-    if (mainStack->indexOf(gameWidget) == -1) {
-        mainStack->addWidget(gameWidget);
-    }
-    mainStack->setCurrentWidget(gameWidget);
-    qDebug() << "Switched to gameWidget successfully.";
-    
+    // Hide the current client window
+    this->hide();   
 }
 
 
@@ -336,67 +356,68 @@ void ModernDreamClient::onLeaveGame()
 }
 
 
-void ModernDreamClient::keyPressEvent(QKeyEvent* event) {
-    if (!currentSessionId.isEmpty()) {
-        QString direction;
-        switch (event->key()) {
-        case Qt::Key_W:
-            direction = "w";
-            currentDirection = direction;
-            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Trimite cererea de deplasare la server
-            break;
-        case Qt::Key_A:
-            direction = "a";
-            currentDirection = direction;
-            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare la stânga
-            break;
-        case Qt::Key_S:
-            direction = "s";
-            currentDirection = direction;
-            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare în jos
-            break;
-        case Qt::Key_D:
-            direction = "d";
-            currentDirection = direction;
-            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare la dreapta
-            break;
-        case Qt::Key_Space:
-            qDebug() << "Glooont";
-            if (!currentDirection.isEmpty()) {
-                onShootButtonPressed(currentDirection);  // Trage glonțul în direcția curentă
-               // mapWidget->syncBulletsFromServer();
-            }
-            break;
-        default:
-            QMainWindow::keyPressEvent(event);
-            return;
-        }
-
-        if (event->key() == Qt::Key_W || event->key() == Qt::Key_A || event->key() == Qt::Key_S || event->key() == Qt::Key_D) {
-            direction = direction;  // Actualizează direcția curentă pentru `Space`
-        }
-    }
-}
 
 
 
 
 
-void ModernDreamClient::updatePlayerPosition(int x, int y) {
-    qDebug() << "Primim pozitia nouă de la server: (" << x << ", " << y << ")";
-    if (mapWidget) {
-        mapWidget->updatePlayerPosition(x, y);
-    }
-    else {
-        qDebug() << "Error: mapWidget is nullptr!";
-    }
-}
+
+//void ModernDreamClient::updatePlayerPosition(int x, int y) {
+//    qDebug() << "Primim pozitia nouă de la server: (" << x << ", " << y << ")";
+//    if (mapWidget) {
+//        mapWidget->updatePlayerPosition(x, y);
+//    }
+//    else {
+//        qDebug() << "Error: mapWidget is nullptr!";
+//    }
+//}
 
   
-void ModernDreamClient::onShootButtonPressed(const QString& direction) {
-    if (!httpClient) return;
-    httpClient->shootBullet(currentSessionId, currentUsername, direction);  // Trimite cererea de tras bullet-ul
+//void ModernDreamClient::onShootButtonPressed(const QString& direction) {
+//    if (!httpClient) return;
+//    httpClient->shootBullet(currentSessionId, currentUsername, direction);  // Trimite cererea de tras bullet-ul
+//
+//    
+//}
 
-    
-}
-
+//void ModernDreamClient::keyPressEvent(QKeyEvent* event) { 
+//    if (!currentSessionId.isEmpty()) {
+//        QString direction;
+//        switch (event->key()) {
+//        case Qt::Key_W:
+//            direction = "w";
+//            currentDirection = direction;
+//            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Trimite cererea de deplasare la server
+//            break;
+//        case Qt::Key_A:
+//            direction = "a";
+//            currentDirection = direction;
+//            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare la stânga
+//            break;
+//        case Qt::Key_S:
+//            direction = "s";
+//            currentDirection = direction;
+//            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare în jos
+//            break;
+//        case Qt::Key_D:
+//            direction = "d";
+//            currentDirection = direction;
+//            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare la dreapta
+//            break;
+//        case Qt::Key_Space:
+//            qDebug() << "Glooont";
+//            if (!currentDirection.isEmpty()) {
+//                onShootButtonPressed(currentDirection);  // Trage glonțul în direcția curentă
+//                // mapWidget->syncBulletsFromServer();
+//            }
+//            break;
+//        default:
+//            QMainWindow::keyPressEvent(event);
+//            return;
+//        }
+//
+//        if (event->key() == Qt::Key_W || event->key() == Qt::Key_A || event->key() == Qt::Key_S || event->key() == Qt::Key_D) {
+//            direction = direction;  // Actualizează direcția curentă pentru `Space`
+//        }
+//    }
+//}

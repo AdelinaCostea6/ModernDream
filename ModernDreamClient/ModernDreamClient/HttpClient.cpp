@@ -565,6 +565,47 @@ void HttpClient::movePlayer(const QString& sessionId, const QString& username, c
 //
 //
 
+//void HttpClient::shootBullet(const QString& sessionId, const QString& username, const QString& direction) {
+//    QJsonObject requestData;
+//    requestData["sessionId"] = sessionId;
+//    requestData["username"] = username;
+//    requestData["direction"] = direction;
+//
+//    QNetworkRequest request(QUrl("http://localhost:8080/game/shoot"));
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        QByteArray responseData = reply->readAll();
+//
+//        if (reply->error() == QNetworkReply::NoError) {
+//            QJsonDocument responseDoc = QJsonDocument::fromJson(responseData);
+//            QJsonObject responseObj = responseDoc.object();
+//
+//            QVector<QPair<int, int>> bulletPositions;
+//            QJsonArray bulletsArray = responseObj["bullets"].toArray();
+//            for (const auto& bullet : bulletsArray) {
+//                QJsonObject bulletObj = bullet.toObject();
+//                int x = bulletObj["x"].toInt();
+//                int y = bulletObj["y"].toInt();
+//                bulletPositions.append(qMakePair(x, y));
+//            }
+//
+//            if (bulletPositions.isEmpty()) {
+//                qDebug() << "Received empty bullet list from server!";
+//                return;  // Evită emiterea semnalului dacă lista este goală
+//            }
+//
+//            emit bulletsUpdated(bulletPositions); // Emit the updated bullet positions
+//        }
+//        else {
+//            qDebug() << "Error shooting bullet: " << reply->errorString();
+//        }
+//
+//        reply->deleteLater();
+//        });
+//}
+
 void HttpClient::shootBullet(const QString& sessionId, const QString& username, const QString& direction) {
     QJsonObject requestData;
     requestData["sessionId"] = sessionId;
@@ -576,32 +617,32 @@ void HttpClient::shootBullet(const QString& sessionId, const QString& username, 
 
     QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
     connect(reply, &QNetworkReply::finished, [this, reply]() {
+        reply->deleteLater();
+        });
+}
+
+void HttpClient::syncBullets(const QString& sessionId) {
+    QJsonObject data;
+    data["sessionId"] = sessionId;
+
+    QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QNetworkReply* reply = manager->post(request, QJsonDocument(data).toJson());
+    connect(reply, &QNetworkReply::finished, [this, reply]() {
         QByteArray responseData = reply->readAll();
+        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
+        QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
 
-        if (reply->error() == QNetworkReply::NoError) {
-            QJsonDocument responseDoc = QJsonDocument::fromJson(responseData);
-            QJsonObject responseObj = responseDoc.object();
-
-            QVector<QPair<int, int>> bulletPositions;
-            QJsonArray bulletsArray = responseObj["bullets"].toArray();
-            for (const auto& bullet : bulletsArray) {
-                QJsonObject bulletObj = bullet.toObject();
-                int x = bulletObj["x"].toInt();
-                int y = bulletObj["y"].toInt();
-                bulletPositions.append(qMakePair(x, y));
-            }
-
-            if (bulletPositions.isEmpty()) {
-                qDebug() << "Received empty bullet list from server!";
-                return;  // Evită emiterea semnalului dacă lista este goală
-            }
-
-            emit bulletsUpdated(bulletPositions); // Emit the updated bullet positions
-        }
-        else {
-            qDebug() << "Error shooting bullet: " << reply->errorString();
+        QVector<QPair<int, int>> bulletPositions;
+        for (const QJsonValue& bulletValue : bulletsArray) {
+            QJsonObject bulletObj = bulletValue.toObject();
+            int x = bulletObj["x"].toInt();
+            int y = bulletObj["y"].toInt();
+            bulletPositions.push_back(qMakePair(x, y));
         }
 
+        emit bulletsUpdated(bulletPositions);
         reply->deleteLater();
         });
 }

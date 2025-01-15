@@ -27,10 +27,10 @@ public:
     ~ModernDreamClient();
 
 protected:
-    void paintEvent(QPaintEvent* event) override
-    {
+    //void paintEvent(QPaintEvent* event) override;
+    /*{
        gameWidget->update();
-    }
+    }*/
 
 
 private:
@@ -41,7 +41,7 @@ private:
 
       
     QWidget* waitingRoomWidget;     
-    QWidget* gameWidget;            
+   // QWidget* gameWidget;            
 
     QLabel* waitingStatusLabel;  
     QProgressBar* playerProgress;   
@@ -54,13 +54,13 @@ private:
     HttpClient* httpClient;        
 
     QStackedWidget* mainStack;
-    GameMapWidget* mapWidget;
+    GameMapWidget* gameMapWidget;
     QString currentDirection;
     void setupWaitingRoom();       
    // bool isSyncing = false;
 
 protected:
-    void keyPressEvent(QKeyEvent* event) override;
+    //void keyPressEvent(QKeyEvent* event) override; 
     
 
 public slots:
@@ -72,7 +72,7 @@ public slots:
     //void onGameReady(const QString& sessionId, const QJsonArray& players, const QJsonObject& mapData); 
     void onLeaveGame(); 
     void updateWaitingRoom(int current, int required);
-    void updatePlayerPosition(int x, int y);
+    //void updatePlayerPosition(int x, int y);
 
-    void onShootButtonPressed(const QString& direction);
+    //void onShootButtonPressed(const QString& direction);
 };
