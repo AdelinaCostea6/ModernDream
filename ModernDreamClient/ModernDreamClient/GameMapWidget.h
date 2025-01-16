@@ -76,26 +76,24 @@ private:
     QString sessionId;
     QString username;
     HttpClient* httpClient;
-    QVector<QVector<int>> mapData; // Stores map information
-   // QVector<QPair<int, int>> bullets; // Stores bullet positions
+    QVector<QVector<int>> mapData; 
     QPixmap wallTexture, bombTexture, bulletTexture;
     QVector<QPixmap> playerTextures;
     QSharedPointer<QVector<BulletInfo>> bullets;
 
-    void fetchAndInitializeMap(); // Fetch map data from the server and initialize
+    void fetchAndInitializeMap(); 
     void setupTextures();
     void setupConnections();
 
-    void onShootButtonPressed(const QString& direction); 
+   
     QMutex bulletsMutex;
     void syncBullets(const QString& sessionId);
     bool isUpdating = false;
+    void shootBullet(const QString& direction);
+   
 
 
 public slots:
-   // void updateBullets(/*const QVector<QPair<int, int>>& bulletPositions*/const QVector<BulletInfo>& newBullets);
-    void updateBullets(const QVector<BulletInfo>& newBullets);
-    void onShootBullet(const QString& direction);
 
     void updatePlayerPosition(int x, int y); 
 };

@@ -62,9 +62,9 @@ void Bullet::Movement(int maxHeight, int maxWidth) {
 
 	std::cout << "Noua directie: " << position.first << " " << position.second << "\n";
 
-	// Verificare limite hartă
+
 	if (position.first < 0 || position.second < 0 || position.first >= maxHeight || position.second >= maxWidth) {
-		isActive = false;  // Dezactivează bullet-ul dacă iese din hartă
+		isActive = false;  
 		std::cout << "Bullet-ul a ieșit din hartă și a fost dezactivat.\n";
 	}
 }
@@ -74,6 +74,12 @@ bool Bullet::CheckCollisionWithPlayers(std::array<std::unique_ptr<Player>, 4>& p
 {
 	if (!isActive)
 		return false;
+
+	for (const auto& player : players) {
+		if (!player) {
+			continue;
+		}
+	}
 
 	return std::any_of(players.begin(), players.end(), [this](const auto& player) {
 		if (player->GetPosition() == position)

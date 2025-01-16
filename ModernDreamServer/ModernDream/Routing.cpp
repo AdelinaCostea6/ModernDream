@@ -79,15 +79,111 @@ void Routing::Run(DatabaseManager& storage) {
    /* CROW_ROUTE(m_app, "/game/syncBullets").methods("POST"_method)([this](const crow::request& req) { 
         return SyncBulletsRoute(req);
         });*/
-    CROW_ROUTE(m_app, "/game/sync").methods("POST"_method)([&](const crow::request& req) {
+    /*CROW_ROUTE(m_app, "/game/sync").methods("POST"_method)([&](const crow::request& req) {
         std::cout << "[DEBUG] Received SyncBullets request: " << req.body << std::endl;
         return SyncBulletsRoute(req);
+        });*/
+
+
+    /*CROW_ROUTE(m_app, "/game/shoot").methods("POST"_method)([this](const crow::request& req) {
+        return ShootBulletRoute(req);
+        });*/
+
+
+    CROW_ROUTE(m_app, "/game/syncBullets").methods("POST"_method)([this](const crow::request& req) {
+        try {
+            auto body = crow::json::load(req.body);
+
+            if (!body || !body.has("sessionId")) {
+                return crow::response(400, "Invalid request: Missing sessionId.");
+            }
+
+            std::string sessionId = body["sessionId"].s();
+            auto session = m_gameSessionManager.GetSession(sessionId);
+            if (!session) {
+                return crow::response(404, "Session not found.");
+            }
+
+            // Actualizează pozițiile gloanțelor înainte de a le trimite către client
+            session->game.UpdateBullets();
+
+            // Construiește răspunsul cu pozițiile actualizate ale gloanțelor
+            crow::json::wvalue response;
+            size_t bulletIndex = 0;
+            for (const auto& bullet : session->game.GetBullets()) {
+                response["bullets"][bulletIndex]["x"] = bullet.GetPosition().first;
+                response["bullets"][bulletIndex]["y"] = bullet.GetPosition().second;
+                response["bullets"][bulletIndex]["direction"] = std::string(1, bullet.GetDirection());
+                ++bulletIndex;
+            }
+
+            return crow::response(200, response);
+        }
+        catch (const std::exception& e) {
+            CROW_LOG_ERROR << "Error in /game/syncBullets: " << e.what();
+            return crow::response(500, "Error in /game/syncBullets: " + std::string(e.what()));
+        }
         });
+
+
+
 
 
     CROW_ROUTE(m_app, "/game/shoot").methods("POST"_method)([this](const crow::request& req) {
-        return ShootBulletRoute(req);
+        try {
+            auto body = crow::json::load(req.body);
+
+            // Validează datele din cerere
+            if (!body || !body.has("sessionId") || !body.has("username") || !body.has("direction")) {
+                return crow::response(400, "Invalid request: Missing required fields.");
+            }
+
+            std::string sessionId = body["sessionId"].s();
+            std::string username = body["username"].s();
+
+            std::string directionString = body["direction"].s();  // Obține direcția ca string
+            if (directionString.empty()) {
+                return crow::response(400, "Invalid request: Direction is empty.");
+            }
+
+            char direction = directionString[0];  // Extrage primul caracter
+
+            //char direction = body["direction"].s()[0];
+
+            // Găsește sesiunea de joc
+            auto session = m_gameSessionManager.GetSession(sessionId);
+            if (!session) {
+                return crow::response(404, "Session not found.");
+            }
+
+            // Găsește jucătorul în sesiune
+            Player* player = session->GetPlayerByUsername(username);
+            if (!player) {
+                return crow::response(404, "Player not found.");
+            }
+
+            // Creează glonțul pe baza poziției și direcției jucătorului
+            int startX = player->GetPosition().first;
+            int startY = player->GetPosition().second;
+
+            // Adaugă glonțul la lista jocului
+            session->game.ShootBullet(*player);
+
+            // Construiește răspunsul pentru client
+            crow::json::wvalue response;
+            response["startX"] = startX;
+            response["startY"] = startY;
+            response["direction"] = std::string(1, direction);  // Convertim char în string
+
+            return crow::response(200, response);
+
+        }
+        catch (const std::exception& e) {
+            CROW_LOG_ERROR << "Error in /game/shoot: " << e.what();
+            return crow::response(500, "Error: " + std::string(e.what()));
+        }
         });
+
 
 
     m_app.port(8080).multithreaded().run();

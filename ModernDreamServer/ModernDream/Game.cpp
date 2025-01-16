@@ -213,63 +213,128 @@ void Game::GenerateMap(int numPlayers) {
 }
 
 
+//void Game::ShootBullet(const Player& player) {
+//    Bullet newBullet(player.GetPosition(), player.GetDirection());
+//    bullets.push_back(newBullet);  // Adaugă bullet la coadă
+//    std::cout << "Jucătorul " << player.GetName() << " a tras un bullet la poziția: ("
+//        << newBullet.GetPosition().first << ", " << newBullet.GetPosition().second << ")\n";
+//}
+
 void Game::ShootBullet(const Player& player) {
-    Bullet newBullet(player.GetPosition(), player.GetDirection());
-    bullets.push_back(newBullet);  // Adaugă bullet la coadă
-    std::cout << "Jucătorul " << player.GetName() << " a tras un bullet la poziția: ("
+    // Poziția curentă a jucătorului
+    auto [x, y] = player.GetPosition();
+    char direction = player.GetDirection();
+
+    // Ajustează poziția de start a glonțului pe baza direcției
+    switch (direction) {
+    case 'w': x -= 1; break; // Sus
+    case 's': x += 1; break; // Jos
+    case 'a': y -= 1; break; // Stânga
+    case 'd': y += 1; break; // Dreapta
+    }
+
+    // Creează glonțul la noua poziție
+    Bullet newBullet({ x, y }, direction);
+    bullets.push_back(newBullet);  // Adaugă glonțul în listă
+    std::cout << "Jucătorul " << player.GetName() << " a tras un glonț la poziția: ("
         << newBullet.GetPosition().first << ", " << newBullet.GetPosition().second << ")\n";
 }
+
+
+//void Game::UpdateBullets() {
+//    int mapHeight = map.GetHeight();
+//    int mapWidth = map.GetWidth();
+//
+//    for (auto it = bullets.begin(); it != bullets.end(); ) {
+//        it->Movement(mapHeight, mapWidth);  // Actualizează poziția glonțului
+//
+//        // Șterge glonțul dacă este inactiv sau a ieșit din limite
+//        if (!it->GetIsActive()) {
+//            std::cout << "Bullet out of bounds at: (" << it->GetPosition().first << ", " << it->GetPosition().second << ")";
+//            it = bullets.erase(it);  // Actualizează iteratorul
+//            continue;  // Continuă cu următorul glonț
+//        }
+//
+//        // Verifică coliziunile cu jucători sau pereți
+//        if (it->CheckCollisionWithPlayers(players) || it->CheckCollisionwithWalls(walls)) {
+//            it->SetIsInactive();
+//            it = bullets.erase(it);  // Șterge glonțul și actualizează iteratorul
+//            continue;  // Continuă cu următorul glonț
+//        }
+//
+//        // Dacă glonțul nu este șters, continuă cu următorul element
+//        std::cout << "Bullet moved to: (" << it->GetPosition().first << ", " << it->GetPosition().second << ")";
+//        ++it;
+//    }
+//}
+
+
+
 void Game::UpdateBullets() {
     int mapHeight = map.GetHeight();
     int mapWidth = map.GetWidth();
+
     for (auto it = bullets.begin(); it != bullets.end(); ) {
         it->Movement(mapHeight, mapWidth);
 
+        // Șterge glonțul dacă iese din limite
         if (!it->GetIsActive()) {
-            std::cout << "Bullet out of bounds at: (" << it->GetPosition().first << ", " << it->GetPosition().second << ")";
-            it = bullets.erase(it);  // Șterge glonțul care a ieșit
+            std::cout << "Bullet out of bounds at: (" << it->GetPosition().first << ", " << it->GetPosition().second << ")\n";
+            it = bullets.erase(it);
+            continue;
         }
-        else {
-            std::cout << "Bullet moved to: (" << it->GetPosition().first << ", " << it->GetPosition().second << ")";
-            ++it;  // Continuă iterarea
+
+        // Verifică coliziunile cu jucători
+        bool collided = false;
+        for (const auto& player : players) {
+            if (!player) {  // Verifică dacă pointerul este null
+                continue;
+            }
+
+            if (player->GetPosition() == it->GetPosition()) {
+                player->Hit();
+                std::cout << "Bullet hit player: " << player->GetName() << "\n";
+                collided = true;
+                break;
+            }
         }
-        /*if (it->CheckCollisionWithPlayers(players) || it->CheckCollisionwithWalls(walls)) {
+
+        // Verifică coliziunile cu pereții
+        if (!collided) {  // Continuă doar dacă glonțul nu a lovit un jucător
+            for (const auto& wall : walls) {
+                if (!wall) {  // Verifică dacă pointerul este null
+               
+                    continue;
+                }
+
+                if (wall->GetPosition() == it->GetPosition()) {
+                   // if (wall->IsDestructible()) {
+                        //wall->Destroy();  // Distruge peretele dacă este destructibil
+                        std::cout << "Bullet destroyed wall at: (" << wall->GetPosition().first << ", " << wall->GetPosition().second << ")\n";
+                   // }
+                   // else {
+                       // std::cout << "Bullet hit an indestructible wall at: (" << wall->GetPosition().first << ", " << wall->GetPosition().second << ")\n";
+                   // }
+                    collided = true;
+                    break;
+                }
+            }
+        }
+
+        // Șterge glonțul dacă a lovit ceva
+        if (collided) {
             it->SetIsInactive();
             it = bullets.erase(it);
+            
+            continue;
         }
-        else {
-            ++it;
-            std::cout << "Bullet declansat la pozitia " << it->GetPosition().first << " " << it->GetPosition().second << "\n";
-        }*/
+
+        // Continuă cu următorul glonț dacă nu a avut coliziuni
+        ++it;
     }
 }
 
-//void Game::UpdateBullets() {
-//    for (auto it = bullets.begin(); it != bullets.end();) {
-//        it->Movement(map.GetHeight(), map.GetWidth());
-//
-//        if (it->CheckCollisionWithPlayers(players)) {
-//           // qDebug() << "Bullet hit a player!";
-//            it = bullets.erase(it);  // Ștergere glonț
-//            continue;
-//        }
-//
-//        if (it->CheckCollisionwithWalls(walls)) {
-//           // qDebug() << "Bullet hit a wall!";
-//            it = bullets.erase(it);
-//            continue;
-//        }
-//
-//        auto [x, y] = it->GetPosition();
-//        if (x < 0 || y < 0 || x >= map.GetWidth() || y >= map.GetHeight()) {
-//           // qDebug() << "Bullet out of bounds!";
-//            it = bullets.erase(it);
-//        }
-//        else {
-//            ++it;
-//        }
-//    }
-//}
+
 
 
 

@@ -608,7 +608,7 @@ void HttpClient::movePlayer(const QString& sessionId, const QString& username, c
 //}
 
 void HttpClient::shootBullet(const QString& sessionId, const QString& username, const QString& direction) {
-    QJsonObject requestData;
+   /* QJsonObject requestData;
     requestData["sessionId"] = sessionId;
     requestData["username"] = username;
     requestData["direction"] = direction;
@@ -620,51 +620,96 @@ void HttpClient::shootBullet(const QString& sessionId, const QString& username, 
     connect(reply, &QNetworkReply::finished, [this, reply]() {
         reply->deleteLater();
         
-        });
-}
+        });*/
 
-void HttpClient::syncBullets(const QString& sessionId) {
-    QJsonObject data;
-    data["sessionId"] = sessionId;
+    if (sessionId.isEmpty() || username.isEmpty()) {
+        qDebug() << "Error: sessionId or username is empty!";
+        return;
+    }
 
-    QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
+    // Construiește datele cererii
+    QJsonObject requestData;
+    requestData["sessionId"] = sessionId;
+    requestData["username"] = username;
+    requestData["direction"] = direction;
+
+    QNetworkRequest request(QUrl("http://localhost:8080/game/shoot"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    QNetworkReply* reply = manager->post(request, QJsonDocument(data).toJson());
-    connect(reply, &QNetworkReply::finished, [this, reply]() {
+    // Trimite cererea POST
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
+
+    connect(reply, &QNetworkReply::finished, [this, reply, direction]() {
         QByteArray responseData = reply->readAll();
-        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
-        QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
+        qDebug() << "Server response for shootBullet:" << responseData;
 
-        qDebug() << "Server response JSON:" << QString::fromUtf8(responseData);
+        // Prelucrează răspunsul serverului dacă este necesar
+        auto jsonResponse = QJsonDocument::fromJson(responseData).object();
+        if (jsonResponse.contains("startX") && jsonResponse.contains("startY")) {
+            int startX = jsonResponse["startX"].toInt();
+            int startY = jsonResponse["startY"].toInt();
 
-        /*QVector<QPair<int, int>> bulletPositions;
-        for (const QJsonValue& bulletValue : bulletsArray) {
-            QJsonObject bulletObj = bulletValue.toObject();
-            int x = bulletObj["x"].toInt();
-            int y = bulletObj["y"].toInt();
-            bulletPositions.push_back(qMakePair(x, y));
-        }*/
-        auto newBullets = QSharedPointer<QVector<BulletInfo>>::create();
-        for (const QJsonValue& bulletValue : bulletsArray) {
-            QJsonObject bulletObj = bulletValue.toObject();
-            int x = bulletObj["x"].toInt();
-            int y = bulletObj["y"].toInt();
-            qDebug() << "Updating bullet to: (" << x << ", " << y << ")";
-            /*{
-                QMutexLocker lock(&bulletsMutex);
-                bullets = newBullets;
-            }*/
-            newBullets->append(BulletInfo(x, y));  
+            // Adaugă glonțul local pentru deplasare
+            QMutexLocker lock(&bulletsMutex);
+            bullets->append(BulletInfo(startX, startY, direction[0].toLatin1()));
+            qDebug() << "Added bullet locally at: (" << startY << ", " << startX << ")";
         }
-        
+        else {
+            qDebug() << "Invalid response from server for shootBullet!";
+        }
 
-        // emit bulletsUpdated(bulletPositions);
-        emit bulletsUpdated(*newBullets);
-        
+        //update();  // Re-desenare
         reply->deleteLater();
         });
 }
+
+//void HttpClient::syncBullets(const QString& sessionId) {
+//    QJsonObject data;
+//    data["sessionId"] = sessionId;
+//
+//    QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QNetworkReply* reply = manager->post(request, QJsonDocument(data).toJson());
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        QByteArray responseData = reply->readAll();
+//        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
+//        QJsonArray bulletsArray = jsonResponse["bullets"].toArray();
+//
+//        qDebug() << "Server response JSON:" << QString::fromUtf8(responseData);
+//
+//        /*QVector<QPair<int, int>> bulletPositions;
+//        for (const QJsonValue& bulletValue : bulletsArray) {
+//            QJsonObject bulletObj = bulletValue.toObject();
+//            int x = bulletObj["x"].toInt();
+//            int y = bulletObj["y"].toInt();
+//            bulletPositions.push_back(qMakePair(x, y));
+//        }*/
+//        auto newBullets = QSharedPointer<QVector<BulletInfo>>::create();
+//        for (const QJsonValue& bulletValue : bulletsArray) {
+//            QJsonObject bulletObj = bulletValue.toObject();
+//            int x = bulletObj["x"].toInt();
+//            int y = bulletObj["y"].toInt();
+//            qDebug() << "Updating bullet to: (" << x << ", " << y << ")";
+//            /*{
+//                QMutexLocker lock(&bulletsMutex);
+//                bullets = newBullets;
+//            }*/
+//            newBullets->append(BulletInfo(x, y));  
+//        }
+//        
+//
+//        // emit bulletsUpdated(bulletPositions);
+//        emit bulletsUpdated(*newBullets);
+//        
+//        reply->deleteLater();
+//        });
+//}
+
+
+
+
 
 
 
