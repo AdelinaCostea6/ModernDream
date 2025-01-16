@@ -221,7 +221,9 @@ void Routing::Run(DatabaseManager& storage) {
 
 
 
-
+    /*CROW_ROUTE(m_app, "/game/triggerBomb").methods("POST"_method)([this](const crow::request& req) {
+        return TriggerBombRoute(req);
+        });*/
 
 
     m_app.port(8080).multithreaded().run();
@@ -969,3 +971,43 @@ crow::response Routing::SyncBulletsRoute(const crow::request& req) {
     
     return crow::response(200, response);
 }
+
+
+//crow::response Routing::TriggerBombRoute(const crow::request& req) {
+//    auto json = crow::json::load(req.body);
+//    if (!json || !json.has("sessionId") || !json.has("bombX") || !json.has("bombY")) {
+//        return crow::response(400, "Invalid request: Missing required fields.");
+//    }
+//
+//    // Extract session ID and bomb coordinates from the request
+//    std::string sessionId = json["sessionId"].s();
+//    int bombX = json["bombX"].i();
+//    int bombY = json["bombY"].i();
+//
+//    // Retrieve the game session
+//    auto session = m_gameSessionManager.GetSession(sessionId);
+//    if (!session) {
+//        return crow::response(404, "Session not found.");
+//    }
+//
+//    // Trigger the bomb in the game logic
+//    session->game.TriggerBomb(bombX, bombY);
+//
+//    crow::json::wvalue response;
+//
+//    // Declare updatedCells as a list (JSON array)
+//    response["updatedCells"] = crow::json::wvalue::list();
+//
+//    size_t index = 0;
+//    for (const auto& [x, y] : session->game.GetUpdatedCells()) {
+//        response["updatedCells"][index]["x"] = x;
+//        response["updatedCells"][index]["y"] = y;
+//        index++;
+//    }
+//
+//    return crow::response(200, response);
+//
+//
+//
+//
+//}

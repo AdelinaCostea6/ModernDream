@@ -271,6 +271,11 @@ void Game::UpdateBullets() {
             it = bullets.erase(it);
             continue;
         }
+        //else if (cellValue == MapGenerator::DestructibleWallWithBomb) { // Assuming BombWall is the enum for bomb walls
+        //    TriggerBomb(x, y); // Trigger the bomb explosion
+        //    it = bullets.erase(it);
+        //    continue;
+        //}
 
         
         ++it;

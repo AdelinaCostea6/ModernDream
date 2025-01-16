@@ -7,7 +7,7 @@
 #include <QtGlobal> 
 
 GameMapWidget::GameMapWidget(const QString& sessionId, const QString& username, QWidget* parent)
-    : QMainWindow(parent), sessionId(sessionId), username(username) {
+    : QMainWindow(parent), sessionId(sessionId), username(username),transform() {
     setWindowTitle("Game Map");
     resize(1400, 800);
     bullets = QSharedPointer<QVector<BulletInfo>>::create();
@@ -24,6 +24,7 @@ void GameMapWidget::setupTextures() {
     wallTexture.load("../ModernDreamImages/tire1.png");
     bombTexture.load("../ModernDreamImages/tire1.png");
     bulletTexture.load("../ModernDreamImages/bullet2.png");
+
 
     playerTextures.resize(4);
     playerTextures[0].load("../ModernDreamImages/carBlueRight.png");
@@ -114,21 +115,24 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
         for (int x = 0; x < cols; ++x) {
             QRectF cellRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
             switch (mapData[y][x]) {
-            case 0: 
-              painter.fillRect(cellRect, QColor("#d3d3d3"));
-              painter.drawPixmap(cellRect.toRect(), playerTextures[playerIndex].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
-                
-              playerIndex = (playerIndex + 1) % 4;
-            
-              break;
-                
+            case 0:
+            {
+                painter.fillRect(cellRect, QColor("#d3d3d3"));
+                //painter.drawPixmap(cellRect.toRect(), playerTextures[playerIndex].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+                //transform.reset();
+                QPixmap rotatedPlayer = playerTextures[playerIndex].transformed(transform);
+                painter.drawPixmap(cellRect.toRect(), rotatedPlayer.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+                playerIndex = (playerIndex + 1) % 4;
+
+                break;
+            }
             case 1:
               painter.fillRect(cellRect, QColor("#d3d3d3"));
               break;
               
             case 2:
               painter.fillRect(cellRect, QColor("#008000"));
-              painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+              painter.drawPixmap(cellRect.toRect(), wallTexture /*.scaled(cellSize, cellSize, Qt::IgnoreAspectRatio)*/);
               
               break;
             case 3:
@@ -187,29 +191,41 @@ void GameMapWidget::keyPressEvent(QKeyEvent* event) {
 
     switch (event->key()) {
     case Qt::Key_W:
+    {
         currentDirection = "w";
         qDebug() << "Move Up";
+        transform.reset();
+        transform.rotate(270); 
         httpClient->movePlayer(sessionId, username, currentDirection);
         break;
-
+    }
     case Qt::Key_S:
+    {
         currentDirection = "s";
         qDebug() << "Move Down";
+        transform.reset();
+        transform.rotate(90);
         httpClient->movePlayer(sessionId, username, currentDirection);
         break;
-
+    }
     case Qt::Key_A:
+    {
         currentDirection = "a";
         qDebug() << "Move Left";
+        transform.reset();
+        transform.scale(-1, 1);
         httpClient->movePlayer(sessionId, username, currentDirection);
         break;
-
+    }
     case Qt::Key_D:
+    {
         currentDirection = "d";
         qDebug() << "Move Right";
+        transform.reset();
+        transform.rotate(0);
         httpClient->movePlayer(sessionId, username, currentDirection);
         break;
-
+    }
     case Qt::Key_Space:
         if (!currentDirection.isEmpty() && !isUpdating) {
             shootBullet(currentDirection);
@@ -382,3 +398,43 @@ void GameMapWidget::updateWalls() {
         reply->deleteLater();
         });
 }
+
+//void GameMapWidget::notifyServerBombTriggered(int bombX, int bombY) {
+//    QJsonObject requestData;
+//    requestData["sessionId"] = sessionId; // Add the session ID
+//    requestData["bombX"] = bombX;         // Add the X coordinate of the bomb
+//    requestData["bombY"] = bombY;         // Add the Y coordinate of the bomb
+//
+//    QNetworkRequest request(QUrl("http://localhost:8080/game/triggerBomb"));
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+//    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
+//
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        QByteArray responseData = reply->readAll();
+//        auto jsonResponse = QJsonDocument::fromJson(responseData).object();
+//
+//        if (jsonResponse.contains("updatedCells")) {
+//            QJsonArray updatedCellsArray = jsonResponse["updatedCells"].toArray();
+//
+//            QVector<QPair<int, int>> updatedCells;
+//            for (const auto& cellValue : updatedCellsArray) {
+//                QJsonObject cellObj = cellValue.toObject();
+//                int x = cellObj["x"].toInt();
+//                int y = cellObj["y"].toInt();
+//                updatedCells.append(qMakePair(x, y));
+//            }
+//
+//            updateMapCells(updatedCells); // Update map with the affected cells
+//        }
+//        else {
+//            qDebug() << "Error: No 'updatedCells' in server response.";
+//        }
+//
+//        reply->deleteLater();
+//        });
+//}
+
+
+

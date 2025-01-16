@@ -22,6 +22,8 @@ namespace http {
         crow::response SyncBulletsRoute(const crow::request& req);
         crow::response ShootBulletRoute(const crow::request& req);
 
+        //crow::response TriggerBombRoute(const crow::request& req);
+
 
     private:
         DatabaseManager m_db;

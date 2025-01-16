@@ -31,7 +31,7 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
 
     /*QLabel* playerCountLabel = new QLabel("Number of Players: ", this);*/
     playerCountSpinBox = new QSpinBox(this);
-    playerCountSpinBox->setRange(4, 4);
+    playerCountSpinBox->setRange(1, 4);
 
     startGameButton = new QPushButton("Start Game", this);
 

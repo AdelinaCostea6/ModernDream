@@ -164,7 +164,7 @@
 
 // Creează o sesiune nouă și returnează un ID unic
 std::string GameSessionManager::CreateSession(int requiredPlayers) {
-    requiredPlayers = 4;
+    //requiredPlayers = 4;
 
     std::random_device rd;
     std::mt19937 gen(rd());
