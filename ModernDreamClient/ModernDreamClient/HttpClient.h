@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QMutex>
 #include "Bulletinfo.h"
+//#include "ModernDreamClient.h"
  
 //struct BulletInfo {
 //    int x;
@@ -33,8 +34,8 @@ public:
     QByteArray requestMapGeneration(const QString& sessionId, int numPlayers);
     void movePlayer(const QString& sessionId, const QString& username, const QString& direction);
     
-    void shootBullet(const QString& sessionId, const QString& username, const QString& direction);
-    void syncBullets(const QString& sessionId);
+    //void shootBullet(const QString& sessionId, const QString& username, const QString& direction);
+   // void syncBullets(const QString& sessionId);
 
 
 

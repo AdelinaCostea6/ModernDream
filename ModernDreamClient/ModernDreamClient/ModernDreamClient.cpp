@@ -5,6 +5,9 @@
 #include <QJsonArray>
 #include <QKeyEvent>
 #include <QDockWidget>
+
+//QString ModernDreamClient::sharedSessionId = "";
+
 ModernDreamClient::ModernDreamClient(QWidget* parent)
     : QMainWindow(parent), mainStack(new QStackedWidget(this)), httpClient(new HttpClient(this)) {
     resize(1400, 800);
@@ -12,7 +15,8 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     setupWaitingRoom();
     qDebug() << "setupWaitingRoom initialized waitingRoomWidget:" << waitingRoomWidget;
 
-    
+   
+
     //gameWidget = new QWidget(this);
    // QVBoxLayout* layout = new QVBoxLayout(gameWidget);
     /*QLabel* gameLabel = new QLabel("Game is starting...", gameWidget);
@@ -214,6 +218,24 @@ void ModernDreamClient::OnStartGame(GameMap mapType, const QString& username) {
     mainStack->setCurrentWidget(waitingRoomWidget);
   
 
+    //if (sharedSessionId.isEmpty()) {
+    //    // Creează sesiunea dacă este primul jucător
+    //    httpClient->createGame(4); // Exemplu: sesiune pentru 4 jucători
+    //    connect(httpClient, &HttpClient::joinGameSuccess, this, [this](const QString& sessionId, int current, int required) {
+    //        sharedSessionId = sessionId; 
+    //        currentSessionId = sessionId;
+    //        httpClient->joinGame(currentUsername, "mapType", 4);
+    //        updateWaitingRoom(current, required);
+    //        });
+
+    //}
+    //else {
+    //    // Alătură-te sesiunii partajate
+    //    httpClient->joinGame(username, mapTypeStr, 4);
+    //    currentSessionId = sharedSessionId;
+    //}
+    //mainStack->setCurrentWidget(waitingRoomWidget);
+
 }
 
 
@@ -238,8 +260,21 @@ void ModernDreamClient::onJoinGameSuccess(const QString& sessionId, int current,
 
 void ModernDreamClient::onPlayerJoined(const QString& username, int current, int required) {
     qDebug() << "Player joined:" << username;
+    // Verifică dacă utilizatorul este deja în listă
+    bool exists = false;
+    for (int i = 0; i < playerList->count(); ++i) {
+        if (playerList->item(i)->text() == username) {
+            exists = true;
+            break;
+        }
+    }
+
+    if (!exists) {
+        playerList->addItem(username);
+    }
     updateWaitingRoom(current, required);
-    playerList->addItem(username);
+    //playerList->addItem(username);
+    
 }
 
 void ModernDreamClient::onPlayerLeft(const QString& username, int current, int required) {
@@ -362,62 +397,3 @@ void ModernDreamClient::onLeaveGame()
 
 
 
-//void ModernDreamClient::updatePlayerPosition(int x, int y) {
-//    qDebug() << "Primim pozitia nouă de la server: (" << x << ", " << y << ")";
-//    if (mapWidget) {
-//        mapWidget->updatePlayerPosition(x, y);
-//    }
-//    else {
-//        qDebug() << "Error: mapWidget is nullptr!";
-//    }
-//}
-
-  
-//void ModernDreamClient::onShootButtonPressed(const QString& direction) {
-//    if (!httpClient) return;
-//    httpClient->shootBullet(currentSessionId, currentUsername, direction);  // Trimite cererea de tras bullet-ul
-//
-//    
-//}
-
-//void ModernDreamClient::keyPressEvent(QKeyEvent* event) { 
-//    if (!currentSessionId.isEmpty()) {
-//        QString direction;
-//        switch (event->key()) {
-//        case Qt::Key_W:
-//            direction = "w";
-//            currentDirection = direction;
-//            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Trimite cererea de deplasare la server
-//            break;
-//        case Qt::Key_A:
-//            direction = "a";
-//            currentDirection = direction;
-//            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare la stânga
-//            break;
-//        case Qt::Key_S:
-//            direction = "s";
-//            currentDirection = direction;
-//            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare în jos
-//            break;
-//        case Qt::Key_D:
-//            direction = "d";
-//            currentDirection = direction;
-//            httpClient->movePlayer(currentSessionId, currentUsername, direction);  // Deplasare la dreapta
-//            break;
-//        case Qt::Key_Space:
-//            qDebug() << "Glooont";
-//            if (!currentDirection.isEmpty()) {
-//                onShootButtonPressed(currentDirection);  // Trage glonțul în direcția curentă
-//                // mapWidget->syncBulletsFromServer();
-//            }
-//            break;
-//        default:
-//            QMainWindow::keyPressEvent(event);
-//            return;
-//        }
-//
-//        if (event->key() == Qt::Key_W || event->key() == Qt::Key_A || event->key() == Qt::Key_S || event->key() == Qt::Key_D) {
-//            direction = direction;  // Actualizează direcția curentă pentru `Space`
-//        }
-//    }
-//}

@@ -57,12 +57,15 @@ private:
     GameMapWidget* gameMapWidget;
     QString currentDirection;
     void setupWaitingRoom();       
+   
    // bool isSyncing = false;
 
 protected:
     //void keyPressEvent(QKeyEvent* event) override; 
     
 
+public:
+    //static QString sharedSessionId;
 public slots:
     void OnStartGame(GameMap mapType, const QString& username);
     void onJoinGameSuccess(const QString& sessionId, int current, int required);
@@ -72,6 +75,7 @@ public slots:
     //void onGameReady(const QString& sessionId, const QJsonArray& players, const QJsonObject& mapData); 
     void onLeaveGame(); 
     void updateWaitingRoom(int current, int required);
+    
     //void updatePlayerPosition(int x, int y);
 
     //void onShootButtonPressed(const QString& direction);

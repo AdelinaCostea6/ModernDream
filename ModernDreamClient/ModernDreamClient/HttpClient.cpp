@@ -4,6 +4,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QMutexLocker>
+#include "ModernDreamClient.h"
 
 
 
@@ -168,6 +169,26 @@ void HttpClient::joinGame(const QString& username, const QString& mapType, int r
         joiningInProgress = false;  
         onJoinGameResponse(reply);
         });
+
+
+   // QUrl url("http://localhost:8080/game/join");
+   // QNetworkRequest request(url);
+   // request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+   // QJsonObject json;
+   // json["username"] = username;
+   // json["mapType"] = mapType;
+   // json["requiredPlayers"] = requiredPlayers;
+   // json["sessionId"] = ModernDreamClient::sharedSessionId; // Folosește sesiunea partajată
+   // 
+
+   // QByteArray data = QJsonDocument(json).toJson();
+   // QNetworkReply* reply = manager->post(request, data);
+   //// connect(reply, &QNetworkReply::finished, this, &HttpClient::onJoinGameResponse);
+   // connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+   //     //joiningInProgress = false;
+   //     onJoinGameResponse(reply);
+   //     });
 }
 
 
@@ -607,62 +628,62 @@ void HttpClient::movePlayer(const QString& sessionId, const QString& username, c
 //        });
 //}
 
-void HttpClient::shootBullet(const QString& sessionId, const QString& username, const QString& direction) {
-   /* QJsonObject requestData;
-    requestData["sessionId"] = sessionId;
-    requestData["username"] = username;
-    requestData["direction"] = direction;
-
-    QNetworkRequest request(QUrl("http://localhost:8080/game/shoot"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    qDebug() << "Adding bullet in direction:" << requestData["direction"].toString(); 
-    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
-    connect(reply, &QNetworkReply::finished, [this, reply]() {
-        reply->deleteLater();
-        
-        });*/
-
-    if (sessionId.isEmpty() || username.isEmpty()) {
-        qDebug() << "Error: sessionId or username is empty!";
-        return;
-    }
-
-    // Construiește datele cererii
-    QJsonObject requestData;
-    requestData["sessionId"] = sessionId;
-    requestData["username"] = username;
-    requestData["direction"] = direction;
-
-    QNetworkRequest request(QUrl("http://localhost:8080/game/shoot"));
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-
-    // Trimite cererea POST
-    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
-
-    connect(reply, &QNetworkReply::finished, [this, reply, direction]() {
-        QByteArray responseData = reply->readAll();
-        qDebug() << "Server response for shootBullet:" << responseData;
-
-        // Prelucrează răspunsul serverului dacă este necesar
-        auto jsonResponse = QJsonDocument::fromJson(responseData).object();
-        if (jsonResponse.contains("startX") && jsonResponse.contains("startY")) {
-            int startX = jsonResponse["startX"].toInt();
-            int startY = jsonResponse["startY"].toInt();
-
-            // Adaugă glonțul local pentru deplasare
-            QMutexLocker lock(&bulletsMutex);
-            bullets->append(BulletInfo(startX, startY, direction[0].toLatin1()));
-            qDebug() << "Added bullet locally at: (" << startY << ", " << startX << ")";
-        }
-        else {
-            qDebug() << "Invalid response from server for shootBullet!";
-        }
-
-        //update();  // Re-desenare
-        reply->deleteLater();
-        });
-}
+//void HttpClient::shootBullet(const QString& sessionId, const QString& username, const QString& direction) {
+//   /* QJsonObject requestData;
+//    requestData["sessionId"] = sessionId;
+//    requestData["username"] = username;
+//    requestData["direction"] = direction;
+//
+//    QNetworkRequest request(QUrl("http://localhost:8080/game/shoot"));
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//    qDebug() << "Adding bullet in direction:" << requestData["direction"].toString(); 
+//    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        reply->deleteLater();
+//        
+//        });*/
+//
+//    if (sessionId.isEmpty() || username.isEmpty()) {
+//        qDebug() << "Error: sessionId or username is empty!";
+//        return;
+//    }
+//
+//    // Construiește datele cererii
+//    QJsonObject requestData;
+//    requestData["sessionId"] = sessionId;
+//    requestData["username"] = username;
+//    requestData["direction"] = direction;
+//
+//    QNetworkRequest request(QUrl("http://localhost:8080/game/shoot"));
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    // Trimite cererea POST
+//    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+//    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
+//
+//    connect(reply, &QNetworkReply::finished, [this, reply, direction]() {
+//        QByteArray responseData = reply->readAll();
+//        qDebug() << "Server response for shootBullet:" << responseData;
+//
+//        // Prelucrează răspunsul serverului dacă este necesar
+//        auto jsonResponse = QJsonDocument::fromJson(responseData).object();
+//        if (jsonResponse.contains("startX") && jsonResponse.contains("startY")) {
+//            int startX = jsonResponse["startX"].toInt();
+//            int startY = jsonResponse["startY"].toInt();
+//
+//            // Adaugă glonțul local pentru deplasare
+//            QMutexLocker lock(&bulletsMutex);
+//            bullets->append(BulletInfo(startX, startY, direction[0].toLatin1()));
+//            qDebug() << "Added bullet locally at: (" << startY << ", " << startX << ")";
+//        }
+//        else {
+//            qDebug() << "Invalid response from server for shootBullet!";
+//        }
+//
+//        //update();  // Re-desenare
+//        reply->deleteLater();
+//        });
+//}
 
 //void HttpClient::syncBullets(const QString& sessionId) {
 //    QJsonObject data;
