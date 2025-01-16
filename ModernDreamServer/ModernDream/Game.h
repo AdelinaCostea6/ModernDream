@@ -56,6 +56,8 @@ private:
     std::deque<Bullet> bullets;
     std::vector<std::pair<int, int>> updatedCells;  // x, y
 
+    
+
 
 public:
     Game() = default;
@@ -83,6 +85,8 @@ public:
     Player* GetPlayerByUsername(const std::string& username);
     const std::vector<std::pair<int, int>>& GetUpdatedCells() const;
     void ClearUpdatedCells();
+
+    
 
 
 };

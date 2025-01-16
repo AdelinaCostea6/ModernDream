@@ -128,17 +128,17 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
               
             case 2:
               painter.fillRect(cellRect, QColor("#008000"));
-             // painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+              painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
               
               break;
             case 3:
               painter.fillRect(cellRect, QColor("#ff0000"));
-             // painter.drawPixmap(cellRect.toRect(), bombTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+              painter.drawPixmap(cellRect.toRect(), bombTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
              
               break;
             case 4:
               painter.fillRect(cellRect, QColor("#0000ff"));
-             // painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+              painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
               
               break;
             }
@@ -174,9 +174,11 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             bulletSize
         );
 
-        painter.setBrush(Qt::yellow);  
+        /*painter.setBrush(Qt::yellow);  
         painter.setPen(Qt::NoPen);    
-        painter.drawEllipse(bulletRect);  
+        painter.drawEllipse(bulletRect);  */
+        
+        painter.drawPixmap(bulletRect.toRect(), bulletTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));  
     }
 }
 

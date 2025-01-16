@@ -89,6 +89,7 @@ struct GameSession {
 class GameSessionManager {
 private:
     std::map<std::string, std::shared_ptr<GameSession>> sessions;  // Mapa sesiunilor de joc
+    //std::string mapType;
 
 public:
     GameSessionManager() = default;
@@ -109,5 +110,8 @@ public:
     const GameSession& GetSessionStatus(const std::string& sessionId) const;
 
     std::map<std::string, std::shared_ptr<GameSession>>& GetSessions();
+
+    /*const std::string& GetMapType() const { return mapType; } 
+    void SetMapType(const std::string& type) { mapType = type; }*/ 
     
 };

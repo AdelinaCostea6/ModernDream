@@ -363,9 +363,23 @@ crow::response Routing::CreateSessionRoute(const crow::request& req) {
         std::string sessionId = json.has("sessionId") ? std::string(json["sessionId"].s()) : "new";
         int requiredPlayers = json["requiredPlayers"].i();
 
-        if (std::string(sessionId) == "new") {
+        /*if (std::string(sessionId) == "new") {
             sessionId = m_gameSessionManager.CreateSession(requiredPlayers);
+        }*/
+        if (std::string(sessionId) == "new") {
+            /*for (auto& [existingSessionId, session] : m_gameSessionManager.GetSessions()) {
+                if (!session->isReady && session->requiredPlayers == requiredPlayers &&
+                    session->GetMapType() == mapType) { 
+                    sessionId = existingSessionId;
+                    break;
+                }
+            }*/
+
+            if (sessionId == "new") {
+                sessionId = m_gameSessionManager.CreateSession(requiredPlayers);
+            }
         }
+
 
         if (!m_gameSessionManager.JoinSession(sessionId, username)) {
             return crow::response(400, "Failed to join session");
@@ -459,6 +473,9 @@ crow::response Routing::GetSessionStatusRoute(const std::string& sessionId) {
         response["sessionId"] = session.sessionId;
         response["requiredPlayers"] = session.requiredPlayers;
         response["currentPlayers"] = session.players.size();
+
+        //response["mapType"] = session.GetMapType();  // Include map type in the response
+
 
         // Set status based on session state
         response["status"] = session.isReady ? "ready" : "waiting";

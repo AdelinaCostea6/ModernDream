@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <random>
 #include <iostream>
+#include "Game.h"
 
 // Constructor de mutare
 //GameSession::GameSession(GameSession&& other) noexcept
@@ -163,6 +164,8 @@
 
 // Creează o sesiune nouă și returnează un ID unic
 std::string GameSessionManager::CreateSession(int requiredPlayers) {
+    requiredPlayers = 4;
+
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(1, 1000000);
@@ -170,6 +173,9 @@ std::string GameSessionManager::CreateSession(int requiredPlayers) {
 
     // Creăm sesiunea și o adăugăm în mapă
     sessions[sessionId] = std::make_shared<GameSession>(sessionId, requiredPlayers);
+    std::shared_ptr<GameSession> session = std::make_shared<GameSession>(sessionId, requiredPlayers);
+    //session->game.SetMapType(mapType);  // Set the map type
+    sessions[sessionId] = session;
 
     std::cout << "Sesiune creată cu ID: " << sessionId << " și " << requiredPlayers << " jucători necesari.\n";
     return sessionId;
