@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -42,4 +42,7 @@ public:
     void SetBombs(const std::array<std::unique_ptr<Bomb>, 3>& newBombs);
     const std::vector<std::vector<int>>& GetMapMatrix() const;
     std::vector<std::pair<int, int>> GetPlayerStartPositions() const;
+    int GetCellValue(int x, int y) const;  // Obține valoarea celulei
+    void SetCellValue(int x, int y, int value);  // Setează o valoare pentru celulă
+
 };

@@ -90,6 +90,12 @@ private:
     void syncBullets(const QString& sessionId);
     bool isUpdating = false;
     void shootBullet(const QString& direction);
+    void updateMapCells(const QVector<QPair<int, int>>& updatedCells);
+    QMutex mapMutex;
+    void updateWalls();
+
+    QVector<QPair<int, int>> updatedCells;
+
    
 
 

@@ -184,6 +184,44 @@ void Routing::Run(DatabaseManager& storage) {
         }
         });
 
+    CROW_ROUTE(m_app, "/game/updateWalls").methods("POST"_method)([this](const crow::request& req) {
+        try {
+            auto body = crow::json::load(req.body);
+            if (!body || !body.has("sessionId")) {
+                return crow::response(400, "Invalid request: Missing sessionId.");
+            }
+
+            std::string sessionId = body["sessionId"].s();
+            auto session = m_gameSessionManager.GetSession(sessionId);
+            if (!session) {
+                return crow::response(404, "Session not found.");
+            }
+
+            crow::json::wvalue response;
+            response["updatedCells"] = crow::json::wvalue::list();  // Inițializează o listă JSON
+
+            size_t index = 0;
+            for (const auto& [x, y] : session->game.GetUpdatedCells()) {
+                response["updatedCells"][index]["x"] = x;
+                response["updatedCells"][index]["y"] = y;
+                ++index;
+            }
+
+            session->game.ClearUpdatedCells();  // Curăță lista de actualizări după trimitere
+
+            return crow::response(200, response);
+        }
+        catch (const std::exception& e) {
+            CROW_LOG_ERROR << "Error in /game/updateWalls: " << e.what();
+            return crow::response(500, "Error: " + std::string(e.what()));
+        }
+        });
+
+
+
+
+
+
 
 
     m_app.port(8080).multithreaded().run();

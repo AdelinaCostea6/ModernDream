@@ -192,3 +192,16 @@ void Map::SetBombs(const std::array<std::unique_ptr<Bomb>, 3>& newBombs)
     }
 }
 
+
+int Map::GetCellValue(int x, int y) const {
+    if (x < 0 || x >= height || y < 0 || y >= width) {
+        return -1;  // Celulă invalidă
+    }
+    return mapMatrix[x][y];
+}
+
+void Map::SetCellValue(int x, int y, int value) {
+    if (x >= 0 && x < height && y >= 0 && y < width) {
+        mapMatrix[x][y] = value;
+    }
+}

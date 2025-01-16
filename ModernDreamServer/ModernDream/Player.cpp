@@ -120,8 +120,7 @@ void Player::Movement(const Map& mapMatrix, char direction) {
 	case 'd': newY += 1; break;  // Dreapta
 	}
 
-	if (newX >= 0 && newX < mapMatrix.GetHeight()&&
-		        newY >= 0 && newY < mapMatrix.GetWidth())
+	if (newX >= 0 && newX < mapMatrix.GetHeight()&&newY >= 0 && newY < mapMatrix.GetWidth())
 		    {
 		        if (mapMatrix.IsMovable(newX, newY))
 		        {

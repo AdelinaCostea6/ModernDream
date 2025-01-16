@@ -42,7 +42,12 @@ void GameMapWidget::setupConnections() {
     QTimer* bulletSyncTimer = new QTimer(this); 
     connect(bulletSyncTimer, &QTimer::timeout, this, [this]() {   
         if (!isUpdating)
-             syncBullets(sessionId); 
+        {
+            syncBullets(sessionId);
+            //fetchAndInitializeMap();
+            //syncMap();
+            updateWalls();
+        }
            
            
         });
@@ -58,7 +63,7 @@ void GameMapWidget::fetchAndInitializeMap() {
         if (jsonObj.contains("map")) {
             QJsonArray mapArray = jsonObj["map"].toArray();
             //QVector<QVector<int>> mapData;
-
+           // mapData.clear();
             for (const QJsonValue& row : mapArray) {
                 QVector<int> rowData;
                 QJsonArray rowArray = row.toArray();
@@ -123,17 +128,17 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
               
             case 2:
               painter.fillRect(cellRect, QColor("#008000"));
-              painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+             // painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
               
               break;
             case 3:
               painter.fillRect(cellRect, QColor("#ff0000"));
-              painter.drawPixmap(cellRect.toRect(), bombTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+             // painter.drawPixmap(cellRect.toRect(), bombTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
              
               break;
             case 4:
               painter.fillRect(cellRect, QColor("#0000ff"));
-              painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
+             // painter.drawPixmap(cellRect.toRect(), wallTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
               
               break;
             }
@@ -246,14 +251,15 @@ void GameMapWidget::shootBullet(const QString& direction) {
 
             
             QMutexLocker lock(&bulletsMutex);
-            bullets->append(BulletInfo(startX, startY, direction[0].toLatin1()));
+           // bullets->append(BulletInfo(startX, startY, direction[0].toLatin1()));
             qDebug() << "Added bullet locally at: (" << startY << ", " << startX << ")";
+            update();
         }
         else {
             qDebug() << "Invalid response from server for shootBullet!";
         }
 
-        update();  
+        //update();  
         reply->deleteLater();
         });
 }
@@ -304,7 +310,73 @@ void GameMapWidget::syncBullets(const QString& sessionId) {
         else {
             qDebug() << "Error: Server response does not contain 'bullets'";
         }
+        //update();
+        reply->deleteLater();
+        });
+}
 
+
+void GameMapWidget::updateMapCells(const QVector<QPair<int, int>>& updatedCells) {
+    QMutexLocker lock(&mapMutex);  // Protejează accesul la `mapData` dacă este accesat din thread-uri diferite
+
+    for (const auto& cell : updatedCells) {
+        int x = cell.first;
+        int y = cell.second;
+
+        if (x >= 0 && x < mapData.size() && y >= 0 && y < mapData[0].size()) {
+            mapData[x][y] = 1;  // Setează celula ca spațiu liber (valoarea 1)
+        }
+        else {
+            qDebug() << "Invalid map coordinates: (" << x << ", " << y << ")";
+        }
+    }
+    update();
+     // Declanșează redesenarea interfeței
+}
+
+
+void GameMapWidget::updateWalls() {
+    if (sessionId.isEmpty()) {
+        qDebug() << "Error: Session ID is empty!";
+        return;
+    }
+
+    QJsonObject requestData;
+    requestData["sessionId"] = sessionId;
+
+    QNetworkRequest request(QUrl("http://localhost:8080/game/updateWalls"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
+
+    connect(reply, &QNetworkReply::finished, [this, reply]() {
+        QByteArray responseData = reply->readAll();
+        auto jsonResponse = QJsonDocument::fromJson(responseData).object();
+        qDebug() << "Received response:" << responseData;
+        if (responseData.isEmpty()) return;
+        if (jsonResponse.contains("updatedCells")) {
+            QJsonArray updatesArray = jsonResponse["updatedCells"].toArray();
+            
+           // updatedCells.clear();
+            for (const auto& cellValue : updatesArray) {
+                QJsonObject cellObj = cellValue.toObject();
+                int x = cellObj["x"].toInt();
+                int y = cellObj["y"].toInt();
+
+                //updatedCells.append(qMakePair(x, y));
+                mapData[x][y] = 1;
+
+            }
+            update();
+
+           // updateMapCells(updatedCells);  // Actualizează harta
+
+        }
+        else {
+            qDebug() << "Error: No 'updatedCells' in server response.";
+        }
+        
         reply->deleteLater();
         });
 }

@@ -54,6 +54,8 @@ private:
     std::vector<std::unique_ptr<Wall>> walls;
     std::array<std::unique_ptr<Bomb>, 3> bombs;
     std::deque<Bullet> bullets;
+    std::vector<std::pair<int, int>> updatedCells;  // x, y
+
 
 public:
     Game() = default;
@@ -79,5 +81,8 @@ public:
     void UpdateBullets();  
     const std::deque<Bullet>& GetBullets() const; 
     Player* GetPlayerByUsername(const std::string& username);
+    const std::vector<std::pair<int, int>>& GetUpdatedCells() const;
+    void ClearUpdatedCells();
+
 
 };
