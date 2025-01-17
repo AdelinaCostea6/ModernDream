@@ -147,9 +147,9 @@ void Game::TriggerBomb(int x, int y)
         [&](const std::unique_ptr<Bomb>& bomb) {
             return bomb && bomb->GetPosition() == Coordinates{ x, y };
         });
+    
 
-
-    if (bombIt == bombs.end() || (*bombIt)->GetStatus())
+    if (bombIt == bombs.end() || (*bombIt)->GetStatus()==false)
     {
         std::cout << "No valid bomb found at (" << x << ", " << y << ")" << std::endl;
         return;
@@ -271,11 +271,39 @@ void Game::UpdateBullets() {
             it = bullets.erase(it);
             continue;
         }
-        //else if (cellValue == MapGenerator::DestructibleWallWithBomb) { // Assuming BombWall is the enum for bomb walls
-        //    TriggerBomb(x, y); // Trigger the bomb explosion
-        //    it = bullets.erase(it);
-        //    continue;
-        //}
+        else if (cellValue == MapGenerator::DestructibleWallWithBomb) {
+            std::cout << "Bullet hit a bomb at: (" << x << ", " << y << ")\n";
+
+            map.SetCellValue(x, y, MapGenerator::FreeSpace);
+            updatedCells.emplace_back(x, y); 
+
+
+            int explosionRadius = 10; 
+            for (int dx = -explosionRadius; dx <= explosionRadius; ++dx) {
+                for (int dy = -explosionRadius; dy <= explosionRadius; ++dy) {
+                    int newX = x + dx;
+                    int newY = y + dy;
+
+                    
+                    if (newX >= 0 && newX < map.GetHeight() && newY >= 0 && newY < map.GetWidth()) {
+                        int affectedCellValue = map.GetCellValue(newX, newY);
+
+                      
+                        if (affectedCellValue == MapGenerator::DestructibleWall) {
+                            map.SetCellValue(newX, newY, MapGenerator::FreeSpace);
+                            updatedCells.emplace_back(newX, newY);
+                            std::cout << "Explosion destroyed a destructible wall at: (" << newX << ", " << newY << ")\n";
+                        }
+                    }
+                }
+            }
+
+            
+            it = bullets.erase(it);
+            continue;
+        }
+
+
 
         
         ++it;
