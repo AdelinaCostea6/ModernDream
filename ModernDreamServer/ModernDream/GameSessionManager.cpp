@@ -164,7 +164,7 @@
 
 // Creează o sesiune nouă și returnează un ID unic
 std::string GameSessionManager::CreateSession(int requiredPlayers) {
-    //requiredPlayers = 4;
+    requiredPlayers = 2;
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -184,10 +184,10 @@ std::string GameSessionManager::CreateSession(int requiredPlayers) {
 // Jucătorul se alătură unei sesiuni
 bool GameSessionManager::JoinSession(const std::string& sessionId, const std::string& username) {
     auto it = sessions.find(sessionId);
-    if (it != sessions.end() && !it->second->isReady) {
+    if (it != sessions.end() && !it->second->isReady) {  // Verifică dacă sesiunea există și nu este gata
         auto session = it->second;
 
-        // Dacă jucătorul nu este deja în sesiune, îl adăugăm
+        // Verifică dacă jucătorul nu este deja în sesiune
         if (session->players.find(username) == session->players.end()) {
             auto weapon = std::make_unique<Weapon>();
             auto player = std::make_unique<Player>(username, std::move(weapon), std::make_pair(0, 0));
@@ -198,16 +198,22 @@ bool GameSessionManager::JoinSession(const std::string& sessionId, const std::st
 
             std::cout << "Jucătorul " << username << " s-a alăturat sesiunii " << sessionId << "\n";
 
-            // Setăm sesiunea ca "gata" dacă s-au atins numărul de jucători necesari
+            // Marchează sesiunea ca "gata" dacă sunt suficienți jucători
             if (session->players.size() >= session->requiredPlayers) {
-               // session->game.GenerateMap(session->requiredPlayers);
                 session->isReady = true;
             }
             return true;
         }
+        else {
+            std::cerr << "Jucătorul " << username << " este deja în sesiune.\n";
+        }
+    }
+    else {
+        std::cerr << "Sesiunea " << sessionId << " nu este disponibilă sau este deja completă.\n";
     }
     return false;
 }
+
 
 // Jucătorul părăsește sesiunea
 void GameSessionManager::LeaveSession(const std::string& sessionId, const std::string& username) {
@@ -265,19 +271,19 @@ void GameSessionManager::MatchPlayers() {
         std::array<std::unique_ptr<WaitingPlayer>, 4> selectedPlayers = { nullptr, nullptr, nullptr, nullptr };
         size_t index = 0;
 
-        // Select players based on timeout or required number
         for (auto it = waitingQueue.begin(); it != waitingQueue.end() && index < 4; ) {
             if (std::chrono::duration_cast<std::chrono::seconds>(now - (*it)->joinTime).count() >= 30 || index < 4) {
-                selectedPlayers[index++] = std::move(*it); // Transfer ownership
+                std::cout << "[INFO] Adding player to session: " << (*it)->username << std::endl;
+                selectedPlayers[index++] = std::move(*it); // Adaugă jucătorul la sesiune
                 it = waitingQueue.erase(it);
             }
             else {
                 ++it;
             }
-
         }
 
-        if (index >= 2) { // At least 2 players are required to start a session
+        // Pornește sesiunea dacă există cel puțin 2 jucători
+        if (index >= 2) {
             CreateMatch(std::move(selectedPlayers));
         }
     }
@@ -285,12 +291,11 @@ void GameSessionManager::MatchPlayers() {
 
 
 
+
 void GameSessionManager::CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 4> players) {
-    // Create a new session
     std::string sessionId = CreateSession(players.size());
     auto session = GetSession(sessionId);
 
-    // Add players to the session
     for (const auto& player : players) {
         if (player) {
             JoinSession(sessionId, player->username);
@@ -299,7 +304,6 @@ void GameSessionManager::CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 
 
     session->isReady = true;
 
-    // Output session details
     std::cout << "Game session " << sessionId << " created with players: ";
     for (const auto& player : players) {
         if (player) {
@@ -308,7 +312,7 @@ void GameSessionManager::CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 
     }
     std::cout << std::endl;
 
-    // No need to notify players since the game starts automatically
+    
 }
 
 
@@ -357,3 +361,20 @@ void GameSessionManager::ManageSession(const std::string& sessionId) {
     std::cout << "Game session " << sessionId << " ended." << std::endl;
 }
 
+std::string GameSessionManager::FindOrCreateSession(const std::string& username, int score) {
+    auto now = std::chrono::steady_clock::now();
+
+    // Caută o sesiune necompletată
+    for (auto& [id, session] : sessions) {
+        if (!session->isReady && session->players.size() < session->requiredPlayers) {
+            // Alătură jucătorul sesiunii
+            JoinSession(id, username);
+            return id;
+        }
+    }
+
+    // Dacă nu există, creează o sesiune nouă
+    std::string newSessionId = CreateSession(4);  // Implicit 4 jucători necesari
+    JoinSession(newSessionId, username);
+    return newSessionId;
+}

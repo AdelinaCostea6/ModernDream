@@ -57,6 +57,7 @@ void GameMapWidget::setupConnections() {
 
 void GameMapWidget::fetchAndInitializeMap() {
    
+   // mapData.clear();
     QByteArray response = httpClient->requestMapGeneration(sessionId,1);
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
         QJsonObject jsonObj = jsonDoc.object();

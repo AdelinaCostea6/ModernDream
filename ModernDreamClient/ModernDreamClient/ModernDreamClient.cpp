@@ -103,6 +103,26 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
 
    //addDockWidget(Qt::TopDockWidgetArea, dock);
 
+
+    connect(httpClient, &HttpClient::queueJoinedSuccess, this, [this](const QString& sessionId) {
+        currentSessionId = sessionId;
+        qDebug() << "[DEBUG] User connected to session:" << sessionId;
+
+        // Trimite utilizatorul în sala de așteptare
+        if (sessionId.isEmpty()) {
+            qDebug() << "[ERROR] Received empty session ID.";
+            return;
+        }
+        mainStack->setCurrentWidget(waitingRoomWidget);
+        waitingStatusLabel->setText("Waiting for players...");
+        });
+
+    // Alte conexiuni și inițializări...
+    //connect(startGameButton, &QPushButton::clicked, this, [this]() {
+    //    QString username = currentUsername.isEmpty() ? "default_user" : currentUsername;
+    //    startMatchmaking(username, 100, GameMap::CAR);  // Exemplu
+    //    });
+
     qDebug() << "ModernDreamClient initialized successfully.";
 }
 
@@ -215,7 +235,7 @@ void ModernDreamClient::OnStartGame(GameMap mapType, const QString& username) {
     }
 
     //httpClient->joinGame(username, mapTypeStr, playerCountSpinBox->value());
-    mainStack->setCurrentWidget(waitingRoomWidget);
+   // mainStack->setCurrentWidget(waitingRoomWidget);
   
 
     //if (sharedSessionId.isEmpty()) {
@@ -236,6 +256,30 @@ void ModernDreamClient::OnStartGame(GameMap mapType, const QString& username) {
     //}
     //mainStack->setCurrentWidget(waitingRoomWidget);
 
+
+    //mainStack->setCurrentWidget(waitingRoomWidget);
+
+    //if (currentSessionId.isEmpty()) {
+    //    httpClient->createGame(playerCountSpinBox->value());
+    //    connect(httpClient, &HttpClient::joinGameSuccess, this, [this, mapTypeStr](const QString& sessionId, int current, int required) {
+    //        currentSessionId = sessionId;
+    //        httpClient->joinGame(sessionId, currentUsername, mapTypeStr); // Include username
+    //        httpClient->joinQueue(currentUsername, 100);
+    //        updateWaitingRoom(current, required);
+    //        });
+    //}
+    //else {
+    //    httpClient->joinGame(currentSessionId, currentUsername, mapTypeStr);
+    //    httpClient->joinQueue(currentUsername, 100);
+    //}
+    mainStack->setCurrentWidget(waitingRoomWidget);
+    waitingStatusLabel->setText("Waiting for players...");
+   // playerList->clear();
+    playerProgress->setValue(0);
+
+    // Adaugă utilizatorul în coadă și începe matchmaking-ul
+    httpClient->joinQueue(username, 100);  // Exemplu: Scorul utilizatorului este 100
+    startMatchmaking(username, 100, mapType);
 }
 
 
@@ -263,18 +307,22 @@ void ModernDreamClient::onPlayerJoined(const QString& username, int current, int
     // Verifică dacă utilizatorul este deja în listă
     bool exists = false;
     for (int i = 0; i < playerList->count(); ++i) {
+        if (i >= playerList->count()) {
+            qDebug() << "[ERROR] Index out of range: i =" << i;
+            continue;
+        }
         if (playerList->item(i)->text() == username) {
             exists = true;
             break;
         }
-    }
 
-    if (!exists) {
-        playerList->addItem(username);
+        if (!exists) {
+            playerList->addItem(username);
+        }
+        updateWaitingRoom(current, required);
+        //playerList->addItem(username);
+
     }
-    updateWaitingRoom(current, required);
-    //playerList->addItem(username);
-    
 }
 
 void ModernDreamClient::onPlayerLeft(const QString& username, int current, int required) {
@@ -390,34 +438,82 @@ void ModernDreamClient::onLeaveGame()
     }
 }
 
-void ModernDreamClient::startMatchmaking(const QString& username, int score) {
-    httpClient->joinQueue(username, score);
+//void ModernDreamClient::startMatchmaking(const QString& username, int score) {
+//    httpClient->joinQueue(username, score);
+//
+//    QTimer* matchmakingTimer = new QTimer(this);
+//    connect(matchmakingTimer, &QTimer::timeout, [this, matchmakingTimer]() {
+//        QJsonObject status = httpClient->checkMatchStatus(currentSessionId);
+//
+//        if (status.contains("status") && status["status"].toString() == "ready") {
+//            matchmakingTimer->stop();  // Stop polling
+//            QString sessionId = status["sessionId"].toString();
+//
+//            // Join the session and use onGameReady for the transition
+//            httpClient->joinGame(sessionId, currentUsername);
+//            onGameReady(sessionId, QJsonArray());
+//        }
+//        else {
+//            qDebug() << "Matchmaking status:" << status;
+//        }
+//        });
+//
+//    matchmakingTimer->start(5000);  // Poll every 5 seconds
+//    mainStack->setCurrentWidget(waitingRoomWidget);
+//}
+//
+//
+//
+//
 
+
+void ModernDreamClient::startMatchmaking(const QString& username, int score, GameMap mapType) {
+    QString mapTypeStr;
+    switch (mapType) {
+    case GameMap::CAR: mapTypeStr = "car"; break;
+    case GameMap::HELICOPTER: mapTypeStr = "helicopter"; break;
+    case GameMap::BOAT: mapTypeStr = "boat"; break;
+    }
+
+    qDebug() << "[DEBUG] Starting matchmaking for username:" << username
+        << ", score:" << score
+        << ", mapType:" << mapTypeStr;
+
+    // Creează un timer pentru a verifica statusul matchmaking-ului
     QTimer* matchmakingTimer = new QTimer(this);
     connect(matchmakingTimer, &QTimer::timeout, [this, matchmakingTimer]() {
         QJsonObject status = httpClient->checkMatchStatus(currentSessionId);
 
-        if (status.contains("status") && status["status"].toString() == "ready") {
-            matchmakingTimer->stop();  // Stop polling
-            QString sessionId = status["sessionId"].toString();
+        QString sessionId = currentSessionId;  // currentSessionId este deja valid
+        if (!status["sessionId"].toString().isEmpty()) {
+            sessionId = status["sessionId"].toString();
+        }
+        if (status.contains("players")) {
+            QJsonArray players = status["players"].toArray();
 
-            // Join the session and use onGameReady for the transition
-            httpClient->joinGame(sessionId);
-            onGameReady(sessionId, QJsonArray());
+            // Actualizează lista jucătorilor
+            playerList->clear();
+            for (const auto& player : players) {
+                playerList->addItem(player.toString());
+            }
+        }
+
+        if (status.contains("status") && status["status"].toString() == "ready") {
+            matchmakingTimer->stop();
+            if (sessionId.isEmpty()) {
+                qDebug() << "[ERROR] Received empty sessionId in matchmaking status.";
+                return;
+            }
+            QString sessionId = status["sessionId"].toString();
+            onGameReady(sessionId, status["players"].toArray());
         }
         else {
-            qDebug() << "Matchmaking status:" << status;
+            qDebug() << "[DEBUG] Matchmaking status:" << status;
         }
         });
+    matchmakingTimer->start(5000);  // Verifică statusul la fiecare 5 secunde
 
-    matchmakingTimer->start(5000);  // Poll every 5 seconds
-    mainStack->setCurrentWidget(waitingRoomWidget);
 }
-
-
-
-
-
 
 
 

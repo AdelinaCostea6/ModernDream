@@ -28,7 +28,7 @@ public:
     void login(const QString& username);
     void registerUser(const QString& username);
     void createGame(int requiredPlayers);
-    void joinGame(/*const QString& username, const QString& mapType, int requiredPlayers*/const QString& sessionId);
+    void joinGame(/*const QString& username, const QString& mapType, int requiredPlayers*/const QString& sessionId, const QString& username, const QString& mapType);
     void checkGameStatus(const QString& sessionId);
     void leaveGame(const QString& sessionId);
     QByteArray requestMapGeneration(const QString& sessionId, int numPlayers);
@@ -61,6 +61,7 @@ signals:
     //void bulletsUpdated(const QVector<QPair<int, int>>& positions/*, const QVector<char>& directions*/);
    // void bulletsUpdated(const QVector<QPair<int, int>>& bulletPositions);
     void bulletsUpdated(const QVector<BulletInfo>& bullets);
+    void queueJoinedSuccess(const QString& sessionId);
 
 private slots:
     void onLoginResponse();

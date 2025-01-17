@@ -191,14 +191,51 @@ void HttpClient::onCreateGameResponse() {
    //     });
 //}
 
-void HttpClient::joinGame(const QString& sessionId) {
-    if (!currentSessionId.isEmpty()) {
-        qDebug() << "Already in a session. Session ID:" << currentSessionId;
-        return;
-    }
+//void HttpClient::joinGame(const QString& sessionId) {
+//    if (!currentSessionId.isEmpty()) {
+//        qDebug() << "Already in a session. Session ID:" << currentSessionId;
+//        return;
+//    }
+//
+//    if (joiningInProgress) {
+//        qDebug() << "joinGame already in progress. Skipping...";
+//        return;
+//    }
+//
+//    joiningInProgress = true;
+//    QUrl url("http://localhost:8080/game/join");
+//    QNetworkRequest request(url);
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QJsonObject json;
+//    json["sessionId"] = sessionId;
+//
+//    QByteArray data = QJsonDocument(json).toJson();
+//    QNetworkReply* reply = manager->post(request, data);
+//    qDebug() << "JSON Sent:" << QJsonDocument(json).toJson();
+//
+//    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+//        joiningInProgress = false;
+//        if (reply->error() != QNetworkReply::NoError) {
+//            qDebug() << "Failed to join game session:" << reply->errorString();
+//        }
+//        else {
+//            QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
+//            if (response.contains("sessionId")) {
+//                currentSessionId = response["sessionId"].toString();
+//                qDebug() << "Successfully joined session ID:" << currentSessionId;
+//            }
+//        }
+//        reply->deleteLater();
+//        });
+//}
 
+
+
+
+void HttpClient::joinGame(const QString& sessionId, const QString& username, const QString& mapType) {
     if (joiningInProgress) {
-        qDebug() << "joinGame already in progress. Skipping...";
+        qDebug() << "Join game already in progress. Skipping...";
         return;
     }
 
@@ -209,26 +246,19 @@ void HttpClient::joinGame(const QString& sessionId) {
 
     QJsonObject json;
     json["sessionId"] = sessionId;
+    json["username"] = username;
+    json["mapType"] = mapType;  // Adaugă mapType aici
 
     QByteArray data = QJsonDocument(json).toJson();
     QNetworkReply* reply = manager->post(request, data);
-    qDebug() << "JSON Sent:" << QJsonDocument(json).toJson();
+    qDebug() << "Joining game with JSON:" << QJsonDocument(json).toJson();
 
     connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         joiningInProgress = false;
-        if (reply->error() != QNetworkReply::NoError) {
-            qDebug() << "Failed to join game session:" << reply->errorString();
-        }
-        else {
-            QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
-            if (response.contains("sessionId")) {
-                currentSessionId = response["sessionId"].toString();
-                qDebug() << "Successfully joined session ID:" << currentSessionId;
-            }
-        }
-        reply->deleteLater();
+        onJoinGameResponse(reply);
         });
 }
+
 
 
 
@@ -494,7 +524,12 @@ void HttpClient::addToQueue(const QString& username, int score) {
         });
 }
 
-QJsonObject HttpClient::checkMatchStatus(const QString& sessionId ) {
+QJsonObject HttpClient::checkMatchStatus(const QString& sessionId) {
+    if (sessionId.isEmpty()) {
+        qDebug() << "[ERROR] Cannot check status: sessionId is empty.";
+        return QJsonObject();
+    }
+
     QUrl url(QString("http://localhost:8080/matchmaking/status/%1").arg(sessionId));
     QNetworkRequest request(url);
 
@@ -503,12 +538,18 @@ QJsonObject HttpClient::checkMatchStatus(const QString& sessionId ) {
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
-    QJsonObject response = QJsonDocument::fromJson(reply->readAll()).object();
+    QByteArray responseData = reply->readAll();
+    QJsonObject response = QJsonDocument::fromJson(responseData).object();
     reply->deleteLater();
+
+    qDebug() << "[DEBUG] Matchmaking status response:" << response;
+
+    // Returnează obiectul JSON
     return response;
 }
 
-void HttpClient::joinQueue(const QString& username, int score) { 
+
+void HttpClient::joinQueue(const QString& username, int score) {
     QUrl url("http://localhost:8080/matchmaking/queue");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -520,16 +561,24 @@ void HttpClient::joinQueue(const QString& username, int score) {
     QByteArray data = QJsonDocument(json).toJson();
     QNetworkReply* reply = manager->post(request, data);
 
-    connect(reply, &QNetworkReply::finished, [reply]() {
+    connect(reply, &QNetworkReply::finished, [this, reply]() {
+        QByteArray responseData = reply->readAll();
+        QJsonObject response = QJsonDocument::fromJson(responseData).object();
+
         if (reply->error() != QNetworkReply::NoError) {
-            qDebug() << "Failed to join matchmaking queue:" << reply->errorString();
+            qDebug() << "[ERROR] Failed to join matchmaking queue:" << reply->errorString();
         }
         else {
-            qDebug() << "Successfully joined matchmaking queue.";
+            QString sessionId = response["sessionId"].toString();
+            qDebug() << "[DEBUG] Successfully joined matchmaking queue. Session ID:" << sessionId;
+
+            emit queueJoinedSuccess(sessionId);
         }
+
         reply->deleteLater();
         });
 }
+
 
 
 

@@ -79,5 +79,5 @@ public slots:
     //void updatePlayerPosition(int x, int y);
 
     //void onShootButtonPressed(const QString& direction);
-    void startMatchmaking(const QString& username, int score);
+    void startMatchmaking(const QString& username, int score, GameMap mapType);
 };

@@ -127,6 +127,7 @@ public:
     void CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 4> players);
     void AddToQueue(const std::string& username, int score);
     void ManageSession(const std::string& sessionId);
+    std::string FindOrCreateSession(const std::string& username, int score);
 
     /*const std::string& GetMapType() const { return mapType; } 
     void SetMapType(const std::string& type) { mapType = type; }*/ 
