@@ -225,6 +225,26 @@ void Routing::Run(DatabaseManager& storage) {
         return TriggerBombRoute(req);
         });*/
 
+    std::thread matchingThread([this]() {
+        while (true) {
+            m_gameSessionManager.MatchPlayers();
+            std::this_thread::sleep_for(std::chrono::seconds(1));  // Check every second
+        }
+        });
+    matchingThread.detach();
+
+    CROW_ROUTE(m_app, "/game/joinQueue").methods("POST"_method)([this](const crow::request& req) {
+        auto json = crow::json::load(req.body);
+        if (!json.has("username") || !json.has("score")) {
+            return crow::response(400, "Invalid request: Missing username or score.");
+        }
+
+        std::string username = json["username"].s();
+        int score = json["score"].i();
+
+        m_gameSessionManager.AddToQueue(username, score);
+        return crow::response(200, "Player added to queue.");
+        });
 
     m_app.port(8080).multithreaded().run();
 }

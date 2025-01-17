@@ -2,7 +2,7 @@
 #include <string>
 #include <map>
 #include <memory>
-//#include "Player.h"
+#include <mutex>
 #include "Game.h"
 #include <chrono>
 
@@ -69,6 +69,7 @@ struct GameSession {
     const Map& GetMap() const {
         return game.GetMap();  // Obține harta din obiectul Game
     }
+    Game& GetGame() { return game; }
 
     Player* GetPlayerByUsername(const std::string& username) {
         auto it = players.find(username);  // Caută username-ul în mapă
@@ -90,13 +91,18 @@ struct WaitingPlayer {
     std::string username;
     int score;
     std::chrono::time_point<std::chrono::steady_clock> joinTime;
+    WaitingPlayer(const std::string& name, int scr)
+        : username(name), score(scr), joinTime(std::chrono::steady_clock::now()) {
+    }
 };
 
 class GameSessionManager {
 private:
     std::map<std::string, std::shared_ptr<GameSession>> sessions;  // Mapa sesiunilor de joc
     //std::string mapType;
-    std::deque<WaitingPlayer> waitingQueue;  
+    std::deque<std::unique_ptr<WaitingPlayer>> waitingQueue;
+
+    std::mutex sessionMutex;
 
 public:
     GameSessionManager() = default;
@@ -118,9 +124,9 @@ public:
 
     std::map<std::string, std::shared_ptr<GameSession>>& GetSessions();
     void MatchPlayers();
-    void CreateMatch(const std::vector<WaitingPlayer>& players);
-    //void NotifyPlayers(const std::string& sessionId);
-
+    void CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 4> players);
+    void AddToQueue(const std::string& username, int score);
+    void ManageSession(const std::string& sessionId);
 
     /*const std::string& GetMapType() const { return mapType; } 
     void SetMapType(const std::string& type) { mapType = type; }*/ 

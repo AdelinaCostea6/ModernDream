@@ -251,52 +251,109 @@ std::map<std::string, std::shared_ptr<GameSession>>& GameSessionManager::GetSess
     return sessions;
 }
 
-void GameSessionManager::MatchPlayers()
-{
-    auto now = std::chrono::steady_clock::now();
-    while (waitingQueue.size() >= 2) {
-        std::vector<WaitingPlayer> selectedPlayers;
+void GameSessionManager::AddToQueue(const std::string& username, int score) {
+    auto player = std::make_unique<WaitingPlayer>(username, score); // Create a unique_ptr
+    waitingQueue.push_back(std::move(player)); // Move the unique_ptr into the queue
+    std::cout << "Player " << username << " added to queue with score: " << score << std::endl;
+}
 
-        // Select players based on score (max 4 or timeout reached)
-        for (auto it = waitingQueue.begin(); it != waitingQueue.end() && selectedPlayers.size() < 4; ) {
-            if (std::chrono::duration_cast<std::chrono::seconds>(now - it->joinTime).count() >= 30 || selectedPlayers.size() < 4) {
-                selectedPlayers.push_back(*it);
+
+void GameSessionManager::MatchPlayers() {
+    auto now = std::chrono::steady_clock::now();
+
+    while (waitingQueue.size() >= 2) {
+        std::array<std::unique_ptr<WaitingPlayer>, 4> selectedPlayers = { nullptr, nullptr, nullptr, nullptr };
+        size_t index = 0;
+
+        // Select players based on timeout or required number
+        for (auto it = waitingQueue.begin(); it != waitingQueue.end() && index < 4; ) {
+            if (std::chrono::duration_cast<std::chrono::seconds>(now - (*it)->joinTime).count() >= 30 || index < 4) {
+                selectedPlayers[index++] = std::move(*it); // Transfer ownership
                 it = waitingQueue.erase(it);
             }
             else {
                 ++it;
             }
+
         }
 
-        if (selectedPlayers.size() >= 2) {
-            CreateMatch(selectedPlayers);
+        if (index >= 2) { // At least 2 players are required to start a session
+            CreateMatch(std::move(selectedPlayers));
         }
     }
 }
 
-void GameSessionManager::CreateMatch(const std::vector<WaitingPlayer>& players)
-{
+
+
+void GameSessionManager::CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 4> players) {
+    // Create a new session
     std::string sessionId = CreateSession(players.size());
     auto session = GetSession(sessionId);
 
+    // Add players to the session
     for (const auto& player : players) {
-        JoinSession(sessionId, player.username);
+        if (player) {
+            JoinSession(sessionId, player->username);
+        }
     }
 
     session->isReady = true;
-    NotifyPlayers(sessionId);
+
+    // Output session details
+    std::cout << "Game session " << sessionId << " created with players: ";
+    for (const auto& player : players) {
+        if (player) {
+            std::cout << player->username << " ";
+        }
+    }
+    std::cout << std::endl;
+
+    // No need to notify players since the game starts automatically
 }
 
-//void GameSessionManager::NotifyPlayers(const std::string& sessionId)
-//{
-//    auto session = GetSession(sessionId);
-//    if (!session) return;
-//
-//    crow::json::wvalue response;
-//    response["sessionId"] = sessionId;
-//    response["status"] = "ready";
-//
-//    for (const auto& [username, player] : session->players) {
-//        SendNotificationToPlayer(username, response);
-//    }
-//}
+
+
+void GameSessionManager::ManageSession(const std::string& sessionId) {
+    // Retrieve the session
+    std::shared_ptr<GameSession> session;
+    {
+        std::lock_guard<std::mutex> lock(sessionMutex);
+        auto it = sessions.find(sessionId);
+        if (it == sessions.end()) {
+            std::cerr << "Session " << sessionId << " not found." << std::endl;
+            return;
+        }
+        session = it->second;
+    }
+
+    // Start the game loop
+    std::cout << "Game session " << sessionId << " started." << std::endl;
+    auto& game = session->GetGame();
+
+    //while (!game.IsGameOver()) {
+    //    // Update bullets
+    //    game.UpdateBullets();
+
+    //    // Handle collisions and bomb triggers
+    //    game.GetMap().CheckCollisions(game.GetPlayers());
+    //    for (const auto& cell : game.GetUpdatedCells()) {
+    //        std::cout << "Updated cell: (" << cell.first << ", " << cell.second << ")" << std::endl;
+    //    }
+    //    game.ClearUpdatedCells();
+
+    //    // Delay to simulate game tick
+    //    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    //}
+
+    // Determine the winner
+    game.DetermineWinner();
+
+    // Cleanup
+    {
+        std::lock_guard<std::mutex> lock(sessionMutex);
+        sessions.erase(sessionId);
+    }
+
+    std::cout << "Game session " << sessionId << " ended." << std::endl;
+}
+

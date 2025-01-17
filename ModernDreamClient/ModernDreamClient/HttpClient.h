@@ -28,7 +28,7 @@ public:
     void login(const QString& username);
     void registerUser(const QString& username);
     void createGame(int requiredPlayers);
-    void joinGame(const QString& username, const QString& mapType, int requiredPlayers);
+    void joinGame(/*const QString& username, const QString& mapType, int requiredPlayers*/const QString& sessionId);
     void checkGameStatus(const QString& sessionId);
     void leaveGame(const QString& sessionId);
     QByteArray requestMapGeneration(const QString& sessionId, int numPlayers);
@@ -36,6 +36,10 @@ public:
     
     //void shootBullet(const QString& sessionId, const QString& username, const QString& direction);
    // void syncBullets(const QString& sessionId);
+
+    void addToQueue(const QString& username, int score);
+    QJsonObject checkMatchStatus(const QString& sessionId);
+    void joinQueue(const QString& username, int score);
 
 
 

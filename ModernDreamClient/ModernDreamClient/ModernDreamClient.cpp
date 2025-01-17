@@ -214,7 +214,7 @@ void ModernDreamClient::OnStartGame(GameMap mapType, const QString& username) {
     case GameMap::BOAT: mapTypeStr = "boat"; break;
     }
 
-    httpClient->joinGame(username, mapTypeStr, playerCountSpinBox->value());
+    //httpClient->joinGame(username, mapTypeStr, playerCountSpinBox->value());
     mainStack->setCurrentWidget(waitingRoomWidget);
   
 
@@ -389,6 +389,32 @@ void ModernDreamClient::onLeaveGame()
         playerProgress->setValue(0);
     }
 }
+
+void ModernDreamClient::startMatchmaking(const QString& username, int score) {
+    httpClient->joinQueue(username, score);
+
+    QTimer* matchmakingTimer = new QTimer(this);
+    connect(matchmakingTimer, &QTimer::timeout, [this, matchmakingTimer]() {
+        QJsonObject status = httpClient->checkMatchStatus(currentSessionId);
+
+        if (status.contains("status") && status["status"].toString() == "ready") {
+            matchmakingTimer->stop();  // Stop polling
+            QString sessionId = status["sessionId"].toString();
+
+            // Join the session and use onGameReady for the transition
+            httpClient->joinGame(sessionId);
+            onGameReady(sessionId, QJsonArray());
+        }
+        else {
+            qDebug() << "Matchmaking status:" << status;
+        }
+        });
+
+    matchmakingTimer->start(5000);  // Poll every 5 seconds
+    mainStack->setCurrentWidget(waitingRoomWidget);
+}
+
+
 
 
 
