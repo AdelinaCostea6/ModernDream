@@ -4,6 +4,7 @@
 #include <memory>
 //#include "Player.h"
 #include "Game.h"
+#include <chrono>
 
 //struct GameSession {
 //    std::string sessionId;
@@ -85,11 +86,17 @@ struct GameSession {
 
 };
 
+struct WaitingPlayer {
+    std::string username;
+    int score;
+    std::chrono::time_point<std::chrono::steady_clock> joinTime;
+};
 
 class GameSessionManager {
 private:
     std::map<std::string, std::shared_ptr<GameSession>> sessions;  // Mapa sesiunilor de joc
     //std::string mapType;
+    std::deque<WaitingPlayer> waitingQueue;  
 
 public:
     GameSessionManager() = default;
@@ -110,6 +117,10 @@ public:
     const GameSession& GetSessionStatus(const std::string& sessionId) const;
 
     std::map<std::string, std::shared_ptr<GameSession>>& GetSessions();
+    void MatchPlayers();
+    void CreateMatch(const std::vector<WaitingPlayer>& players);
+    //void NotifyPlayers(const std::string& sessionId);
+
 
     /*const std::string& GetMapType() const { return mapType; } 
     void SetMapType(const std::string& type) { mapType = type; }*/ 

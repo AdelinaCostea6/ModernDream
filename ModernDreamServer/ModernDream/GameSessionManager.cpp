@@ -250,3 +250,53 @@ std::map<std::string, std::shared_ptr<GameSession>>& GameSessionManager::GetSess
 {
     return sessions;
 }
+
+void GameSessionManager::MatchPlayers()
+{
+    auto now = std::chrono::steady_clock::now();
+    while (waitingQueue.size() >= 2) {
+        std::vector<WaitingPlayer> selectedPlayers;
+
+        // Select players based on score (max 4 or timeout reached)
+        for (auto it = waitingQueue.begin(); it != waitingQueue.end() && selectedPlayers.size() < 4; ) {
+            if (std::chrono::duration_cast<std::chrono::seconds>(now - it->joinTime).count() >= 30 || selectedPlayers.size() < 4) {
+                selectedPlayers.push_back(*it);
+                it = waitingQueue.erase(it);
+            }
+            else {
+                ++it;
+            }
+        }
+
+        if (selectedPlayers.size() >= 2) {
+            CreateMatch(selectedPlayers);
+        }
+    }
+}
+
+void GameSessionManager::CreateMatch(const std::vector<WaitingPlayer>& players)
+{
+    std::string sessionId = CreateSession(players.size());
+    auto session = GetSession(sessionId);
+
+    for (const auto& player : players) {
+        JoinSession(sessionId, player.username);
+    }
+
+    session->isReady = true;
+    NotifyPlayers(sessionId);
+}
+
+//void GameSessionManager::NotifyPlayers(const std::string& sessionId)
+//{
+//    auto session = GetSession(sessionId);
+//    if (!session) return;
+//
+//    crow::json::wvalue response;
+//    response["sessionId"] = sessionId;
+//    response["status"] = "ready";
+//
+//    for (const auto& [username, player] : session->players) {
+//        SendNotificationToPlayer(username, response);
+//    }
+//}

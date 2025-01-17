@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
         //QApplication app(argc, argv);
 
         //// Setăm numărul de jucători
-        //int requiredPlayers = 1;
+        //int requiredPlayers = 4;
         //QVector<LoginDialog*> loginDialogs; // Vector pentru a păstra instanțele deschise
 
         //// Creează mai multe ferestre LoginDialog
