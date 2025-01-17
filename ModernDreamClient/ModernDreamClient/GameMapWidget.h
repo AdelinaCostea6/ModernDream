@@ -40,9 +40,12 @@ private:
     QMutex mapMutex;
     void updateWalls();
 
+
     QVector<QPair<int, int>> updatedCells;
 
     //void notifyServerBombTriggered(int bombX, int bombY);
+
+    
 
     QTransform transform;
 

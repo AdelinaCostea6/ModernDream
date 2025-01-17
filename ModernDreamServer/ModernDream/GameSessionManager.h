@@ -41,9 +41,14 @@ struct GameSession {
 
     Game game;  // Instanța jocului
 
+    /*std::vector<std::pair<int, int>> wallUpdates;
+    std::mutex updateMutex;*/
+
     // Constructorul parametrizat
     GameSession(const std::string& id, int reqPlayers)
-        : sessionId(id), requiredPlayers(reqPlayers), game() {}
+        : sessionId(id), requiredPlayers(reqPlayers), game() {
+        game.GenerateMap(requiredPlayers);
+    }
 
     // Constructorul de mutare
     GameSession(GameSession&& other) noexcept
@@ -84,6 +89,7 @@ struct GameSession {
         }
        
     }
+
 
 };
 
@@ -131,5 +137,9 @@ public:
 
     /*const std::string& GetMapType() const { return mapType; } 
     void SetMapType(const std::string& type) { mapType = type; }*/ 
+
+    //std::vector<std::pair<int, int>> GetUpdatedCellsForSession(const std::string& sessionId);
+    //void ClearUpdatedCellsForSession(const std::string& sessionId);
+
     
 };

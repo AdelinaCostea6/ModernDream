@@ -319,6 +319,11 @@ void Routing::Run(DatabaseManager& storage) {
         response["players"] = std::move(playersList);
         return crow::response(200, response);
         });
+    
+   /* CROW_ROUTE(m_app, "/get-updates")
+        ([this](const crow::request& req) {
+        return this->GetUpdatesRoute(req);
+            });*/
 
 
     m_app.port(8080).multithreaded().run();
@@ -705,41 +710,79 @@ crow::response Routing::GetSessionStatusRoute(const std::string& sessionId) {
 //}
 
 
+//crow::response Routing::GenerateMapRoute(const crow::request& req) {
+//    crow::json::rvalue data = crow::json::load(req.body);
+//    if (!data) {
+//        return crow::response(400, "Invalid JSON");
+//    }
+//
+//    if (!data.has("numPlayers") || !data.has("sessionId")) {
+//        return crow::response(400, "Missing required keys: 'numPlayers' or 'sessionId'");
+//    }
+//
+//    int numPlayers = data["numPlayers"].i();
+//    std::string sessionId = data["sessionId"].s();
+//
+//    auto session = m_gameSessionManager.GetSession(sessionId);  // Obține sesiunea activă
+//    if (!session) {
+//        return crow::response(404, "Session not found");
+//    }
+//
+//    session->game.GenerateMap(numPlayers);  // Generează harta pentru sesiunea curentă
+//
+//    // Actualizează pozițiile jucătorilor după generarea hărții
+//    auto startPositions = session->game.GetMap().GetPlayerStartPositions();
+//    int i = 0;
+//    for (auto& player : session->players) {
+//        if (i < startPositions.size()) {
+//            player.second->SetPosition(startPositions[i]);
+//            std::cout << "Jucătorul " << player.first << " este plasat la ("
+//                << startPositions[i].first << ", " << startPositions[i].second << ")\n";
+//            ++i;
+//        }
+//    }
+//
+//    crow::json::wvalue response;
+//    std::vector<crow::json::wvalue> mapJson;
+//    for (const auto& row : session->game.GetMap().GetMapMatrix()) {
+//        std::vector<crow::json::wvalue> rowJson;
+//        for (int val : row) {
+//            rowJson.push_back(crow::json::wvalue(val));
+//        }
+//        mapJson.push_back(crow::json::wvalue(rowJson));
+//    }
+//
+//    response["map"] = crow::json::wvalue(mapJson);
+//    std::cout << "Dimensiunea JSON trimisă: " << mapJson.size() << " linii, " << mapJson[0].size() << " coloane\n";
+//    //std::cout << "Dimensiunea răspunsului JSON în bytes: " << crow::json::dump(response).size() << "\n";
+//    return crow::response(200, response);
+//}
+
 crow::response Routing::GenerateMapRoute(const crow::request& req) {
     crow::json::rvalue data = crow::json::load(req.body);
     if (!data) {
         return crow::response(400, "Invalid JSON");
     }
 
-    if (!data.has("numPlayers") || !data.has("sessionId")) {
-        return crow::response(400, "Missing required keys: 'numPlayers' or 'sessionId'");
+    if (!data.has("sessionId")) {
+        return crow::response(400, "Missing required key: 'sessionId'");
     }
 
-    int numPlayers = data["numPlayers"].i();
     std::string sessionId = data["sessionId"].s();
 
-    auto session = m_gameSessionManager.GetSession(sessionId);  // Obține sesiunea activă
+    // Retrieve the active session
+    auto session = m_gameSessionManager.GetSession(sessionId);
     if (!session) {
         return crow::response(404, "Session not found");
     }
 
-    session->game.GenerateMap(numPlayers);  // Generează harta pentru sesiunea curentă
+    // Retrieve the pre-generated map from the session's game object
+    const Map& map = session->GetGame().GetMap();
 
-    // Actualizează pozițiile jucătorilor după generarea hărții
-    auto startPositions = session->game.GetMap().GetPlayerStartPositions();
-    int i = 0;
-    for (auto& player : session->players) {
-        if (i < startPositions.size()) {
-            player.second->SetPosition(startPositions[i]);
-            std::cout << "Jucătorul " << player.first << " este plasat la ("
-                << startPositions[i].first << ", " << startPositions[i].second << ")\n";
-            ++i;
-        }
-    }
-
+    // Generate the JSON response for the map
     crow::json::wvalue response;
     std::vector<crow::json::wvalue> mapJson;
-    for (const auto& row : session->game.GetMap().GetMapMatrix()) {
+    for (const auto& row : map.GetMapMatrix()) {
         std::vector<crow::json::wvalue> rowJson;
         for (int val : row) {
             rowJson.push_back(crow::json::wvalue(val));
@@ -748,8 +791,22 @@ crow::response Routing::GenerateMapRoute(const crow::request& req) {
     }
 
     response["map"] = crow::json::wvalue(mapJson);
-    std::cout << "Dimensiunea JSON trimisă: " << mapJson.size() << " linii, " << mapJson[0].size() << " coloane\n";
-    //std::cout << "Dimensiunea răspunsului JSON în bytes: " << crow::json::dump(response).size() << "\n";
+
+    // Update player positions using start positions
+    auto startPositions = map.GetPlayerStartPositions();
+    int i = 0;
+    for (auto& player : session->players) {
+        if (i < startPositions.size()) {
+            player.second->SetPosition(startPositions[i]);
+            std::cout << "Player " << player.first << " placed at ("
+                << startPositions[i].first << ", " << startPositions[i].second << ")\n";
+            ++i;
+        }
+    }
+
+    std::cout << "JSON response size: " << mapJson.size() << " rows, "
+        << (mapJson.empty() ? 0 : mapJson[0].size()) << " columns\n";
+
     return crow::response(200, response);
 }
 
@@ -1147,4 +1204,33 @@ crow::response Routing::SyncBulletsRoute(const crow::request& req) {
 //
 //
 //
+//}
+
+//crow::response Routing::GetUpdatesRoute(const crow::request& req) {
+//    crow::json::rvalue data = crow::json::load(req.body);
+//    if (!data || !data.has("sessionId")) {
+//        return crow::response(400, "Invalid JSON or missing sessionId");
+//    }
+//
+//    std::string sessionId = data["sessionId"].s();
+//    auto updates = m_gameSessionManager.GetUpdatedCellsForSession(sessionId);
+//
+//    crow::json::wvalue response;
+//    std::vector<crow::json::wvalue> updatesJson;
+//
+//    // Populate updatesJson
+//    for (const auto& cell : updates) {
+//        crow::json::wvalue cellJson;
+//        cellJson["x"] = cell.first;
+//        cellJson["y"] = cell.second;
+//        updatesJson.push_back(std::move(cellJson));  // Use std::move for efficiency
+//    }
+//
+//    // Assign updatesJson to response["updates"] using std::move
+//    response["updates"] = crow::json::wvalue(std::move(updatesJson));
+//
+//    // Clear updates after sending
+//    m_gameSessionManager.ClearUpdatedCellsForSession(sessionId);
+//
+//    return crow::response(200, response);
 //}

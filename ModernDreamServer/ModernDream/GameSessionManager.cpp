@@ -171,10 +171,14 @@ std::string GameSessionManager::CreateSession(int requiredPlayers) {
     std::uniform_int_distribution<> dis(1, 1000000);
     std::string sessionId = std::to_string(dis(gen));  // Generează un ID unic pentru sesiune
 
+    std::uniform_int_distribution<> seedDis(1, 1000000); // Use a wide range for the seed
+    int seed = seedDis(gen);
+
     // Creăm sesiunea și o adăugăm în mapă
     sessions[sessionId] = std::make_shared<GameSession>(sessionId, requiredPlayers);
     std::shared_ptr<GameSession> session = std::make_shared<GameSession>(sessionId, requiredPlayers);
     //session->game.SetMapType(mapType);  // Set the map type
+    //session->mapSeed = seed;
     sessions[sessionId] = session;
 
     std::cout << "Sesiune creată cu ID: " << sessionId << " și " << requiredPlayers << " jucători necesari.\n";
@@ -378,3 +382,18 @@ std::string GameSessionManager::FindOrCreateSession(const std::string& username,
     JoinSession(newSessionId, username);
     return newSessionId;
 }
+
+//std::vector<std::pair<int, int>> GameSessionManager::GetUpdatedCellsForSession(const std::string& sessionId) {
+//    auto session = sessions.find(sessionId);
+//    if (session != sessions.end()) {
+//        return session->second->GetGame().GetUpdatedCells();
+//    }
+//    return {};
+//}
+//
+//void GameSessionManager::ClearUpdatedCellsForSession(const std::string& sessionId) {
+//    auto session = GetSession(sessionId);
+//    if (session) {
+//        session->game.ClearUpdatedCells(); // Ensure `Game` has a method to clear updates
+//    }
+//}
