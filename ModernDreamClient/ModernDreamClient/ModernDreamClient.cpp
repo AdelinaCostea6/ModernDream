@@ -424,6 +424,7 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
 
     // Hide the current client window
     this->hide();   
+  
 }
 
 

@@ -861,45 +861,88 @@ crow::response Routing::GenerateMapRoute(const crow::request& req) {
 
 
 
+//crow::response Routing::MovePlayerRoute(const crow::request& req) {
+//    auto json = crow::json::load(req.body);
+//    if (!json) {
+//        return crow::response(400, "Invalid JSON format");
+//    }
+//
+//    std::string sessionId = json["sessionId"].s();
+//    std::string username = json["username"].s();
+//    std::string direction = json["direction"].s();  // "w", "a", "s", "d"
+//
+//    auto session = m_gameSessionManager.GetSession(sessionId);
+//    if (!session) {
+//        return crow::response(404, "Session not found");
+//    }
+//
+//    auto playerIt = session->players.find(username);
+//    if (playerIt == session->players.end()) {
+//        return crow::response(404, "Player not found");
+//    }
+//
+//    
+//
+//    auto& player = playerIt->second;
+//    player->Movement(session->GetMap(), direction[0]);
+//    auto newPosition = player->GetPosition();
+//    session->game.UpdatePlayerPosition(username, newPosition.first, newPosition.second);
+//
+//
+//    // Creează un `crow::json::wvalue::list`
+//    crow::json::wvalue response;
+//    response["position"] = crow::json::wvalue::list({ player->GetPosition().first, player->GetPosition().second });
+//
+//    response["message"] = "Player moved successfully";
+//
+//
+//    
+//
+//    return crow::response(200, response);
+//}
 crow::response Routing::MovePlayerRoute(const crow::request& req) {
     auto json = crow::json::load(req.body);
-    if (!json) {
-        return crow::response(400, "Invalid JSON format");
+    if (!json || !json.has("sessionId") || !json.has("username") || !json.has("direction")) {
+        return crow::response(400, "Invalid request: Missing required fields.");
     }
 
     std::string sessionId = json["sessionId"].s();
-    std::string username = json["username"].s();
-    std::string direction = json["direction"].s();  // "w", "a", "s", "d"
+    std::string username = json["username"].s(); 
+    std::string directionStr = json["direction"].s();
+    char direction = directionStr[0];
 
     auto session = m_gameSessionManager.GetSession(sessionId);
     if (!session) {
-        return crow::response(404, "Session not found");
+        return crow::response(404, "Session not found.");
     }
 
-    auto playerIt = session->players.find(username);
-    if (playerIt == session->players.end()) {
-        return crow::response(404, "Player not found");
+    auto player = session->GetPlayerByUsername(username);
+    if (!player) {
+        return crow::response(404, "Player not found.");
     }
 
-    
-
-    auto& player = playerIt->second;
-    player->Movement(session->GetMap(), direction[0]);
+    player->Movement(session->GetMap(), direction); // Move player
     auto newPosition = player->GetPosition();
     session->game.UpdatePlayerPosition(username, newPosition.first, newPosition.second);
 
-
-    // Creează un `crow::json::wvalue::list`
+    // Send updated positions to all players
     crow::json::wvalue response;
-    response["position"] = crow::json::wvalue::list({ player->GetPosition().first, player->GetPosition().second });
+    crow::json::wvalue::list players_list; // Create a JSON array
 
-    response["message"] = "Player moved successfully";
+    for (const auto& [name, playerObj] : session->players) {
+        crow::json::wvalue player_data;
+        player_data["username"] = name;
+        player_data["x"] = playerObj->GetPosition().first;
+        player_data["y"] = playerObj->GetPosition().second;
 
+        players_list.push_back(std::move(player_data)); // Append to JSON array
+    }
 
-    
+    response["players"] = std::move(players_list); // Assign the array to the response 
 
     return crow::response(200, response);
 }
+
 
 
 //crow::response Routing::ShootBulletRoute(const crow::request& req) {

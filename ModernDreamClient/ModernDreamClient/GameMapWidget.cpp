@@ -99,6 +99,7 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
 }
 
 
+
 void GameMapWidget::paintEvent(QPaintEvent* event) {
     /*if (isUpdating) {
         qDebug() << "Repaint skipped - updating bullets!";
@@ -211,7 +212,7 @@ void GameMapWidget::keyPressEvent(QKeyEvent* event) {
         currentDirection = "w";
         qDebug() << "Move Up";
         transform.reset();
-        transform.rotate(270); 
+        transform.rotate(270);
         httpClient->movePlayer(sessionId, username, currentDirection);
         break;
     }
@@ -523,3 +524,4 @@ void GameMapWidget::displayMap()
         qDebug() << rowString;
     }
 }
+

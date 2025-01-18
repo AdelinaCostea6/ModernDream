@@ -18,6 +18,7 @@ protected:
     void paintEvent(QPaintEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override; 
 
+
 private:
     QString sessionId;
     QString username;
@@ -46,6 +47,9 @@ private:
     QVector<QPair<int, int>> updatedCells;
     QMap<QString, QPoint> playerPositions;
 
+    QMap<QString, QPair<int, int>> playersPositions;
+
+
     //void notifyServerBombTriggered(int bombX, int bombY);
 
     
@@ -55,4 +59,6 @@ private:
 public slots:
 
     void updatePlayerPosition(int x, int y); 
+
+
 };
