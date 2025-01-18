@@ -62,6 +62,7 @@ signals:
    // void bulletsUpdated(const QVector<QPair<int, int>>& bulletPositions);
     void bulletsUpdated(const QVector<BulletInfo>& bullets);
     void queueJoinedSuccess(const QString& sessionId);
+    void syncPlayersRequest();
 
 private slots:
     void onLoginResponse();

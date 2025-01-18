@@ -30,6 +30,7 @@ private:
     void fetchAndInitializeMap(); 
     void setupTextures();
     void setupConnections();
+    void displayMap();
 
    
     QMutex bulletsMutex;
@@ -39,9 +40,11 @@ private:
     void updateMapCells(const QVector<QPair<int, int>>& updatedCells);
     QMutex mapMutex;
     void updateWalls();
+    void syncPlayers();
 
 
     QVector<QPair<int, int>> updatedCells;
+    QMap<QString, QPoint> playerPositions;
 
     //void notifyServerBombTriggered(int bombX, int bombY);
 

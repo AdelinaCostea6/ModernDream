@@ -39,26 +39,31 @@ void GameMapWidget::setupTextures() {
 
 void GameMapWidget::setupConnections() {
     connect(httpClient, &HttpClient::playerMoved, this, &GameMapWidget::updatePlayerPosition);
+    connect(httpClient, &HttpClient::syncPlayersRequest, this, &GameMapWidget::syncPlayers);
 
     QTimer* bulletSyncTimer = new QTimer(this); 
     connect(bulletSyncTimer, &QTimer::timeout, this, [this]() {   
-        if (!isUpdating)
-        {
+        /*if (!isUpdating)
+        {*/
             syncBullets(sessionId);
             //fetchAndInitializeMap();
             //syncMap();
             updateWalls();
-        }
+            syncPlayers();
+            displayMap();
+        //}
            
            
         });
-    bulletSyncTimer->start(1000);  
+    bulletSyncTimer->start(500);  
 }
 
 void GameMapWidget::fetchAndInitializeMap() {
    
-   // mapData.clear();
-    QByteArray response = httpClient->requestMapGeneration(sessionId,1);
+    mapData.clear();
+    qDebug() << "[DEBUG] Fetching map data...";
+
+    QByteArray response = httpClient->requestMapGeneration(sessionId,2);
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
         QJsonObject jsonObj = jsonDoc.object();
     
@@ -95,10 +100,10 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
 
 
 void GameMapWidget::paintEvent(QPaintEvent* event) {
-    if (isUpdating) {
+    /*if (isUpdating) {
         qDebug() << "Repaint skipped - updating bullets!";
         return;
-    }
+    }*/
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -184,6 +189,16 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
         painter.drawEllipse(bulletRect);  */
         
         painter.drawPixmap(bulletRect.toRect(), bulletTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));  
+    }
+
+    for (auto it = playerPositions.constBegin(); it != playerPositions.constEnd(); ++it) {
+        QString username = it.key();
+        QPoint position = it.value();
+        qDebug() << "[DEBUG] Drawing player:" << username << "at position:" << position;
+
+        QRectF cellRect(offsetX + position.x() * cellSize, offsetY + position.y() * cellSize, cellSize, cellSize);
+        painter.setBrush(Qt::blue);
+        painter.drawEllipse(cellRect);
     }
 }
 
@@ -294,6 +309,7 @@ void GameMapWidget::syncBullets(const QString& sessionId) {
   
     QJsonObject requestData;
     requestData["sessionId"] = sessionId;
+    qDebug() << "Session id: "<<sessionId<<"\n";
 
     QNetworkRequest request(QUrl("http://localhost:8080/game/syncBullets"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -439,3 +455,71 @@ void GameMapWidget::updateWalls() {
 
 
 
+
+
+void GameMapWidget::syncPlayers() {
+    qDebug() << "[DEBUG] syncPlayers called for session:" << sessionId;
+
+    if (sessionId.isEmpty()) {
+        qDebug() << "[ERROR] Session ID is empty!";
+        return;
+    }
+
+    QJsonObject requestData;
+    requestData["sessionId"] = sessionId;
+
+    QNetworkRequest request(QUrl("http://localhost:8080/game/syncPlayers"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
+
+    connect(reply, &QNetworkReply::finished, [this, reply]() {
+        QByteArray responseData = reply->readAll();
+       
+
+        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
+        qDebug() << "[DEBUG] Response data from syncPlayers:" << jsonResponse;
+
+        if (jsonResponse.contains("players")) {
+            QJsonArray playersArray = jsonResponse["players"].toArray();
+            for (const auto& playerValue : playersArray) {
+                QJsonObject playerObj = playerValue.toObject();
+                QString username = playerObj["username"].toString();
+                int x = playerObj["x"].toInt();
+                int y = playerObj["y"].toInt();
+
+                playerPositions[username] = QPoint(x, y);  // Actualizează poziția jucătorului
+                qDebug() << "[DEBUG] Updated player position for" << username
+                    << ": (" << x << ", " << y << ")";
+            }
+            update();  // Re-desenăm harta
+        }
+        else {
+            qDebug() << "[ERROR] No 'players' data in server response.";
+        }
+        reply->deleteLater();
+        });
+}
+
+
+
+void GameMapWidget::displayMap()
+{
+    qDebug() << "[DEBUG] Player positions:";
+    for (auto it = playerPositions.constBegin(); it != playerPositions.constEnd(); ++it) {
+        QString username = it.key();  
+        QPoint position = it.value(); 
+
+        qDebug() << "Player:" << username
+            << "Position: (" << position.x() << ", " << position.y() << ")";
+    }
+    qDebug() << "[DEBUG] Current map state:";
+    for (int row = 0; row < mapData.size(); ++row) {
+        QString rowString;
+        for (int col = 0; col < mapData[row].size(); ++col) {
+            rowString += QString::number(mapData[row][col]) + " ";
+        }
+        qDebug() << rowString;
+    }
+}

@@ -522,3 +522,29 @@ const std::vector<std::pair<int, int>>& Game::GetUpdatedCells() const {
 void Game::ClearUpdatedCells() {
     updatedCells.clear();
 }
+
+
+std::map<std::string, std::pair<int, int>> Game::GetPlayerPositions() const {
+    std::map<std::string, std::pair<int, int>> positions;
+    for (const auto& player : players) {
+        if (player) {
+            positions[player->GetName()] = player->GetPosition();
+        }
+    }
+    return positions;
+}
+
+void Game::UpdatePlayerPosition(const std::string& username, int x, int y) {
+    for (auto& player : players) {
+        if (player && player->GetName() == username) {
+            // Actualizează harta
+            auto oldPosition = player->GetPosition();
+            map.SetCellValue(oldPosition.first, oldPosition.second, MapGenerator::FreeSpace);  // Eliberează poziția veche
+            map.SetCellValue(x, y, MapGenerator::PlayerPosition);  // Ocupă noua poziție
+
+            // Actualizează poziția jucătorului
+            player->SetPosition(std::make_pair(x, y));
+            return;
+        }
+    }
+}

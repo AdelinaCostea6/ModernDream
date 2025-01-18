@@ -494,6 +494,7 @@ void HttpClient::movePlayer(const QString& sessionId, const QString& username, c
                 int y = posArray[1].toInt();
 
                 emit playerMoved(x, y);  // Semnalizează poziția nouă către client
+                emit syncPlayersRequest();
             }
         }
         else {

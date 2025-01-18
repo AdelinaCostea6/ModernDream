@@ -68,6 +68,7 @@
 #include <array>
 #include <deque>
 #include "Bullet.h"
+#include <map>
 
 class Game {
 private:
@@ -75,6 +76,7 @@ private:
     std::array<std::unique_ptr<Player>, 4> players;
     std::deque<Bullet> bullets;
     std::vector<std::pair<int, int>> updatedCells;
+    std::map<std::string, std::pair<int, int>> playerPositions;
 
 public:
     Game() = default;
@@ -93,5 +95,7 @@ public:
     const std::deque<Bullet>& GetBullets() const;
     const std::vector<std::pair<int, int>>& GetUpdatedCells() const;
     void ClearUpdatedCells();
+    std::map<std::string, std::pair<int, int>> GetPlayerPositions() const;
+    void UpdatePlayerPosition(const std::string& username, int x, int y);
 };
 

@@ -175,7 +175,7 @@ std::string GameSessionManager::CreateSession(int requiredPlayers) {
     int seed = seedDis(gen);
 
     // Creăm sesiunea și o adăugăm în mapă
-    sessions[sessionId] = std::make_shared<GameSession>(sessionId, requiredPlayers);
+   // sessions[sessionId] = std::make_shared<GameSession>(sessionId, requiredPlayers);
     std::shared_ptr<GameSession> session = std::make_shared<GameSession>(sessionId, requiredPlayers);
     //session->game.SetMapType(mapType);  // Set the map type
     //session->mapSeed = seed;
@@ -217,6 +217,40 @@ bool GameSessionManager::JoinSession(const std::string& sessionId, const std::st
     }
     return false;
 }
+
+
+void GameSessionManager::CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 4> players) {
+    std::string sessionId = CreateSession(players.size());
+    auto session = GetSession(sessionId);
+
+    // Creează jucătorii pentru joc
+    std::array<std::unique_ptr<Player>, 4> gamePlayers;
+    int index = 0;
+
+    for (auto& player : players) {
+        if (player) {
+            JoinSession(sessionId, player->username);
+            auto weapon = std::make_unique<Weapon>();
+            gamePlayers[index++] = std::make_unique<Player>(player->username, std::move(weapon), std::make_pair(0, 0));
+        }
+    }
+
+    // Inițializează harta jocului
+   // Map gameMap = session->game.GetMap();  // Obține harta curentă
+   // session->game = Game(gameMap, std::move(gamePlayers));  // Creează o instanță nouă
+    session->game.GenerateMap(index);  // Configurează harta pentru numărul de jucători
+
+    session->isReady = true;
+
+    std::cout << "Game session " << sessionId << " created with players: ";
+    for (const auto& player : players) {
+        if (player) {
+            std::cout << player->username << " ";
+        }
+    }
+    std::cout << std::endl;
+}
+
 
 
 // Jucătorul părăsește sesiunea
@@ -296,28 +330,28 @@ void GameSessionManager::MatchPlayers() {
 
 
 
-void GameSessionManager::CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 4> players) {
-    std::string sessionId = CreateSession(players.size());
-    auto session = GetSession(sessionId);
-
-    for (const auto& player : players) {
-        if (player) {
-            JoinSession(sessionId, player->username);
-        }
-    }
-
-    session->isReady = true;
-
-    std::cout << "Game session " << sessionId << " created with players: ";
-    for (const auto& player : players) {
-        if (player) {
-            std::cout << player->username << " ";
-        }
-    }
-    std::cout << std::endl;
-
-    
-}
+//void GameSessionManager::CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 4> players) {
+//    std::string sessionId = CreateSession(players.size());
+//    auto session = GetSession(sessionId);
+//
+//    for (const auto& player : players) {
+//        if (player) {
+//            JoinSession(sessionId, player->username);
+//        }
+//    }
+//
+//    session->isReady = true;
+//
+//    std::cout << "Game session " << sessionId << " created with players: ";
+//    for (const auto& player : players) {
+//        if (player) {
+//            std::cout << player->username << " ";
+//        }
+//    }
+//    std::cout << std::endl;
+//
+//    
+//}
 
 
 

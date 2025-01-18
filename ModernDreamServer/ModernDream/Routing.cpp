@@ -201,6 +201,10 @@ void Routing::Run(DatabaseManager& storage) {
             response["updatedCells"] = crow::json::wvalue::list();  // Inițializează o listă JSON
 
             size_t index = 0;
+            CROW_LOG_INFO << "[DEBUG] Updated walls: ";
+            for (const auto& cell : session->game.GetUpdatedCells()) {
+                CROW_LOG_INFO << "Cell: (" << cell.first << ", " << cell.second << ")";
+            }
             for (const auto& [x, y] : session->game.GetUpdatedCells()) {
                 response["updatedCells"][index]["x"] = x;
                 response["updatedCells"][index]["y"] = y;
@@ -324,6 +328,51 @@ void Routing::Run(DatabaseManager& storage) {
         ([this](const crow::request& req) {
         return this->GetUpdatesRoute(req);
             });*/
+
+
+    CROW_ROUTE(m_app, "/game/syncPlayers").methods("POST"_method)([this](const crow::request& req) {
+        try {
+            auto body = crow::json::load(req.body);
+
+            if (!body || !body.has("sessionId")) {
+                return crow::response(400, "Invalid request: Missing sessionId.");
+            }
+
+            std::string sessionId = body["sessionId"].s();
+            auto session = m_gameSessionManager.GetSession(sessionId);
+            if (!session) {
+                return crow::response(404, "Session not found.");
+            }
+
+            crow::json::wvalue response;
+            response["players"] = crow::json::wvalue::list();  // Inițializează lista de jucători
+
+            size_t index = 0;
+            if (session->players.empty()) {
+                CROW_LOG_ERROR << "No players in session:" << sessionId;
+            }
+
+            for (const auto& [username, position] : session->game.GetPlayerPositions()) {
+                response["players"][index]["username"] = username;
+                response["players"][index]["x"] = position.first;
+                response["players"][index]["y"] = position.second;
+                ++index;
+            }
+
+            for (const auto& [username, player] : session->players) {
+                std::cout << "[DEBUG] Player: " << username << " Position: ("
+                    << player->GetPosition().first << ", "
+                    << player->GetPosition().second << ")\n";
+            }
+
+
+            return crow::response(200, response);
+        }
+        catch (const std::exception& e) {
+            CROW_LOG_ERROR << "Error in /game/syncPlayers: " << e.what();
+            return crow::response(500, "Error: " + std::string(e.what()));
+        }
+        });
 
 
     m_app.port(8080).multithreaded().run();
@@ -832,8 +881,12 @@ crow::response Routing::MovePlayerRoute(const crow::request& req) {
         return crow::response(404, "Player not found");
     }
 
+    
+
     auto& player = playerIt->second;
     player->Movement(session->GetMap(), direction[0]);
+    auto newPosition = player->GetPosition();
+    session->game.UpdatePlayerPosition(username, newPosition.first, newPosition.second);
 
 
     // Creează un `crow::json::wvalue::list`
@@ -841,6 +894,9 @@ crow::response Routing::MovePlayerRoute(const crow::request& req) {
     response["position"] = crow::json::wvalue::list({ player->GetPosition().first, player->GetPosition().second });
 
     response["message"] = "Player moved successfully";
+
+
+    
 
     return crow::response(200, response);
 }
