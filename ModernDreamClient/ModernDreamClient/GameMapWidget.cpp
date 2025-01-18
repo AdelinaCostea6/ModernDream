@@ -118,6 +118,7 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
 
     int playerIndex = 0;
 
+
     for (int y = 0; y < rows; ++y) {
         for (int x = 0; x < cols; ++x) {
             QRectF cellRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
@@ -126,7 +127,7 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             {
                 painter.fillRect(cellRect, QColor("#d3d3d3"));
                 //painter.drawPixmap(cellRect.toRect(), playerTextures[playerIndex].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
-                //transform.reset();
+                
                 QPixmap rotatedPlayer = playerTextures[playerIndex].transformed(transform);
                 painter.drawPixmap(cellRect.toRect(), rotatedPlayer.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 playerIndex = (playerIndex + 1) % 4;
@@ -348,6 +349,7 @@ void GameMapWidget::syncBullets(const QString& sessionId) {
 }
 
 
+
 void GameMapWidget::updateMapCells(const QVector<QPair<int, int>>& updatedCells) {
     QMutexLocker lock(&mapMutex);  // Protejează accesul la `mapData` dacă este accesat din thread-uri diferite
 
@@ -454,6 +456,65 @@ void GameMapWidget::updateWalls() {
 
 
 
+//void GameMapWidget::syncPlayers() {
+//    qDebug() << "[DEBUG] syncPlayers called for session:" << sessionId;
+//
+//    if (sessionId.isEmpty()) {
+//        qDebug() << "[ERROR] Session ID is empty!";
+//        return;
+//    }
+//
+//    QJsonObject requestData;
+//    requestData["sessionId"] = sessionId;
+//
+//    QNetworkRequest request(QUrl("http://localhost:8080/game/syncPlayers"));
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
+//    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
+//
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        QByteArray responseData = reply->readAll();
+//        qDebug() << "[DEBUG] Response data from syncPlayers:" << responseData;
+//
+//        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
+//
+//        if (jsonResponse.contains("players")) {
+//
+//            //for (int row = 0; row < mapData.size(); ++row) {
+//            //    for (int col = 0; col < mapData[row].size(); ++col) {
+//            //        if (mapData[row][col] == 0) {  // Presupunând că 2 reprezintă jucători
+//            //            mapData[row][col] = 1;    // Setăm celula ca liberă
+//            //        }
+//            //    }
+//            //}
+//            QJsonArray playersArray = jsonResponse["players"].toArray();
+//            qDebug() << "[DEBUG] Number of players in response:" << playersArray.size();
+//
+//            for (const auto& playerValue : playersArray) {
+//                QJsonObject playerObj = playerValue.toObject();
+//                qDebug() << "[DEBUG] Player object:" << playerObj;
+//
+//                QString username = playerObj["username"].toString();
+//                int x = playerObj["x"].toInt();
+//                int y = playerObj["y"].toInt();
+//
+//               // mapData[x][y] = 0;
+//
+//                playerPositions[username] = QPoint(x, y);
+//                qDebug() << "[DEBUG] Updated player position for " << username
+//                    << ": (" << x << ", " << y << ")";
+//            }
+//            update();  // Re-desenăm harta
+//        }
+//        else {
+//            qDebug() << "[ERROR] No 'players' data in server response.";
+//        }
+//        reply->deleteLater();
+//        });
+//
+//}
+
 void GameMapWidget::syncPlayers() {
     qDebug() << "[DEBUG] syncPlayers called for session:" << sessionId;
 
@@ -473,45 +534,44 @@ void GameMapWidget::syncPlayers() {
 
     connect(reply, &QNetworkReply::finished, [this, reply]() {
         QByteArray responseData = reply->readAll();
-        qDebug() << "[DEBUG] Response data from syncPlayers:" << responseData;
+        qDebug() << "[DEBUG] Raw server response in syncPlayers:" << responseData;
 
         QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
 
-        if (jsonResponse.contains("players")) {
+        if (!jsonResponse.contains("players")) {
+            qDebug() << "[ERROR] 'players' field missing in server response";
+            reply->deleteLater();
+            return;
+        }
 
-            //for (int row = 0; row < mapData.size(); ++row) {
-            //    for (int col = 0; col < mapData[row].size(); ++col) {
-            //        if (mapData[row][col] == 0) {  // Presupunând că 2 reprezintă jucători
-            //            mapData[row][col] = 1;    // Setăm celula ca liberă
-            //        }
-            //    }
-            //}
-            QJsonArray playersArray = jsonResponse["players"].toArray();
-            qDebug() << "[DEBUG] Number of players in response:" << playersArray.size();
+        QJsonArray playersArray = jsonResponse["players"].toArray();
+        qDebug() << "[DEBUG] Parsed playersArray:" << playersArray;
 
-            for (const auto& playerValue : playersArray) {
-                QJsonObject playerObj = playerValue.toObject();
-                qDebug() << "[DEBUG] Player object:" << playerObj;
+        playerPositions.clear();
+        for (const auto& playerValue : playersArray) {
+            QJsonObject playerObj = playerValue.toObject();
+            qDebug() << "[DEBUG] Player object:" << playerObj;
 
+            if (playerObj.contains("username") && playerObj.contains("x") && playerObj.contains("y")) {
                 QString username = playerObj["username"].toString();
                 int x = playerObj["x"].toInt();
                 int y = playerObj["y"].toInt();
 
-               // mapData[x][y] = 0;
-
                 playerPositions[username] = QPoint(x, y);
-                qDebug() << "[DEBUG] Updated player position for " << username
-                    << ": (" << x << ", " << y << ")";
+                qDebug() << "[DEBUG] Updated player position for" << username << ": (" << x << ", " << y << ")";
             }
-            update();  // Re-desenăm harta
+            else {
+                qDebug() << "[ERROR] Malformed player object:" << playerObj;
+            }
         }
-        else {
-            qDebug() << "[ERROR] No 'players' data in server response.";
-        }
+
+        qDebug() << "[DEBUG] Final playerPositions map:" << playerPositions;
+
+        update();  // Trigger map redraw
         reply->deleteLater();
         });
-
 }
+
 
 
 
