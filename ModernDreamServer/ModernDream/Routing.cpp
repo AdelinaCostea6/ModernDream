@@ -352,18 +352,20 @@ void Routing::Run(DatabaseManager& storage) {
                 CROW_LOG_ERROR << "No players in session:" << sessionId;
             }
 
+            crow::json::wvalue::list playersList;
             for (const auto& [username, position] : session->game.GetPlayerPositions()) {
-                response["players"][index]["username"] = username;
-                response["players"][index]["x"] = position.first;
-                response["players"][index]["y"] = position.second;
-                ++index;
+                crow::json::wvalue playerData;
+                playerData["username"] = username;
+                playerData["x"] = position.first;
+                playerData["y"] = position.second;
+
+                playersList.push_back(std::move(playerData));  
+                CROW_LOG_INFO << "[DEBUG] Adding player to response:"
+                    << " Username: " << username
+                    << " Position: (" << position.first << ", " << position.second << ")";
             }
 
-            for (const auto& [username, player] : session->players) {
-                std::cout << "[DEBUG] Player: " << username << " Position: ("
-                    << player->GetPosition().first << ", "
-                    << player->GetPosition().second << ")\n";
-            }
+            response["players"] = std::move(playersList);  
 
 
             return crow::response(200, response);
@@ -924,7 +926,6 @@ crow::response Routing::MovePlayerRoute(const crow::request& req) {
     player->Movement(session->GetMap(), direction); // Move player
     auto newPosition = player->GetPosition();
     session->game.UpdatePlayerPosition(username, newPosition.first, newPosition.second);
-
     // Send updated positions to all players
     crow::json::wvalue response;
     crow::json::wvalue::list players_list; // Create a JSON array

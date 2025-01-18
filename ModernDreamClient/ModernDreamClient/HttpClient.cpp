@@ -463,13 +463,55 @@ QByteArray HttpClient::requestMapGeneration(const QString& sessionId, int numPla
 
 
 
+//void HttpClient::movePlayer(const QString& sessionId, const QString& username, const QString& direction) {
+//    // Crearea URL-ului pentru endpoint-ul de mișcare
+//    QUrl url("http://localhost:8080/game/move");
+//    QNetworkRequest request(url);
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+//
+//    // Construim corpul JSON al cererii
+//    QJsonObject json;
+//    json["sessionId"] = sessionId;
+//    json["username"] = username;
+//    json["direction"] = direction;
+//
+//    QByteArray data = QJsonDocument(json).toJson();
+//
+//    // Trimite cererea `POST`
+//    QNetworkReply* reply = manager->post(request, data);
+//
+//    connect(reply, &QNetworkReply::finished, [this, reply]() {
+//        QByteArray responseData = reply->readAll();
+//        QJsonObject response = QJsonDocument::fromJson(responseData).object();
+//
+//        if (reply->error() == QNetworkReply::NoError) {
+//            qDebug() << "Move successful. Server response:" << response;
+//
+//            // Extragem poziția nouă din răspunsul serverului
+//            if (response.contains("position")) {
+//                QJsonArray posArray = response["position"].toArray();
+//                int x = posArray[0].toInt();
+//                int y = posArray[1].toInt();
+//
+//                emit playerMoved(x, y);  // Semnalizează poziția nouă către client
+//                emit syncPlayersRequest();
+//            }
+//        }
+//        else {
+//            qDebug() << "Move failed:" << reply->errorString();
+//        }
+//
+//        reply->deleteLater();  // Curățăm răspunsul după terminare
+//        });
+//}
+
+
+
 void HttpClient::movePlayer(const QString& sessionId, const QString& username, const QString& direction) {
-    // Crearea URL-ului pentru endpoint-ul de mișcare
     QUrl url("http://localhost:8080/game/move");
     QNetworkRequest request(url);
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-    // Construim corpul JSON al cererii
     QJsonObject json;
     json["sessionId"] = sessionId;
     json["username"] = username;
@@ -477,7 +519,6 @@ void HttpClient::movePlayer(const QString& sessionId, const QString& username, c
 
     QByteArray data = QJsonDocument(json).toJson();
 
-    // Trimite cererea `POST`
     QNetworkReply* reply = manager->post(request, data);
 
     connect(reply, &QNetworkReply::finished, [this, reply]() {
@@ -487,21 +528,15 @@ void HttpClient::movePlayer(const QString& sessionId, const QString& username, c
         if (reply->error() == QNetworkReply::NoError) {
             qDebug() << "Move successful. Server response:" << response;
 
-            // Extragem poziția nouă din răspunsul serverului
-            if (response.contains("position")) {
-                QJsonArray posArray = response["position"].toArray();
-                int x = posArray[0].toInt();
-                int y = posArray[1].toInt();
-
-                emit playerMoved(x, y);  // Semnalizează poziția nouă către client
-                emit syncPlayersRequest();
+            if (response.contains("players")) {
+                emit syncPlayersRequest();  // Cere sincronizarea pozițiilor tuturor jucătorilor
             }
         }
         else {
             qDebug() << "Move failed:" << reply->errorString();
         }
 
-        reply->deleteLater();  // Curățăm răspunsul după terminare
+        reply->deleteLater();
         });
 }
 

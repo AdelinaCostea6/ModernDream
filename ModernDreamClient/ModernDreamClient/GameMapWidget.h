@@ -42,6 +42,7 @@ private:
     QMutex mapMutex;
     void updateWalls();
     void syncPlayers();
+    void movePlayer(const QString& direction);
 
 
     QVector<QPair<int, int>> updatedCells;

@@ -529,6 +529,9 @@ std::map<std::string, std::pair<int, int>> Game::GetPlayerPositions() const {
     for (const auto& player : players) {
         if (player) {
             positions[player->GetName()] = player->GetPosition();
+            std::cout << "[DEBUG] Player: " << player->GetName()
+                << " Position: (" << player->GetPosition().first
+                << ", " << player->GetPosition().second << ")\n";
         }
     }
     return positions;
