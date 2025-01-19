@@ -193,11 +193,13 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
         painter.drawPixmap(bulletRect.toRect(), bulletTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));  
     }
 
+   
+
     
 }
 
 void GameMapWidget::keyPressEvent(QKeyEvent* event) {
-    static QString currentDirection;
+    //static QString currentDirection;
 
     switch (event->key()) {
     case Qt::Key_W:
@@ -547,6 +549,15 @@ void GameMapWidget::syncPlayers() {
         QJsonArray playersArray = jsonResponse["players"].toArray();
         qDebug() << "[DEBUG] Parsed playersArray:" << playersArray;
 
+
+        for (int row = 0; row < mapData.size(); ++row) {
+            for (int col = 0; col < mapData[row].size(); ++col) {
+                if (mapData[row][col] == 0) {  
+                    mapData[row][col] = 1;    
+                }
+            }
+        }
+
         playerPositions.clear();
         for (const auto& playerValue : playersArray) {
             QJsonObject playerObj = playerValue.toObject();
@@ -556,9 +567,10 @@ void GameMapWidget::syncPlayers() {
                 QString username = playerObj["username"].toString();
                 int x = playerObj["x"].toInt();
                 int y = playerObj["y"].toInt();
-
                 playerPositions[username] = QPoint(x, y);
-                qDebug() << "[DEBUG] Updated player position for" << username << ": (" << x << ", " << y << ")";
+                mapData[x][y] = 0;
+                    qDebug() << "[DEBUG] Updated player position for" << username << ": (" << x << ", " << y << ")";
+                
             }
             else {
                 qDebug() << "[ERROR] Malformed player object:" << playerObj;

@@ -330,51 +330,206 @@ void Routing::Run(DatabaseManager& storage) {
             });*/
 
 
-    CROW_ROUTE(m_app, "/game/syncPlayers").methods("POST"_method)([this](const crow::request& req) {
-        try {
-            auto body = crow::json::load(req.body);
+    //CROW_ROUTE(m_app, "/game/syncPlayers").methods("POST"_method)([this](const crow::request& req) {
+    //    try {
+    //        auto body = crow::json::load(req.body);
 
-            if (!body || !body.has("sessionId")) {
-                return crow::response(400, "Invalid request: Missing sessionId.");
-            }
+    //        if (!body || !body.has("sessionId")) {
+    //            return crow::response(400, "Invalid request: Missing sessionId.");
+    //        }
 
-            std::string sessionId = body["sessionId"].s();
-            auto session = m_gameSessionManager.GetSession(sessionId);
-            if (!session) {
-                return crow::response(404, "Session not found.");
-            }
+    //        std::string sessionId = body["sessionId"].s();
+    //        auto session = m_gameSessionManager.GetSession(sessionId);
+    //        if (!session) {
+    //            return crow::response(404, "Session not found.");
+    //        }
 
-            crow::json::wvalue response;
-            response["players"] = crow::json::wvalue::list();  // Inițializează lista de jucători
+    //        crow::json::wvalue response;
+    //        response["players"] = crow::json::wvalue::list();  // Inițializează lista de jucători
 
-            size_t index = 0;
-            if (session->players.empty()) {
-                CROW_LOG_ERROR << "No players in session:" << sessionId;
-            }
+    //        size_t index = 0;
+    //        if (session->players.empty()) {
+    //            CROW_LOG_ERROR << "No players in session:" << sessionId;
+    //        }
 
-            crow::json::wvalue::list playersList;
-            for (const auto& [username, position] : session->game.GetPlayerPositions()) {
-                crow::json::wvalue playerData;
-                playerData["username"] = username;
-                playerData["x"] = position.first;
-                playerData["y"] = position.second;
+    //        crow::json::wvalue::list playersList;
+    //        for (const auto& [username, position] : session->game.GetPlayerPositions()) {
+    //            crow::json::wvalue playerData;
+    //            playerData["username"] = username;
+    //            playerData["x"] = position.first;
+    //            playerData["y"] = position.second;
 
-                playersList.push_back(std::move(playerData));  
-                CROW_LOG_INFO << "[DEBUG] Adding player to response:"
-                    << " Username: " << username
-                    << " Position: (" << position.first << ", " << position.second << ")";
-            }
+    //            playersList.push_back(std::move(playerData));  
+    //            CROW_LOG_INFO << "[DEBUG] Adding player to response:"
+    //                << " Username: " << username
+    //                << " Position: (" << position.first << ", " << position.second << ")";
+    //        }
 
-            response["players"] = std::move(playersList);  
+    //        response["players"] = std::move(playersList);  
 
 
-            return crow::response(200, response);
+    //        return crow::response(200, response);
+    //    }
+    //    catch (const std::exception& e) {
+    //        CROW_LOG_ERROR << "Error in /game/syncPlayers: " << e.what();
+    //        return crow::response(500, "Error: " + std::string(e.what()));
+    //    }
+    //    });
+
+
+
+    //CROW_ROUTE(m_app, "/game/syncPlayers").methods("POST"_method)([this](const crow::request& req) {
+    //    try {
+    //        auto body = crow::json::load(req.body);
+
+    //        if (!body || !body.has("sessionId")) {
+    //            return crow::response(400, "Invalid request: Missing sessionId.");
+    //        }
+
+    //        std::string sessionId = body["sessionId"].s();
+    //        auto session = m_gameSessionManager.GetSession(sessionId);
+    //        if (!session) {
+    //            return crow::response(404, "Session not found.");
+    //        }
+
+    //        // Sincronizare între sesiune și Game
+    //        auto& gamePlayers = session->game.GetPlayers();  // Accesăm array-ul din Game
+    //        size_t index = 0;
+
+    //        for (const auto& [name, playerObj] : session->players) {
+    //            if (playerObj && index < gamePlayers.size()) {
+    //                // Dacă poziția din array este goală, adaugă jucătorul
+    //                if (!gamePlayers[index]) {
+    //                    gamePlayers[index] = std::make_unique<Player>(
+    //                        playerObj->GetName(),
+    //                        std::make_unique<Weapon>(),
+    //                        playerObj->GetPosition()
+    //                    );
+    //                    CROW_LOG_INFO << "[DEBUG] Player added to Game: " << playerObj->GetName();
+    //                }
+    //                else {
+    //                    // Actualizează poziția jucătorului existent
+    //                    gamePlayers[index]->SetPosition(playerObj->GetPosition());
+    //                    CROW_LOG_INFO << "[DEBUG] Player updated in Game: " << playerObj->GetName();
+    //                }
+    //                ++index;
+    //            }
+    //        }
+    //        crow::json::wvalue response;
+    //        crow::json::wvalue::list players_list; // Create a JSON array
+    //         
+    //        CROW_LOG_INFO << "[DEBUG] Players in session " << sessionId << ":";
+    //        for (const auto& [name, playerObj] : session->players) {
+    //            if (playerObj) {
+    //                CROW_LOG_INFO << " - Player: " << name
+    //                    << " Position: (" << playerObj->GetPosition().first
+    //                    << ", " << playerObj->GetPosition().second << ")";
+    //            }
+    //            else {
+    //                CROW_LOG_INFO << " - Player slot for " << name << " is null.";
+    //            }
+    //        }
+
+    //        for (const auto& [name, playerObj] : session->players) {
+    //            crow::json::wvalue player_data;
+    //            player_data["username"] = name;
+    //            player_data["x"] = playerObj->GetPosition().first;
+    //            player_data["y"] = playerObj->GetPosition().second;
+
+    //            players_list.push_back(std::move(player_data)); // Append to JSON array
+    //        }
+
+    //        response["players"] = std::move(players_list);
+
+    //        return crow::response(200, response);
+    //    }
+    //    catch (const std::exception& e) {
+    //        CROW_LOG_ERROR << "Error in /game/syncPlayers: " << e.what();
+    //        return crow::response(500, "Error: " + std::string(e.what()));
+    //    }
+    //    });
+
+
+CROW_ROUTE(m_app, "/game/syncPlayers").methods("POST"_method)([this](const crow::request& req) {
+    try {
+        auto body = crow::json::load(req.body);
+
+        if (!body || !body.has("sessionId")) {
+            return crow::response(400, "Invalid request: Missing sessionId.");
         }
-        catch (const std::exception& e) {
-            CROW_LOG_ERROR << "Error in /game/syncPlayers: " << e.what();
-            return crow::response(500, "Error: " + std::string(e.what()));
+
+        std::string sessionId = body["sessionId"].s();
+        auto session = m_gameSessionManager.GetSession(sessionId);
+        if (!session) {
+            return crow::response(404, "Session not found.");
         }
-        });
+
+        // Sincronizare între sesiune și Game
+        auto& gamePlayers = session->game.GetPlayers();  // Accesăm array-ul din Game
+        size_t index = 0;
+
+        for (const auto& [name, playerObj] : session->players) {
+            if (playerObj && index < gamePlayers.size()) {
+                if (!gamePlayers[index]) {
+                    gamePlayers[index] = std::make_unique<Player>(
+                        playerObj->GetName(),
+                        std::make_unique<Weapon>(),
+                        playerObj->GetPosition()
+                    );
+                    CROW_LOG_INFO << "[DEBUG] Player added to Game: " << playerObj->GetName();
+                }
+                else {
+                    gamePlayers[index]->SetPosition(playerObj->GetPosition());
+                    CROW_LOG_INFO << "[DEBUG] Player updated in Game: " << playerObj->GetName();
+                    
+                  
+                }
+                ++index;
+            }
+        }
+
+
+        for (size_t i = 0; i < gamePlayers.size(); ++i) {
+            if (gamePlayers[i]) {
+                const std::string& playerName = gamePlayers[i]->GetName();
+
+                // Dacă jucătorul este eliminat, șterge-l din sesiune
+                if (gamePlayers[i]->IsEliminated()) {
+                    session->players.erase(playerName);
+                    CROW_LOG_INFO << "[DEBUG] Removed eliminated player from session: " << playerName;
+                }
+            }
+        }
+        // Construiește răspunsul JSON
+        crow::json::wvalue response;
+        crow::json::wvalue::list players_list; // Create a JSON array
+
+        CROW_LOG_INFO << "[DEBUG] Players in session " << sessionId << ":";
+
+        for (const auto& [name, playerObj] : session->players) {
+            if (playerObj) {
+                crow::json::wvalue player_data;
+                player_data["username"] = name;
+
+                player_data["x"] = playerObj->GetPosition().first;
+                player_data["y"] = playerObj->GetPosition().second;
+
+                players_list.push_back(std::move(player_data));
+            }
+            
+        }
+
+        response["players"] = std::move(players_list);
+
+        return crow::response(200, response);
+    }
+    catch (const std::exception& e) {
+        CROW_LOG_ERROR << "Error in /game/syncPlayers: " << e.what();
+        return crow::response(500, "Error: " + std::string(e.what()));
+    }
+    });
+
+
 
 
     m_app.port(8080).multithreaded().run();

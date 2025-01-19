@@ -19,6 +19,7 @@ private:
 	std::pair<int, int> initialPosition{ 0, 0 };
 	int score{ 0 };
 	bool speedBoostUsed{ false };
+    bool isEliminated{ false };
     char direction;
 public:
     Player() = default;
@@ -43,6 +44,10 @@ public:
     bool IsSpeedBoostUsed() const;
     void SetSpeedBoostUsed(bool used);
     void SetPosition(std::pair<int, int> pos);
+    bool IsEliminated() const;
+    void SetInitialPosition(const std::pair<int, int>& position);
+
+    void Eliminate();
     Player(const Player&) = delete;  
     Player& operator=(const Player&) = delete;
     Player(Player&&) = default;     

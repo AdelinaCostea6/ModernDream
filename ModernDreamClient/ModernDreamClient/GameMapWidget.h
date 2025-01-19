@@ -27,6 +27,7 @@ private:
     QPixmap wallTexture, bombTexture, bulletTexture;
     QVector<QPixmap> playerTextures;
     QSharedPointer<QVector<BulletInfo>> bullets;
+    QString currentDirection;
 
     void fetchAndInitializeMap(); 
     void setupTextures();

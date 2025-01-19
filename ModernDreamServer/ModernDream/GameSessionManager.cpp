@@ -239,7 +239,8 @@ void GameSessionManager::CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 
    // Map gameMap = session->game.GetMap();  // Obține harta curentă
    // session->game = Game(gameMap, std::move(gamePlayers));  // Creează o instanță nouă
     //session->game = Game(Map(), std::move(gamePlayers));
-    session->game.GenerateMap(index);  // Configurează harta pentru numărul de jucători
+    session->game = Game(Map(), session->players);
+   // session->game.GenerateMap(index);  // Configurează harta pentru numărul de jucători
 
 
 

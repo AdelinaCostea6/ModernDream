@@ -157,21 +157,26 @@ void Player::Shoot(Game& game) {
 
 void Player::ResetPosition()
 {
+	std::cout << "[DEBUG] Resetting player " << GetName() << " to initial position ("
+		<< initialPosition.first << ", " << initialPosition.second << ").\n";
 	position = initialPosition;
 }
 
 void Player::Hit()
 {
-	lifes--;
-	std::cout << "Player :" << name << "Was hit and lost a life.Lifes remaining:" << lifes << std::endl;
+	//lifes--;
 	if (lifes > 0)
 	{
-		ResetPosition();
-		std::cout << "Position was reseted" << std::endl;
+		--lifes;
+		std::cout << "Player :" << name << "Was hit and lost a life.Lifes remaining:" << lifes << std::endl;
+		//ResetPosition();
+		//std::cout << "Position was reseted" << std::endl;
 	}
 	else
 	{
+
 		std::cout << "Game over for player" << name << "No more lifes " << std::endl;
+		Eliminate();
 
 	}
 }
@@ -236,4 +241,18 @@ Weapon& Player::GetWeapon()
 
 void Player::SetPosition(std::pair<int, int> pos) {
 	position = pos; 
+}
+
+
+bool Player::IsEliminated() const {
+	return isEliminated;
+}
+
+void Player::Eliminate() {
+	isEliminated = true;
+	std::cout << "Player " << name << " has been eliminated.\n";
+}
+
+void Player::SetInitialPosition(const std::pair<int, int>& position) {
+	initialPosition = position;
 }

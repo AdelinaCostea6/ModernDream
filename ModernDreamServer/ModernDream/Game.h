@@ -80,7 +80,8 @@ private:
 
 public:
     Game() = default;
-    Game(Map map, std::array<std::unique_ptr<Player>, 4> players);
+   // Game(Map map, std::array<std::unique_ptr<Player>, 4> players);
+    Game(Map map, const std::map<std::string, std::unique_ptr<Player>>& sessionPlayers);
 
     const Map& GetMap() const;
     std::array<std::unique_ptr<Player>, 4>& GetPlayers();
@@ -97,5 +98,6 @@ public:
     void ClearUpdatedCells();
     std::map<std::string, std::pair<int, int>> GetPlayerPositions() const;
     void UpdatePlayerPosition(const std::string& username, int x, int y);
+    std::unique_ptr<Player>GetPlayerByName(const std::string& name);
 };
 

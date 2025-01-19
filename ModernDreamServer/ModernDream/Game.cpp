@@ -308,9 +308,31 @@
 //}
 #include "Game.h"
 
-Game::Game(Map map, std::array<std::unique_ptr<Player>, 4> players)
-    : map(std::move(map)), players(std::move(players)) {
+//Game::Game(Map map, std::array<std::unique_ptr<Player>, 4> players)
+//    : map(std::move(map)), players(std::move(players)) {
+//    
+//
+//}
+
+
+Game::Game(Map map, const std::map<std::string, std::unique_ptr<Player>>& sessionPlayers)
+    : map(std::move(map)) {
+    size_t index = 0;
+
+    for (const auto& [username, playerPtr] : sessionPlayers) {
+        if (index < players.size()) {
+            players[index] = std::make_unique<Player>(playerPtr->GetName(),
+                std::make_unique<Weapon>(),
+                playerPtr->GetPosition());
+            std::cout << "[DEBUG] Player added to Game: " << playerPtr->GetName() << "\n";
+            ++index;
+        }
+        else {
+            std::cerr << "[WARNING] Too many players in session. Ignoring player: " << username << "\n";
+        }
+    }
 }
+
 
 const Map& Game::GetMap() const {
     return map;
@@ -398,6 +420,7 @@ void Game::TriggerBomb(int x, int y) {
 }
 
 void Game::GenerateMap(int numPlayers) {
+    std::cout << "[DEBUG] GenerateMap called with " << numPlayers << " players.\n";
     MapGenerator generator;
     generator.GenerateMap(numPlayers);
     map = Map(generator);  
@@ -409,6 +432,7 @@ void Game::GenerateMap(int numPlayers) {
     for (auto& playerPtr : players) {
         if (playerPtr && i < startPositions.size()) {
             playerPtr->SetPosition(startPositions[i]);  
+            playerPtr->SetInitialPosition(startPositions[i]);
             std::cout << "Jucătorul " << playerPtr->GetName() << " este plasat la ("
                 << startPositions[i].first << ", " << startPositions[i].second << ")\n";
             ++i;
@@ -430,8 +454,44 @@ void Game::UpdateBullets() {
             it = bullets.erase(it);
             continue;
         }
-
         int cellValue = map.GetCellValue(x, y);
+        for (const auto& player : players) {
+            if (player) {
+                auto [playerX, playerY] = player->GetPosition();
+                std::cout << "Checking Player: " << player->GetName() << " at Position: ("
+                    << playerX << ", " << playerY << ")\n";
+
+                if (std::make_pair(playerX, playerY) == std::make_pair(x, y)) {
+                    std::cout << "Bullet hit player: " << player->GetName() << " at: (" << x << ", " << y << ")\n";
+                    player->Hit();
+                    if (player->IsEliminated()) {
+                        std::cout << "Player " << player->GetName() << " has been eliminated.\n";
+                        map.SetCellValue(player->GetPosition().first, player->GetPosition().second, MapGenerator::FreeSpace);
+                       
+                    }
+                    else {
+                        player->ResetPosition();
+                        std::cout << "Player " << player->GetName() << " was hit and reset.\n";
+
+                    }
+                    it = bullets.erase(it);
+                    break;
+                }
+            }
+            else
+            {
+                std::cout << "Player is null\n";
+            }
+        }
+
+
+        // Verifică dacă glonțul lovește un jucător utilizând matricea
+         // Obține valoarea celulei din matrice
+        if (it == bullets.end()) {
+            continue;  // Evită iterarea după ce glonțul a fost eliminat
+        }
+
+        //int cellValue = map.GetCellValue(x, y);
         if (cellValue == MapGenerator::DestructibleWall) {
             map.SetCellValue(x, y, MapGenerator::FreeSpace);
             std::cout << "Bullet destroyed a destructible wall at: (" << x << ", " << y << ")\n";
@@ -550,4 +610,15 @@ void Game::UpdatePlayerPosition(const std::string& username, int x, int y) {
             return;
         }
     }
+}
+
+
+std::unique_ptr<Player> Game::GetPlayerByName(const std::string& name) {
+    for (const auto& player : players) {
+        if (player && player->GetName() == name) {
+           // return player;
+            return nullptr;
+        }
+    }
+    return nullptr;
 }
