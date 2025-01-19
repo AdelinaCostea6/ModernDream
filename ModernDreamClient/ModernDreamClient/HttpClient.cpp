@@ -83,7 +83,7 @@ void HttpClient::onRegisterResponse()
     else {
        
         QString errorString;
-        if (reply->error() == QNetworkReply::ContentConflictError) { // Cod 409
+        if (reply->error() == QNetworkReply::ContentConflictError) { 
             errorString = "Username already exists";
         }
         else {
@@ -149,7 +149,7 @@ void HttpClient::joinGame(const QString& sessionId, const QString& username, con
     QJsonObject json;
     json["sessionId"] = sessionId;
     json["username"] = username;
-    json["mapType"] = mapType;  // Adaugă mapType aici
+    json["mapType"] = mapType;  
 
     QByteArray data = QJsonDocument(json).toJson();
     QNetworkReply* reply = manager->post(request, data);
@@ -293,7 +293,7 @@ QByteArray HttpClient::requestMapGeneration(const QString& sessionId, int numPla
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
     QJsonObject json;
-    json["sessionId"] = sessionId;  // Adăugăm `sessionId` pentru a identifica sesiunea
+    json["sessionId"] = sessionId; 
     json["numPlayers"] = numPlayers;
 
     QByteArray data = QJsonDocument(json).toJson();
@@ -303,7 +303,7 @@ QByteArray HttpClient::requestMapGeneration(const QString& sessionId, int numPla
     connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
     loop.exec();
 
-    return reply->readAll();  // Returnează răspunsul serverului
+    return reply->readAll(); 
 }
 
 
