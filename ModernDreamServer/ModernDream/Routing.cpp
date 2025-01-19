@@ -513,6 +513,7 @@ CROW_ROUTE(m_app, "/game/syncPlayers").methods("POST"_method)([this](const crow:
 
                 player_data["x"] = playerObj->GetPosition().first;
                 player_data["y"] = playerObj->GetPosition().second;
+                player_data["score"] = playerObj->GetPoints();
 
                 players_list.push_back(std::move(player_data));
             }

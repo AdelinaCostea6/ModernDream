@@ -460,19 +460,47 @@ void Game::UpdateBullets() {
                 auto [playerX, playerY] = player->GetPosition();
                 std::cout << "Checking Player: " << player->GetName() << " at Position: ("
                     << playerX << ", " << playerY << ")\n";
-
+               
                 if (std::make_pair(playerX, playerY) == std::make_pair(x, y)) {
                     std::cout << "Bullet hit player: " << player->GetName() << " at: (" << x << ", " << y << ")\n";
                     player->Hit();
-                    if (player->IsEliminated()) {
-                        std::cout << "Player " << player->GetName() << " has been eliminated.\n";
-                        map.SetCellValue(player->GetPosition().first, player->GetPosition().second, MapGenerator::FreeSpace);
-                       
+                    int bulletId = std::distance(bullets.begin(), it) + 1;  // ID-ul glonțului
+                    if (!bulletToPlayerMap.count(bulletId)) {
+                        std::cout << "[DEBUG] No shooter found for bullet ID: " << bulletId << "\n";
                     }
-                    else {
-                        player->ResetPosition();
-                        std::cout << "Player " << player->GetName() << " was hit and reset.\n";
+                    if (bulletToPlayerMap.count(bulletId)) {
+                        std::string shooterName = bulletToPlayerMap[bulletId];
+                        std::cout << "[DEBUG] Shooter name from map: " << shooterName << "\n";
 
+                        // Găsește jucătorul în lista de jucători după nume
+                        auto shooter = std::find_if(players.begin(), players.end(), [&shooterName](const auto& p) {
+                            return p && p->GetName() == shooterName;
+                            });
+
+                        if (shooter == players.end()) {
+                            std::cout << "[DEBUG] Shooter with name " << shooterName << " not found in players list.\n";
+                        }
+
+                        if (shooter != players.end() && *shooter) {
+                            std::cout << "[DEBUG] Found shooter: " << (*shooter)->GetName() << "\n";
+                            (*shooter)->AddPoints(100);
+                            std::cout << "[DEBUG] Shooter now has " << (*shooter)->GetScore() << " points.\n";
+                        }
+               
+
+                        bulletToPlayerMap.erase(bulletId);  // Ș
+                        if (player->IsEliminated()) {
+                            std::cout << "Player " << player->GetName() << " has been eliminated.\n";
+                            map.SetCellValue(player->GetPosition().first, player->GetPosition().second, MapGenerator::FreeSpace);
+
+
+                        }
+                        else {
+
+                            player->ResetPosition();
+                            std::cout << "Player " << player->GetName() << " was hit and reset.\n";
+
+                        }
                     }
                     it = bullets.erase(it);
                     break;
@@ -543,7 +571,9 @@ void Game::UpdateBullets() {
     }
 }
 
-void Game::ShootBullet(const Player& player) {
+
+void Game::ShootBullet(const Player& player)
+{
     // Poziția curentă a jucătorului
     auto [x, y] = player.GetPosition();
     char direction = player.GetDirection();
@@ -552,6 +582,9 @@ void Game::ShootBullet(const Player& player) {
     bullets.push_back(newBullet);  // Adaugă glonțul în listă
     std::cout << "Jucătorul " << player.GetName() << " a tras un glonț la poziția: ("
         << newBullet.GetPosition().first << ", " << newBullet.GetPosition().second << ")\n";
+    bulletCounter++; 
+    bulletToPlayerMap[bulletCounter] = player.GetName();
+
 }
 
 void Game::CheckAndApplyWeaponUpgrade()

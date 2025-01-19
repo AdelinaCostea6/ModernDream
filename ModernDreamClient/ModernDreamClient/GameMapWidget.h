@@ -6,6 +6,7 @@
 #include <QPixmap>
 #include <QPair>
 #include <QKeyEvent>
+#include <QTableWidget>
 #include "HttpClient.h"
 #include "BulletInfo.h"
 
@@ -33,6 +34,8 @@ private:
     void setupTextures();
     void setupConnections();
     void displayMap();
+    QHash<QString, int> playerScores;  // Stochează scorurile jucătorilor
+
 
    
     QMutex bulletsMutex;
@@ -44,6 +47,8 @@ private:
     void updateWalls();
     void syncPlayers();
     void movePlayer(const QString& direction);
+    void updateScoreTable();
+    QTableWidget* scoreTable;
 
 
     QVector<QPair<int, int>> updatedCells;

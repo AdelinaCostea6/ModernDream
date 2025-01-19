@@ -5,6 +5,7 @@
 #include <QJsonArray>
 #include <QDebug>
 #include <QtGlobal> 
+#include <QTableWidgetItem>
 
 GameMapWidget::GameMapWidget(const QString& sessionId, const QString& username, QWidget* parent)
     : QMainWindow(parent), sessionId(sessionId), username(username),transform() {
@@ -194,9 +195,28 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
     }
 
    
-
     
 }
+
+void GameMapWidget::updateScoreTable() {
+    scoreTable->setRowCount(playerScores.size());  // Setează numărul de rânduri
+
+    int row = 0;
+    for (auto it = playerScores.begin(); it != playerScores.end(); ++it) {
+        // Nume jucător
+        QTableWidgetItem* nameItem = new QTableWidgetItem(it.key());
+        nameItem->setFlags(Qt::ItemIsEnabled);  // Needitabil
+        scoreTable->setItem(row, 0, nameItem);
+
+        // Scor jucător
+        QTableWidgetItem* scoreItem = new QTableWidgetItem(QString::number(it.value()));
+        scoreItem->setFlags(Qt::ItemIsEnabled);  // Needitabil
+        scoreTable->setItem(row, 1, scoreItem);
+
+        ++row;
+    }
+}
+
 
 void GameMapWidget::keyPressEvent(QKeyEvent* event) {
     //static QString currentDirection;
@@ -339,7 +359,6 @@ void GameMapWidget::syncBullets(const QString& sessionId) {
                 qDebug() << "Bullet synced: (" << x << ", " << y << "), Direction:" << direction;
             }
 
-            
             update();
         }
         else {
@@ -567,6 +586,9 @@ void GameMapWidget::syncPlayers() {
                 QString username = playerObj["username"].toString();
                 int x = playerObj["x"].toInt();
                 int y = playerObj["y"].toInt();
+                int score = playerObj["score"].toInt();
+
+                playerScores[username] = score;
                 playerPositions[username] = QPoint(x, y);
                 mapData[x][y] = 0;
                     qDebug() << "[DEBUG] Updated player position for" << username << ": (" << x << ", " << y << ")";
@@ -575,6 +597,7 @@ void GameMapWidget::syncPlayers() {
             else {
                 qDebug() << "[ERROR] Malformed player object:" << playerObj;
             }
+           // updateScoreTable();
         }
 
         qDebug() << "[DEBUG] Final playerPositions map:" << playerPositions;

@@ -150,7 +150,7 @@ void Player::Movement(const Map& mapMatrix, char direction) {
 
 void Player::Shoot(Game& game) {
 	if (weapon->CanShoot()) {
-		game.ShootBullet(*this);  // Trimite cererea către `Game`
+		//game.ShootBullet(*this);  // Trimite cererea către `Game`
 		weapon->Shoot();  // Reduce cooldown-ul
 	}
 }
@@ -255,4 +255,9 @@ void Player::Eliminate() {
 
 void Player::SetInitialPosition(const std::pair<int, int>& position) {
 	initialPosition = position;
+}
+
+void Player::AddPoints(int points) {
+	this->points += points;
+	std::cout << "[DEBUG] Player " << GetName() << " gained " << points << " points. Total: " << score << "\n";
 }

@@ -1,4 +1,4 @@
-//
+﻿//
 //#pragma once
 //#include "Map.h"
 //#include "Player.h"
@@ -77,6 +77,8 @@ private:
     std::deque<Bullet> bullets;
     std::vector<std::pair<int, int>> updatedCells;
     std::map<std::string, std::pair<int, int>> playerPositions;
+    std::map<int, std::string> bulletToPlayerMap;
+    int bulletCounter = 0;
 
 public:
     Game() = default;

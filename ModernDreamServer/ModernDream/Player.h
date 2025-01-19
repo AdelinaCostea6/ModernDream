@@ -46,7 +46,7 @@ public:
     void SetPosition(std::pair<int, int> pos);
     bool IsEliminated() const;
     void SetInitialPosition(const std::pair<int, int>& position);
-
+    void AddPoints(int points);
     void Eliminate();
     Player(const Player&) = delete;  
     Player& operator=(const Player&) = delete;
