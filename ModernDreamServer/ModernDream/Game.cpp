@@ -4,8 +4,8 @@
 
 Game::Game(Map map, const std::map<std::string, std::unique_ptr<Player>>& sessionPlayers)
     : map(std::move(map)) {
-    size_t index = 0;
 
+    size_t index = 0;
     for (const auto& [username, playerPtr] : sessionPlayers) {
         if (index < players.size()) {
             players[index] = std::make_unique<Player>(playerPtr->GetName(),
@@ -102,11 +102,7 @@ void Game::FinishSecond()
     }
 }
 
-void Game::TriggerBomb(int x, int y) {
-   // map.TriggerBomb(x, y);
-}
-
-void Game::GenerateMap(int numPlayers) {
+void Game::GenerateMap(uint8_t numPlayers) {
     std::cout << "[DEBUG] GenerateMap called with " << numPlayers << " players.\n";
     MapGenerator generator;
     generator.GenerateMap(numPlayers);
@@ -127,147 +123,15 @@ void Game::GenerateMap(int numPlayers) {
     }
 }
 
-void Game::UpdateBullets() {
-    int mapHeight = map.GetHeight();
-    int mapWidth = map.GetWidth();
-
-    for (auto it = bullets.begin(); it != bullets.end(); ) {
-        it->Movement(mapHeight, mapWidth);
-
-        auto [x, y] = it->GetPosition();
-
-        if (!it->GetIsActive() || x < 0 || x >= mapHeight || y < 0 || y >= mapWidth) {
-            std::cout << "Bullet out of bounds at: (" << x << ", " << y << ")\n";
-            it = bullets.erase(it);
-            continue;
-        }
-        int cellValue = map.GetCellValue(x, y);
-        for (const auto& player : players) {
-            if (player) {
-                auto [playerX, playerY] = player->GetPosition();
-                std::cout << "Checking Player: " << player->GetName() << " at Position: ("
-                    << playerX << ", " << playerY << ")\n";
-               
-                if (std::make_pair(playerX, playerY) == std::make_pair(x, y)) {
-                    std::cout << "Bullet hit player: " << player->GetName() << " at: (" << x << ", " << y << ")\n";
-                    player->Hit();
-                    int bulletId = std::distance(bullets.begin(), it) + 1;  
-                    if (!bulletToPlayerMap.count(bulletId)) {
-                        std::cout << "[DEBUG] No shooter found for bullet ID: " << bulletId << "\n";
-                    }
-                    if (bulletToPlayerMap.count(bulletId)) {
-                        std::string shooterName = bulletToPlayerMap[bulletId];
-                        std::cout << "[DEBUG] Shooter name from map: " << shooterName << "\n";
-
-                        
-                        auto shooter = std::find_if(players.begin(), players.end(), [&shooterName](const auto& p) {
-                            return p && p->GetName() == shooterName;
-                            });
-
-                        if (shooter == players.end()) {
-                            std::cout << "[DEBUG] Shooter with name " << shooterName << " not found in players list.\n";
-                        }
-
-                        if (shooter != players.end() && *shooter) {
-                            std::cout << "[DEBUG] Found shooter: " << (*shooter)->GetName() << "\n";
-                            (*shooter)->AddPoints(100);
-                            std::cout << "[DEBUG] Shooter now has " << (*shooter)->GetScore() << " points.\n";
-                        }
-               
-
-                        bulletToPlayerMap.erase(bulletId); 
-                        if (player->IsEliminated()) {
-                            std::cout << "Player " << player->GetName() << " has been eliminated.\n";
-                            map.SetCellValue(player->GetPosition().first, player->GetPosition().second, MapGenerator::FreeSpace);
-
-
-                        }
-                        else {
-
-                            player->ResetPosition();
-                            std::cout << "Player " << player->GetName() << " was hit and reset.\n";
-
-                        }
-                    }
-                    it = bullets.erase(it);
-                    break;
-                }
-            }
-            else
-            {
-                std::cout << "Player is null\n";
-            }
-        }
-
-
-        // Verifică dacă glonțul lovește un jucător utilizând matricea
-         // Obține valoarea celulei din matrice
-        if (it == bullets.end()) {
-            continue;  // Evită iterarea după ce glonțul a fost eliminat
-        }
-
-        //int cellValue = map.GetCellValue(x, y);
-        if (cellValue == MapGenerator::DestructibleWall) {
-            map.SetCellValue(x, y, MapGenerator::FreeSpace);
-            std::cout << "Bullet destroyed a destructible wall at: (" << x << ", " << y << ")\n";
-            updatedCells.emplace_back(x, y);
-            it = bullets.erase(it);
-            continue;
-        }
-        else if (cellValue == MapGenerator::NonDestructibleWall) {
-            std::cout << "Bullet hit an indestructible wall at: (" << x << ", " << y << ")\n";
-            it = bullets.erase(it);
-            continue;
-        }
-        else if (cellValue == MapGenerator::DestructibleWallWithBomb) {
-            std::cout << "Bullet hit a bomb at: (" << x << ", " << y << ")\n";
-
-            map.SetCellValue(x, y, MapGenerator::FreeSpace);
-            updatedCells.emplace_back(x, y); 
-
-
-            int explosionRadius = 10; 
-            for (int dx = -explosionRadius; dx <= explosionRadius; ++dx) {
-                for (int dy = -explosionRadius; dy <= explosionRadius; ++dy) {
-                    int newX = x + dx;
-                    int newY = y + dy;
-
-                    
-                    if (newX >= 0 && newX < map.GetHeight() && newY >= 0 && newY < map.GetWidth()) {
-                        int affectedCellValue = map.GetCellValue(newX, newY);
-
-                      
-                        if (affectedCellValue == MapGenerator::DestructibleWall) {
-                            map.SetCellValue(newX, newY, MapGenerator::FreeSpace);
-                            updatedCells.emplace_back(newX, newY);
-                            std::cout << "Explosion destroyed a destructible wall at: (" << newX << ", " << newY << ")\n";
-                        }
-                    }
-                }
-            }
-
-            
-            it = bullets.erase(it);
-            continue;
-        }
-
-
-
-        
-        ++it;
-    }
-}
-
 
 void Game::ShootBullet(const Player& player)
 {
-    // Poziția curentă a jucătorului
     auto [x, y] = player.GetPosition();
     char direction = player.GetDirection();
 
     Bullet newBullet({ x, y }, direction);
-    bullets.push_back(newBullet);  // Adaugă glonțul în listă
-    std::cout << "Jucătorul " << player.GetName() << " a tras un glonț la poziția: ("
+    bullets.push_back(newBullet);  
+    std::cout << "The player " << player.GetName() << " shoot a bullet at ("
         << newBullet.GetPosition().first << ", " << newBullet.GetPosition().second << ")\n";
     bulletCounter++; 
     bulletToPlayerMap[bulletCounter] = player.GetName();
@@ -280,7 +144,6 @@ void Game::CheckAndApplyWeaponUpgrade()
     {
         if (playerPtr && playerPtr->GetScore() >= 10 && !playerPtr->IsSpeedBoostUsed())
         {
-            playerPtr->GetWeapon().UpgradeSpeed(1.5f);
             playerPtr->GetWeapon().UpgradeWaitingTime(0.5f);
             playerPtr->SetSpeedBoostUsed(true);
 
@@ -295,7 +158,7 @@ const std::deque<Bullet>& Game::GetBullets() const {
     return bullets;
 }
 
-const std::vector<std::pair<int, int>>& Game::GetUpdatedCells() const {
+const std::vector<std::pair<std::uint16_t, std::uint16_t>>& Game::GetUpdatedCells() const {
     return updatedCells;
 }
 
@@ -304,8 +167,8 @@ void Game::ClearUpdatedCells() {
 }
 
 
-std::map<std::string, std::pair<int, int>> Game::GetPlayerPositions() const {
-    std::map<std::string, std::pair<int, int>> positions;
+std::map<std::string, std::pair<std::uint16_t, std::uint16_t>> Game::GetPlayerPositions() const {
+    std::map<std::string, std::pair<std::uint16_t, std::uint16_t>> positions;
     for (const auto& player : players) {
         if (player) {
             positions[player->GetName()] = player->GetPosition();
@@ -317,15 +180,12 @@ std::map<std::string, std::pair<int, int>> Game::GetPlayerPositions() const {
     return positions;
 }
 
-void Game::UpdatePlayerPosition(const std::string& username, int x, int y) {
+void Game::UpdatePlayerPosition(const std::string& username, std::uint16_t x, std::uint16_t y) {
     for (auto& player : players) {
         if (player && player->GetName() == username) {
-            // Actualizează harta
             auto oldPosition = player->GetPosition();
-            map.SetCellValue(oldPosition.first, oldPosition.second, MapGenerator::FreeSpace);  // Eliberează poziția veche
-            map.SetCellValue(x, y, MapGenerator::PlayerPosition);  // Ocupă noua poziție
-
-            // Actualizează poziția jucătorului
+            map.SetCellValue(oldPosition.first, oldPosition.second, MapGenerator::FreeSpace);  
+            map.SetCellValue(x, y, MapGenerator::PlayerPosition);  
             player->SetPosition(std::make_pair(x, y));
             return;
         }
@@ -333,12 +193,112 @@ void Game::UpdatePlayerPosition(const std::string& username, int x, int y) {
 }
 
 
-std::unique_ptr<Player> Game::GetPlayerByName(const std::string& name) {
-    for (const auto& player : players) {
-        if (player && player->GetName() == name) {
-           // return player;
-            return nullptr;
+
+void Game::UpdateBullets() {
+    int mapHeight = map.GetHeight();
+    int mapWidth = map.GetWidth();
+
+    for (auto it = bullets.begin(); it != bullets.end();) {
+        it->Movement(mapHeight, mapWidth);
+
+        auto [x, y] = it->GetPosition();
+
+        
+        if (!it->GetIsActive() || x < 0 || x >= mapHeight || y < 0 || y >= mapWidth) {
+            std::cout << "Bullet out of bounds at: (" << x << ", " << y << ")\n";
+            it = bullets.erase(it);
+            continue;
         }
+
+        int cellValue = map.GetCellValue(x, y);
+        bool bulletHandled = false;
+
+       
+        for (const auto& player : players) {
+            if (player && player->GetPosition() == std::make_pair(x, y)) {
+                std::cout << "Bullet hit player: " << player->GetName() << " at: (" << x << ", " << y << ")\n";
+                player->Hit();
+
+                int bulletId = std::distance(bullets.begin(), it) + 1;
+                if (bulletToPlayerMap.count(bulletId)) {
+                    std::string shooterName = bulletToPlayerMap[bulletId];
+                    auto shooter = std::find_if(players.begin(), players.end(), [&shooterName](const auto& p) {
+                        return p && p->GetName() == shooterName;
+                        });
+                    if (shooter != players.end() && *shooter) {
+                        (*shooter)->AddPoints(100);
+                        std::cout << "Shooter " << shooterName << " now has " << (*shooter)->GetScore() << " points.\n";
+                    }
+                    bulletToPlayerMap.erase(bulletId);
+                }
+
+                
+                if (player->IsEliminated()) {
+                    std::cout << "Player " << player->GetName() << " has been eliminated.\n";
+                    map.SetCellValue(player->GetPosition().first, player->GetPosition().second, MapGenerator::FreeSpace);
+                }
+                else {
+                    player->ResetPosition();
+                    std::cout << "Player " << player->GetName() << " was hit and reset.\n";
+                }
+
+                it = bullets.erase(it);
+                bulletHandled = true;
+                break;
+            }
+        }
+        if (bulletHandled) continue;
+
+        
+        if (cellValue == MapGenerator::DestructibleWall) {
+            map.SetCellValue(x, y, MapGenerator::FreeSpace);
+            std::cout << "Bullet destroyed a destructible wall at: (" << x << ", " << y << ")\n";
+            updatedCells.emplace_back(x, y);
+            it = bullets.erase(it);
+            continue;
+        }
+        else if (cellValue == MapGenerator::NonDestructibleWall) {
+            std::cout << "Bullet hit an indestructible wall at: (" << x << ", " << y << ")\n";
+            it = bullets.erase(it);
+            continue;
+        }
+        else if (cellValue == MapGenerator::DestructibleWallWithBomb) {
+            std::cout << "Bullet hit a bomb at: (" << x << ", " << y << ")\n";
+            map.SetCellValue(x, y, MapGenerator::FreeSpace);
+            updatedCells.emplace_back(x, y);
+
+            
+            int explosionRadius = 10;
+            for (int dx = -explosionRadius; dx <= explosionRadius; ++dx) {
+                for (int dy = -explosionRadius; dy <= explosionRadius; ++dy) {
+                    int newX = x + dx;
+                    int newY = y + dy;
+
+                    if (newX >= 0 && newX < mapHeight && newY >= 0 && newY < mapWidth) {
+                        int affectedCellValue = map.GetCellValue(newX, newY);
+                        if (affectedCellValue == MapGenerator::DestructibleWall) {
+                            map.SetCellValue(newX, newY, MapGenerator::FreeSpace);
+                            updatedCells.emplace_back(newX, newY);
+                            std::cout << "Explosion destroyed a destructible wall at: (" << newX << ", " << newY << ")\n";
+                        }
+                    }
+                }
+            }
+            it = bullets.erase(it);
+            continue;
+        }
+
+        for (auto other = bullets.begin(); other != bullets.end(); ++other) {
+            if (it != other && other->GetPosition() == std::make_pair(x, y)) {
+                std::cout << "Bullet collided with another bullet at: (" << x << ", " << y << ")\n";
+                it = bullets.erase(it);  
+                bullets.erase(other);   
+                bulletHandled = true;
+                break;
+            }
+        }
+        if (bulletHandled) continue;
+
+        ++it;  
     }
-    return nullptr;
 }

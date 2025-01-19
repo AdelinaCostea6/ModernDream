@@ -5,21 +5,17 @@
 
 class Weapon
 {
-private:
-	float speed;
-	float waitingTime{ 4.0f };
-	float lastShot{ 0.0f };
 
 public:
 	Weapon() = default;
-	Weapon(Weapon&&) noexcept = default;
-	Weapon& operator=(Weapon&&) noexcept = default;
-	Weapon(float speed);
+	Weapon(float waitingTime);
 	void Shoot();
 	bool CanShoot() const;
 	void UpgradeWaitingTime(float reduction);
-	void UpgradeSpeed(float increase);
-	float GetSpeed() const;
 	float GetWaitingTime() const;
 	float GetLastShot() const;
+
+private:
+	float waitingTime{ 4.0f };
+	float lastShot{ 0.0f };
 };

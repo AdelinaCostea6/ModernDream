@@ -1,7 +1,7 @@
 module bomb;
 
 Bomb::Bomb(Coordinates position)
-	: position(position), isActive(true) {}
+	: position(position){}
 
 Coordinates Bomb::GetPosition() const
 {

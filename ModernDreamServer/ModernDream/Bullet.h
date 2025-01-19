@@ -4,21 +4,13 @@
 #include <utility>
 #include <memory>
 #include <algorithm>
-#include <array>
 #include <format>
-#include "Player.h"
-#include "Wall.h"
 
 
-using Coordinates = std::pair<int, int>;
+using Coordinates = std::pair<std::uint16_t, std::uint16_t>;
 
 class Bullet
 {
-private:
-	Coordinates position{ 0, 0 }; 
-	float speed{ 0.25f };          
-	bool isActive{ true };
-	char direction;
 
 public:
 	Bullet() = default;
@@ -30,9 +22,12 @@ public:
 	Coordinates GetPosition() const;
 	bool GetIsActive() const;
 	void SetDoubleSpeed();
-	void Movement(int maxHeight, int maxWidth);
-	bool CheckCollisionWithPlayers(std::array<std::unique_ptr<Player>,4>&players);
-	bool CheckCollisionwithWalls(std::vector<std::unique_ptr<Wall>> &walls);
-	void CheckCollisionwithBullets(std::vector<std::unique_ptr<Bullet>> &bullets);
+	void Movement(std::uint16_t maxHeight, std::uint16_t maxWidth);
 	char GetDirection() const;
+
+private:
+	Coordinates position{ 0,0 };
+	float speed{ 0.25f };
+	bool isActive{ true };
+	char direction{ ' ' };
 };

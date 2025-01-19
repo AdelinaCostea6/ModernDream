@@ -24,6 +24,9 @@ public:
 protected:
     void paintEvent(QPaintEvent *event) override;
 
+signals:
+    void switchToWaitingRoom(const QString& sessionId, int currentPlayers, int requiredPlayers);
+
 private:
     HttpClient *httpClient;
     QLineEdit *usernameEdit;
@@ -56,8 +59,6 @@ private slots:
     void showMessageDialog(const QString &message, const QString &color);
 
 
-signals:
-    void switchToWaitingRoom(const QString& sessionId, int currentPlayers, int requiredPlayers);
 
 
 };

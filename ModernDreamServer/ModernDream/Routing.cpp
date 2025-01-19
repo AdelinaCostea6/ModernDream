@@ -55,133 +55,18 @@ void Routing::Run(DatabaseManager& storage) {
   
 
     CROW_ROUTE(m_app, "/game/syncBullets").methods("POST"_method)([this](const crow::request& req) {
-        try {
-            auto body = crow::json::load(req.body);
-
-            if (!body || !body.has("sessionId")) {
-                return crow::response(400, "Invalid request: Missing sessionId.");
-            }
-
-            std::string sessionId = body["sessionId"].s();
-            auto session = m_gameSessionManager.GetSession(sessionId);
-            if (!session) {
-                return crow::response(404, "Session not found.");
-            }
-
-
-            session->game.UpdateBullets();
-
-
-            crow::json::wvalue response;
-            size_t bulletIndex = 0;
-            for (const auto& bullet : session->game.GetBullets()) {
-                response["bullets"][bulletIndex]["x"] = bullet.GetPosition().first;
-                response["bullets"][bulletIndex]["y"] = bullet.GetPosition().second;
-                response["bullets"][bulletIndex]["direction"] = std::string(1, bullet.GetDirection());
-                ++bulletIndex;
-            }
-
-            return crow::response(200, response);
-        }
-        catch (const std::exception& e) {
-            CROW_LOG_ERROR << "Error in /game/syncBullets: " << e.what();
-            return crow::response(500, "Error in /game/syncBullets: " + std::string(e.what()));
-        }
+        return SyncBulletsRoute(req, m_gameSessionManager);
         });
-
-
-
 
 
     CROW_ROUTE(m_app, "/game/shoot").methods("POST"_method)([this](const crow::request& req) {
-        try {
-            auto body = crow::json::load(req.body);
-
-            if (!body || !body.has("sessionId") || !body.has("username") || !body.has("direction")) {
-                return crow::response(400, "Invalid request: Missing required fields.");
-            }
-
-            std::string sessionId = body["sessionId"].s();
-            std::string username = body["username"].s();
-
-            std::string directionString = body["direction"].s(); 
-            if (directionString.empty()) {
-                return crow::response(400, "Invalid request: Direction is empty.");
-            }
-
-            char direction = directionString[0];  
-
-            auto session = m_gameSessionManager.GetSession(sessionId);
-            if (!session) {
-                return crow::response(404, "Session not found.");
-            }
-
-            Player* player = session->GetPlayerByUsername(username);
-            if (!player) {
-                return crow::response(404, "Player not found.");
-            }
-
-            int startX = player->GetPosition().first;
-            int startY = player->GetPosition().second;
-
-            session->game.ShootBullet(*player);
-
-            crow::json::wvalue response;
-            response["startX"] = startX;
-            response["startY"] = startY;
-            response["direction"] = std::string(1, direction); 
-
-            return crow::response(200, response);
-
-        }
-        catch (const std::exception& e) {
-            CROW_LOG_ERROR << "Error in /game/shoot: " << e.what();
-            return crow::response(500, "Error: " + std::string(e.what()));
-        }
+        return ShootBulletRoute(req, m_gameSessionManager);
         });
 
     CROW_ROUTE(m_app, "/game/updateWalls").methods("POST"_method)([this](const crow::request& req) {
-        try {
-            auto body = crow::json::load(req.body);
-            if (!body || !body.has("sessionId")) {
-                return crow::response(400, "Invalid request: Missing sessionId.");
-            }
-
-            std::string sessionId = body["sessionId"].s();
-            auto session = m_gameSessionManager.GetSession(sessionId);
-            if (!session) {
-                return crow::response(404, "Session not found.");
-            }
-
-            crow::json::wvalue response;
-            response["updatedCells"] = crow::json::wvalue::list(); 
-
-            size_t index = 0;
-            CROW_LOG_INFO << "[DEBUG] Updated walls: ";
-            for (const auto& cell : session->game.GetUpdatedCells()) {
-                CROW_LOG_INFO << "Cell: (" << cell.first << ", " << cell.second << ")";
-            }
-            for (const auto& [x, y] : session->game.GetUpdatedCells()) {
-                response["updatedCells"][index]["x"] = x;
-                response["updatedCells"][index]["y"] = y;
-                ++index;
-            }
-
-            session->game.ClearUpdatedCells();  
-
-            return crow::response(200, response);
-        }
-        catch (const std::exception& e) {
-            CROW_LOG_ERROR << "Error in /game/updateWalls: " << e.what();
-            return crow::response(500, "Error: " + std::string(e.what()));
-        }
+        return UpdateWallsRoute(req, m_gameSessionManager);
         });
 
-
-
-
-
- 
 
     std::thread matchingThread([this]() {
         while (true) {
@@ -192,149 +77,25 @@ void Routing::Run(DatabaseManager& storage) {
     matchingThread.detach();
 
     CROW_ROUTE(m_app, "/game/joinQueue").methods("POST"_method)([this](const crow::request& req) {
-        auto json = crow::json::load(req.body);
-        if (!json.has("username") || !json.has("score")) {
-            return crow::response(400, "Invalid request: Missing username or score.");
-        }
-
-        std::string username = json["username"].s();
-        int score = json["score"].i();
-
-        std::cout << "[INFO] Received joinQueue request. Username: " << username << ", Score: " << score << std::endl;
-
-        m_gameSessionManager.AddToQueue(username, score);
-        return crow::response(200, "Player added to queue.");
+         return  UpdateJoinQueueRoute(req, m_gameSessionManager);
         });
 
 
     CROW_ROUTE(m_app, "/matchmaking/queue").methods("POST"_method)([this](const crow::request& req) {
-        auto json = crow::json::load(req.body);
-
-        if (!json.has("username") || !json.has("score")) {
-            return crow::response(400, "Invalid request: Missing username or score.");
-        }
-
-        std::string username = json["username"].s();
-        int score = json["score"].i();
-
-        // Caută o sesiune activă
-        std::string sessionId = m_gameSessionManager.FindOrCreateSession(username, score);
-
-        crow::json::wvalue response;
-        response["status"] = "success";
-        response["sessionId"] = sessionId;
-
-        CROW_LOG_INFO << "Player " << username << " added to session " << sessionId;
-        return crow::response(200, response);
+        return HandleQueueRoute(req, m_gameSessionManager);
         });
 
 
 
     CROW_ROUTE(m_app, "/matchmaking/status/<string>").methods("GET"_method)([this](const std::string& sessionId) {
-        auto session = m_gameSessionManager.GetSession(sessionId);
-        if (!session) {
-            CROW_LOG_ERROR << "Session not found: " << sessionId;
-            return crow::response(404, "Session not found.");
-        }
-
-        crow::json::wvalue response;
-        response["status"] = session->isReady ? "ready" : "waiting";
-        response["sessionId"] = sessionId;  
-        response["currentPlayers"] = session->players.size();
-        response["requiredPlayers"] = session->requiredPlayers;
-
-        
-        crow::json::wvalue::list playersList;
-
-        for (const auto& [username, player] : session->players) {
-            playersList.push_back(username); 
-        }
-
-        response["players"] = std::move(playersList);
-        return crow::response(200, response);
+        return HandleMatchmakingStatusRoute(sessionId, m_gameSessionManager);
         });
     
  
 
 
-CROW_ROUTE(m_app, "/game/syncPlayers").methods("POST"_method)([this](const crow::request& req) {
-    try {
-        auto body = crow::json::load(req.body);
-
-        if (!body || !body.has("sessionId")) {
-            return crow::response(400, "Invalid request: Missing sessionId.");
-        }
-
-        std::string sessionId = body["sessionId"].s();
-        auto session = m_gameSessionManager.GetSession(sessionId);
-        if (!session) {
-            return crow::response(404, "Session not found.");
-        }
-
-
-        auto& gamePlayers = session->game.GetPlayers();  
-        size_t index = 0;
-
-        for (const auto& [name, playerObj] : session->players) {
-            if (playerObj && index < gamePlayers.size()) {
-                if (!gamePlayers[index]) {
-                    gamePlayers[index] = std::make_unique<Player>(
-                        playerObj->GetName(),
-                        std::make_unique<Weapon>(),
-                        playerObj->GetPosition()
-                    );
-                    CROW_LOG_INFO << "[DEBUG] Player added to Game: " << playerObj->GetName();
-                }
-                else {
-                    gamePlayers[index]->SetPosition(playerObj->GetPosition());
-                    CROW_LOG_INFO << "[DEBUG] Player updated in Game: " << playerObj->GetName();
-                    
-                  
-                }
-                ++index;
-            }
-        }
-
-
-        for (size_t i = 0; i < gamePlayers.size(); ++i) {
-            if (gamePlayers[i]) {
-                const std::string& playerName = gamePlayers[i]->GetName();
-
-                
-                if (gamePlayers[i]->IsEliminated()) {
-                    session->players.erase(playerName);
-                    CROW_LOG_INFO << "[DEBUG] Removed eliminated player from session: " << playerName;
-                }
-            }
-        }
-
-        crow::json::wvalue response;
-        crow::json::wvalue::list players_list; 
-
-        CROW_LOG_INFO << "[DEBUG] Players in session " << sessionId << ":";
-
-        for (const auto& [name, playerObj] : session->players) {
-            if (playerObj) {
-                crow::json::wvalue player_data;
-                player_data["username"] = name;
-
-                player_data["x"] = playerObj->GetPosition().first;
-                player_data["y"] = playerObj->GetPosition().second;
-                player_data["score"] = playerObj->GetPoints();
-
-                players_list.push_back(std::move(player_data));
-            }
-            
-        }
-
-        response["players"] = std::move(players_list);
-
-        return crow::response(200, response);
-    }
-    catch (const std::exception& e) {
-        CROW_LOG_ERROR << "Error in /game/syncPlayers: " << e.what();
-        return crow::response(500, "Error: " + std::string(e.what()));
-    }
+    CROW_ROUTE(m_app, "/game/syncPlayers").methods("POST"_method)([this](const crow::request& req) {
+         return HandleSyncPlayersRoute(req, m_gameSessionManager);
     });
 
 
@@ -592,64 +353,265 @@ crow::response Routing::MovePlayerRoute(const crow::request& req) {
 }
 
 
+crow::response Routing::SyncBulletsRoute(const crow::request& req, GameSessionManager& gameSessionManager) {
+    try {
+        auto body = crow::json::load(req.body);
 
-crow::response Routing::ShootBulletRoute(const crow::request& req) {
-    auto json = crow::json::load(req.body);
-    if (!json) {
-        return crow::response(400, "Invalid JSON format");
+        if (!body || !body.has("sessionId")) {
+            return crow::response(400, "Invalid request: Missing sessionId.");
+        }
+
+        std::string sessionId = body["sessionId"].s();
+        auto session = gameSessionManager.GetSession(sessionId);
+        if (!session) {
+            return crow::response(404, "Session not found.");
+        }
+
+        session->game.UpdateBullets();
+
+        crow::json::wvalue response;
+        size_t bulletIndex = 0;
+        for (const auto& bullet : session->game.GetBullets()) {
+            response["bullets"][bulletIndex]["x"] = bullet.GetPosition().first;
+            response["bullets"][bulletIndex]["y"] = bullet.GetPosition().second;
+            response["bullets"][bulletIndex]["direction"] = std::string(1, bullet.GetDirection());
+            ++bulletIndex;
+        }
+
+        return crow::response(200, response);
     }
-
-    std::string sessionId = json["sessionId"].s();
-    std::string username = json["username"].s();
-    std::string directionString = json["direction"].s(); 
-    char direction = directionString.empty() ? '\0' : directionString[0]; 
-
-    auto session = m_gameSessionManager.GetSession(sessionId);
-    if (!session) {
-        return crow::response(404, "Session not found");
+    catch (const std::exception& e) {
+        CROW_LOG_ERROR << "Error in /game/syncBullets: " << e.what();
+        return crow::response(500, "Error in /game/syncBullets: " + std::string(e.what()));
     }
-
-    auto player = session->GetPlayerByUsername(username);
-    if (!player) {
-        return crow::response(404, "Player not found");
-    }
-
-    player->SetDirection(direction);
-    session->game.ShootBullet(*player);
-
-    return crow::response(200, "Bullet shot successfully");
 }
 
 
-crow::response Routing::SyncBulletsRoute(const crow::request& req) {
-    auto json = crow::json::load(req.body);
-    if (!json) {
-        return crow::response(400, "Invalid JSON format");
-    }
+crow::response Routing::ShootBulletRoute(const crow::request& req, GameSessionManager& gameSessionManager) {
+    try {
+        auto body = crow::json::load(req.body);
 
-    std::string sessionId = json["sessionId"].s();
-    auto session = m_gameSessionManager.GetSession(sessionId);
+        if (!body || !body.has("sessionId") || !body.has("username") || !body.has("direction")) {
+            return crow::response(400, "Invalid request: Missing required fields.");
+        }
+
+        std::string sessionId = body["sessionId"].s();
+        std::string username = body["username"].s();
+
+        std::string directionString = body["direction"].s();
+        if (directionString.empty()) {
+            return crow::response(400, "Invalid request: Direction is empty.");
+        }
+
+        char direction = directionString[0];
+
+        auto session = gameSessionManager.GetSession(sessionId);
+        if (!session) {
+            return crow::response(404, "Session not found.");
+        }
+
+        Player* player = session->GetPlayerByUsername(username);
+        if (!player) {
+            return crow::response(404, "Player not found.");
+        }
+
+        int startX = player->GetPosition().first;
+        int startY = player->GetPosition().second;
+
+        session->game.ShootBullet(*player);
+
+        crow::json::wvalue response;
+        response["startX"] = startX;
+        response["startY"] = startY;
+        response["direction"] = std::string(1, direction);
+
+        return crow::response(200, response);
+    }
+    catch (const std::exception& e) {
+        CROW_LOG_ERROR << "Error in /game/shoot: " << e.what();
+        return crow::response(500, "Error: " + std::string(e.what()));
+    }
+}
+
+
+crow::response Routing::UpdateWallsRoute(const crow::request& req, GameSessionManager& gameSessionManager) {
+    try {
+        auto body = crow::json::load(req.body);
+        if (!body || !body.has("sessionId")) {
+            return crow::response(400, "Invalid request: Missing sessionId.");
+        }
+
+        std::string sessionId = body["sessionId"].s();
+        auto session = gameSessionManager.GetSession(sessionId);
+        if (!session) {
+            return crow::response(404, "Session not found.");
+        }
+
+        crow::json::wvalue response;
+        response["updatedCells"] = crow::json::wvalue::list();
+
+        size_t index = 0;
+        CROW_LOG_INFO << "[DEBUG] Updated walls: ";
+        for (const auto& cell : session->game.GetUpdatedCells()) {
+            CROW_LOG_INFO << "Cell: (" << cell.first << ", " << cell.second << ")";
+        }
+        for (const auto& [x, y] : session->game.GetUpdatedCells()) {
+            response["updatedCells"][index]["x"] = x;
+            response["updatedCells"][index]["y"] = y;
+            ++index;
+        }
+
+        session->game.ClearUpdatedCells();
+
+        return crow::response(200, response);
+    }
+    catch (const std::exception& e) {
+        CROW_LOG_ERROR << "Error in /game/updateWalls: " << e.what();
+        return crow::response(500, "Error: " + std::string(e.what()));
+    }
+}
+
+
+crow::response Routing::UpdateJoinQueueRoute(const crow::request& req, GameSessionManager& gameSessionManager) {
+    try {
+        auto json = crow::json::load(req.body);
+        if (!json.has("username") || !json.has("score")) {
+            return crow::response(400, "Invalid request: Missing username or score.");
+        }
+
+        std::string username = json["username"].s();
+        int score = json["score"].i();
+
+        std::cout << "[INFO] Received joinQueue request. Username: " << username << ", Score: " << score << std::endl;
+
+        gameSessionManager.AddToQueue(username, score);
+        return crow::response(200, "Player added to queue.");
+    }
+    catch (const std::exception& e) {
+        CROW_LOG_ERROR << "Error in /game/joinQueue: " << e.what();
+        return crow::response(500, "Error: " + std::string(e.what()));
+    }
+}
+
+
+crow::response Routing::HandleQueueRoute(const crow::request& req, GameSessionManager& gameSessionManager) {
+    try {
+        auto json = crow::json::load(req.body);
+
+        if (!json.has("username") || !json.has("score")) {
+            return crow::response(400, "Invalid request: Missing username or score.");
+        }
+
+        std::string username = json["username"].s();
+        int score = json["score"].i();
+
+        std::string sessionId = gameSessionManager.FindOrCreateSession(username, score);
+
+        crow::json::wvalue response;
+        response["status"] = "success";
+        response["sessionId"] = sessionId;
+
+        CROW_LOG_INFO << "Player " << username << " added to session " << sessionId;
+        return crow::response(200, response);
+    }
+    catch (const std::exception& e) {
+        CROW_LOG_ERROR << "Error in /matchmaking/queue: " << e.what();
+        return crow::response(500, "Error: " + std::string(e.what()));
+    }
+}
+
+
+
+crow::response Routing::HandleMatchmakingStatusRoute(const std::string& sessionId, GameSessionManager& gameSessionManager) {
+    auto session = gameSessionManager.GetSession(sessionId);
     if (!session) {
-        return crow::response(404, "Session not found");
+        CROW_LOG_ERROR << "Session not found: " << sessionId;
+        return crow::response(404, "Session not found.");
     }
-
-    session->game.UpdateBullets();
-    const auto& bullets = session->game.GetBullets();
 
     crow::json::wvalue response;
-    std::vector<crow::json::wvalue> bulletsJson;  
-    for (const auto& bullet : bullets) {
-        if (bullet.GetIsActive()) {
-            crow::json::wvalue bulletJson;
-            bulletJson["x"] = bullet.GetPosition().first;
-            bulletJson["y"] = bullet.GetPosition().second;
-            bulletsJson.push_back(std::move(bulletJson));
-        }
-    }
+    response["status"] = session->isReady ? "ready" : "waiting";
+    response["sessionId"] = sessionId;
+    response["currentPlayers"] = session->players.size();
+    response["requiredPlayers"] = session->requiredPlayers;
 
-    response["bullets"] = std::move(bulletsJson);
-    std::cout << "Response JSON: " << response.dump() << std::endl;
-    
+    crow::json::wvalue::list playersList;
+    for (const auto& [username, player] : session->players) {
+        playersList.push_back(username);
+    }
+    response["players"] = std::move(playersList);
+
     return crow::response(200, response);
 }
 
+
+
+crow::response Routing::HandleSyncPlayersRoute(const crow::request& req, GameSessionManager& gameSessionManager) {
+    try {
+        auto body = crow::json::load(req.body);
+
+        if (!body || !body.has("sessionId")) {
+            return crow::response(400, "Invalid request: Missing sessionId.");
+        }
+
+        std::string sessionId = body["sessionId"].s();
+        auto session = gameSessionManager.GetSession(sessionId);
+        if (!session) {
+            return crow::response(404, "Session not found.");
+        }
+
+        auto& gamePlayers = session->game.GetPlayers();
+        size_t index = 0;
+
+        for (const auto& [name, playerObj] : session->players) {
+            if (playerObj && index < gamePlayers.size()) {
+                if (!gamePlayers[index]) {
+                    gamePlayers[index] = std::make_unique<Player>(
+                        playerObj->GetName(),
+                        std::make_unique<Weapon>(),
+                        playerObj->GetPosition()
+                    );
+                    CROW_LOG_INFO << "[DEBUG] Player added to Game: " << playerObj->GetName();
+                }
+                else {
+                    gamePlayers[index]->SetPosition(playerObj->GetPosition());
+                    CROW_LOG_INFO << "[DEBUG] Player updated in Game: " << playerObj->GetName();
+                }
+                ++index;
+            }
+        }
+
+        for (size_t i = 0; i < gamePlayers.size(); ++i) {
+            if (gamePlayers[i]) {
+                const std::string& playerName = gamePlayers[i]->GetName();
+                if (gamePlayers[i]->IsEliminated()) {
+                    session->players.erase(playerName);
+                    CROW_LOG_INFO << "[DEBUG] Removed eliminated player from session: " << playerName;
+                }
+            }
+        }
+
+        crow::json::wvalue response;
+        crow::json::wvalue::list players_list;
+
+        for (const auto& [name, playerObj] : session->players) {
+            if (playerObj) {
+                crow::json::wvalue player_data;
+                player_data["username"] = name;
+                player_data["x"] = playerObj->GetPosition().first;
+                player_data["y"] = playerObj->GetPosition().second;
+                player_data["score"] = playerObj->GetPoints();
+
+                players_list.push_back(std::move(player_data));
+            }
+        }
+
+        response["players"] = std::move(players_list);
+
+        return crow::response(200, response);
+    }
+    catch (const std::exception& e) {
+        CROW_LOG_ERROR << "Error in /game/syncPlayers: " << e.what();
+        return crow::response(500, "Error: " + std::string(e.what()));
+    }
+}

@@ -22,42 +22,23 @@ struct GameSession {
         game.GenerateMap(requiredPlayers);
     }
 
-    GameSession(GameSession&& other) noexcept
-        : sessionId(std::move(other.sessionId)),
-        requiredPlayers(other.requiredPlayers),
-        players(std::move(other.players)),
-        isReady(other.isReady),
-        game(std::move(other.game)) {}
-
-    GameSession& operator=(GameSession&& other) noexcept {
-        if (this != &other) {
-            sessionId = std::move(other.sessionId);
-            requiredPlayers = other.requiredPlayers;
-            players = std::move(other.players);
-            isReady = other.isReady;
-            game = std::move(other.game);
-        }
-        return *this;
-    }
+    GameSession(GameSession&& other) noexcept = default;
+    GameSession& operator=(GameSession&& other) noexcept = default;
 
 
     const Map& GetMap() const {
         return game.GetMap(); 
     }
+
     Game& GetGame() { return game; }
 
     Player* GetPlayerByUsername(const std::string& username) {
-        auto it = players.find(username); 
-        if (it != players.end()) {
-            std::cout << "[DEBUG] Player found: " << username << std::endl;
-            return it->second.get(); 
+        if (auto it = players.find(username); it != players.end()) {
+            std::cout << std::format("[DEBUG] Player found: {}\n", username);
+            return it->second.get();
         }
-        else
-        {
-            std::cerr << "[DEBUG] Player not found: " << username << std::endl;
-            return nullptr;
-        }
-       
+        std::cerr << std::format("[DEBUG] Player not found: {}\n", username);
+        return nullptr;
     }
 
 

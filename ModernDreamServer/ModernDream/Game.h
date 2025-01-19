@@ -12,10 +12,10 @@ private:
     Map map;
     std::array<std::unique_ptr<Player>, 4> players;
     std::deque<Bullet> bullets;
-    std::vector<std::pair<int, int>> updatedCells;
-    std::map<std::string, std::pair<int, int>> playerPositions;
-    std::map<int, std::string> bulletToPlayerMap;
-    int bulletCounter = 0;
+    std::vector<std::pair<std::uint16_t, std::uint16_t>> updatedCells; 
+    std::map<std::string, std::pair<std::uint16_t, std::uint16_t>> playerPositions;
+    std::map<std::uint32_t, std::string> bulletToPlayerMap; 
+    std::uint32_t bulletCounter = 0;  
 
 public:
     Game() = default;
@@ -27,15 +27,12 @@ public:
     void WinGame();
     void FinishSecond();
     void CheckAndApplyWeaponUpgrade();
-    void TriggerBomb(int x, int y);
-    void GenerateMap(int numPlayers);
+    void GenerateMap(std::uint8_t numPlayers);  
     void ShootBullet(const Player& player);
     void UpdateBullets();
     const std::deque<Bullet>& GetBullets() const;
-    const std::vector<std::pair<int, int>>& GetUpdatedCells() const;
+    const std::vector<std::pair<std::uint16_t, std::uint16_t>>& GetUpdatedCells() const;
     void ClearUpdatedCells();
-    std::map<std::string, std::pair<int, int>> GetPlayerPositions() const;
-    void UpdatePlayerPosition(const std::string& username, int x, int y);
-    std::unique_ptr<Player>GetPlayerByName(const std::string& name);
+    std::map<std::string, std::pair<std::uint16_t, std::uint16_t>> GetPlayerPositions() const;
+    void UpdatePlayerPosition(const std::string& username, std::uint16_t x, std::uint16_t y);
 };
-

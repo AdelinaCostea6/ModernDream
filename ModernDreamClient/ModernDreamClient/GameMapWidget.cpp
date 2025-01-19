@@ -39,22 +39,15 @@ void GameMapWidget::setupTextures() {
 }
 
 void GameMapWidget::setupConnections() {
-   // connect(httpClient, &HttpClient::playerMoved, this, &GameMapWidget::updatePlayerPosition);
     connect(httpClient, &HttpClient::syncPlayersRequest, this, &GameMapWidget::syncPlayers);
 
     QTimer* bulletSyncTimer = new QTimer(this); 
     connect(bulletSyncTimer, &QTimer::timeout, this, [this]() {   
-        /*if (!isUpdating)
-        {*/
             syncBullets(sessionId);
-            //fetchAndInitializeMap();
-            //syncMap();
             updateWalls();
             syncPlayers();
             displayMap();
-        //}
-           
-           
+
         });
     bulletSyncTimer->start(500);  
 }
@@ -70,8 +63,6 @@ void GameMapWidget::fetchAndInitializeMap() {
     
         if (jsonObj.contains("map")) {
             QJsonArray mapArray = jsonObj["map"].toArray();
-            //QVector<QVector<int>> mapData;
-           // mapData.clear();
             for (const QJsonValue& row : mapArray) {
                 QVector<int> rowData;
                 QJsonArray rowArray = row.toArray();
@@ -102,10 +93,6 @@ void GameMapWidget::updatePlayerPosition(int x, int y) {
 
 
 void GameMapWidget::paintEvent(QPaintEvent* event) {
-    /*if (isUpdating) {
-        qDebug() << "Repaint skipped - updating bullets!";
-        return;
-    }*/
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
@@ -127,7 +114,6 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             case 0:
             {
                 painter.fillRect(cellRect, QColor("#d3d3d3"));
-                //painter.drawPixmap(cellRect.toRect(), playerTextures[playerIndex].scaled(cellSize, cellSize, Qt::KeepAspectRatio));
                 
                 QPixmap rotatedPlayer = playerTextures[playerIndex].transformed(transform);
                 painter.drawPixmap(cellRect.toRect(), rotatedPlayer.scaled(cellSize, cellSize, Qt::KeepAspectRatio));
@@ -141,7 +127,7 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
               
             case 2:
               painter.fillRect(cellRect, QColor("#008000"));
-              painter.drawPixmap(cellRect.toRect(), wallTexture /*.scaled(cellSize, cellSize, Qt::IgnoreAspectRatio)*/);
+              painter.drawPixmap(cellRect.toRect(), wallTexture);
               
               break;
             case 3:
@@ -187,9 +173,6 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
             bulletSize
         );
 
-        /*painter.setBrush(Qt::yellow);  
-        painter.setPen(Qt::NoPen);    
-        painter.drawEllipse(bulletRect);  */
         
         painter.drawPixmap(bulletRect.toRect(), bulletTexture.scaled(cellSize, cellSize, Qt::KeepAspectRatio));  
     }
@@ -198,29 +181,9 @@ void GameMapWidget::paintEvent(QPaintEvent* event) {
     
 }
 
-void GameMapWidget::updateScoreTable() {
-    scoreTable->setRowCount(playerScores.size());  // Setează numărul de rânduri
-
-    int row = 0;
-    for (auto it = playerScores.begin(); it != playerScores.end(); ++it) {
-        // Nume jucător
-        QTableWidgetItem* nameItem = new QTableWidgetItem(it.key());
-        nameItem->setFlags(Qt::ItemIsEnabled);  // Needitabil
-        scoreTable->setItem(row, 0, nameItem);
-
-        // Scor jucător
-        QTableWidgetItem* scoreItem = new QTableWidgetItem(QString::number(it.value()));
-        scoreItem->setFlags(Qt::ItemIsEnabled);  // Needitabil
-        scoreTable->setItem(row, 1, scoreItem);
-
-        ++row;
-    }
-}
-
 
 void GameMapWidget::keyPressEvent(QKeyEvent* event) {
-    //static QString currentDirection;
-
+   
     switch (event->key()) {
     case Qt::Key_W:
     {
@@ -228,7 +191,6 @@ void GameMapWidget::keyPressEvent(QKeyEvent* event) {
         qDebug() << "Move Up";
         transform.reset();
         transform.rotate(270);
-       // httpClient->movePlayer(sessionId, username, currentDirection);
         movePlayer("w");
         break;
     }
@@ -238,7 +200,6 @@ void GameMapWidget::keyPressEvent(QKeyEvent* event) {
         qDebug() << "Move Down";
         transform.reset();
         transform.rotate(90);
-        //httpClient->movePlayer(sessionId, username, currentDirection);
         movePlayer("s");
         break;
     }
@@ -248,7 +209,6 @@ void GameMapWidget::keyPressEvent(QKeyEvent* event) {
         qDebug() << "Move Left";
         transform.reset();
         transform.scale(-1, 1);
-       // httpClient->movePlayer(sessionId, username, currentDirection);
         movePlayer("a");
         break;
     }
@@ -258,7 +218,6 @@ void GameMapWidget::keyPressEvent(QKeyEvent* event) {
         qDebug() << "Move Right";
         transform.reset();
         transform.rotate(0);
-       // httpClient->movePlayer(sessionId, username, currentDirection);
         movePlayer("d");
         break;
     }
@@ -305,7 +264,6 @@ void GameMapWidget::shootBullet(const QString& direction) {
 
             
             QMutexLocker lock(&bulletsMutex);
-           // bullets->append(BulletInfo(startX, startY, direction[0].toLatin1()));
             qDebug() << "Added bullet locally at: (" << startY << ", " << startX << ")";
             update();
         }
@@ -313,7 +271,6 @@ void GameMapWidget::shootBullet(const QString& direction) {
             qDebug() << "Invalid response from server for shootBullet!";
         }
 
-        //update();  
         reply->deleteLater();
         });
 }
@@ -364,30 +321,10 @@ void GameMapWidget::syncBullets(const QString& sessionId) {
         else {
             qDebug() << "Error: Server response does not contain 'bullets'";
         }
-        //update();
         reply->deleteLater();
         });
 }
 
-
-
-void GameMapWidget::updateMapCells(const QVector<QPair<int, int>>& updatedCells) {
-    QMutexLocker lock(&mapMutex);  // Protejează accesul la `mapData` dacă este accesat din thread-uri diferite
-
-    for (const auto& cell : updatedCells) {
-        int x = cell.first;
-        int y = cell.second;
-
-        if (x >= 0 && x < mapData.size() && y >= 0 && y < mapData[0].size()) {
-            mapData[x][y] = 1;  // Setează celula ca spațiu liber (valoarea 1)
-        }
-        else {
-            qDebug() << "Invalid map coordinates: (" << x << ", " << y << ")";
-        }
-    }
-    update();
-     // Declanșează redesenarea interfeței
-}
 
 
 void GameMapWidget::updateWalls() {
@@ -413,19 +350,15 @@ void GameMapWidget::updateWalls() {
         if (jsonResponse.contains("updatedCells")) {
             QJsonArray updatesArray = jsonResponse["updatedCells"].toArray();
             
-           // updatedCells.clear();
             for (const auto& cellValue : updatesArray) {
                 QJsonObject cellObj = cellValue.toObject();
                 int x = cellObj["x"].toInt();
                 int y = cellObj["y"].toInt();
 
-                //updatedCells.append(qMakePair(x, y));
                 mapData[x][y] = 1;
 
             }
             update();
-
-           // updateMapCells(updatedCells);  // Actualizează harta
 
         }
         else {
@@ -436,105 +369,6 @@ void GameMapWidget::updateWalls() {
         });
 }
 
-//void GameMapWidget::notifyServerBombTriggered(int bombX, int bombY) {
-//    QJsonObject requestData;
-//    requestData["sessionId"] = sessionId; // Add the session ID
-//    requestData["bombX"] = bombX;         // Add the X coordinate of the bomb
-//    requestData["bombY"] = bombY;         // Add the Y coordinate of the bomb
-//
-//    QNetworkRequest request(QUrl("http://localhost:8080/game/triggerBomb"));
-//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-//
-//    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-//    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
-//
-//    connect(reply, &QNetworkReply::finished, [this, reply]() {
-//        QByteArray responseData = reply->readAll();
-//        auto jsonResponse = QJsonDocument::fromJson(responseData).object();
-//
-//        if (jsonResponse.contains("updatedCells")) {
-//            QJsonArray updatedCellsArray = jsonResponse["updatedCells"].toArray();
-//
-//            QVector<QPair<int, int>> updatedCells;
-//            for (const auto& cellValue : updatedCellsArray) {
-//                QJsonObject cellObj = cellValue.toObject();
-//                int x = cellObj["x"].toInt();
-//                int y = cellObj["y"].toInt();
-//                updatedCells.append(qMakePair(x, y));
-//            }
-//
-//            updateMapCells(updatedCells); // Update map with the affected cells
-//        }
-//        else {
-//            qDebug() << "Error: No 'updatedCells' in server response.";
-//        }
-//
-//        reply->deleteLater();
-//        });
-//}
-
-
-
-
-
-//void GameMapWidget::syncPlayers() {
-//    qDebug() << "[DEBUG] syncPlayers called for session:" << sessionId;
-//
-//    if (sessionId.isEmpty()) {
-//        qDebug() << "[ERROR] Session ID is empty!";
-//        return;
-//    }
-//
-//    QJsonObject requestData;
-//    requestData["sessionId"] = sessionId;
-//
-//    QNetworkRequest request(QUrl("http://localhost:8080/game/syncPlayers"));
-//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-//
-//    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-//    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
-//
-//    connect(reply, &QNetworkReply::finished, [this, reply]() {
-//        QByteArray responseData = reply->readAll();
-//        qDebug() << "[DEBUG] Response data from syncPlayers:" << responseData;
-//
-//        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
-//
-//        if (jsonResponse.contains("players")) {
-//
-//            //for (int row = 0; row < mapData.size(); ++row) {
-//            //    for (int col = 0; col < mapData[row].size(); ++col) {
-//            //        if (mapData[row][col] == 0) {  // Presupunând că 2 reprezintă jucători
-//            //            mapData[row][col] = 1;    // Setăm celula ca liberă
-//            //        }
-//            //    }
-//            //}
-//            QJsonArray playersArray = jsonResponse["players"].toArray();
-//            qDebug() << "[DEBUG] Number of players in response:" << playersArray.size();
-//
-//            for (const auto& playerValue : playersArray) {
-//                QJsonObject playerObj = playerValue.toObject();
-//                qDebug() << "[DEBUG] Player object:" << playerObj;
-//
-//                QString username = playerObj["username"].toString();
-//                int x = playerObj["x"].toInt();
-//                int y = playerObj["y"].toInt();
-//
-//               // mapData[x][y] = 0;
-//
-//                playerPositions[username] = QPoint(x, y);
-//                qDebug() << "[DEBUG] Updated player position for " << username
-//                    << ": (" << x << ", " << y << ")";
-//            }
-//            update();  // Re-desenăm harta
-//        }
-//        else {
-//            qDebug() << "[ERROR] No 'players' data in server response.";
-//        }
-//        reply->deleteLater();
-//        });
-//
-//}
 
 void GameMapWidget::syncPlayers() {
     qDebug() << "[DEBUG] syncPlayers called for session:" << sessionId;
@@ -597,12 +431,12 @@ void GameMapWidget::syncPlayers() {
             else {
                 qDebug() << "[ERROR] Malformed player object:" << playerObj;
             }
-           // updateScoreTable();
+           
         }
 
         qDebug() << "[DEBUG] Final playerPositions map:" << playerPositions;
 
-        update();  // Trigger map redraw
+        update();  
         reply->deleteLater();
         });
 }
@@ -630,71 +464,9 @@ void GameMapWidget::displayMap()
     }
 }
 
-//void GameMapWidget::movePlayer(const QString& direction) {
-//    // Obține poziția curentă a jucătorului
-//    QPoint currentPosition = playerPositions[username];
-//    QPoint newPosition = currentPosition;
-//    mapData[currentPosition.x()][currentPosition.y()] = 1;
-//    // Actualizează poziția pe baza direcției
-//    if (direction == "w") {
-//        newPosition.setY(currentPosition.y() - 1);  // Deplasare în sus
-//    }
-//    else if (direction == "s") {
-//        newPosition.setY(currentPosition.y() + 1);  // Deplasare în jos
-//    }
-//    else if (direction == "a") {
-//        newPosition.setX(currentPosition.x() - 1);  // Deplasare la stânga
-//    }
-//    else if (direction == "d") {
-//        newPosition.setX(currentPosition.x() + 1);  // Deplasare la dreapta
-//    }
-//
-//    // Actualizează poziția locală
-//    playerPositions[username] = newPosition;
-//    qDebug() << "[DEBUG] Player moved locally:" << username << "to position:" << newPosition;
-//   // mapData[newPosition.x()][newPosition.y()] = 0;
-//
-//    // Trimite cererea către server pentru sincronizare
-//    QJsonObject requestData;
-//    requestData["sessionId"] = sessionId;
-//    requestData["username"] = username;
-//    requestData["direction"] = direction;
-//
-//    QNetworkRequest request(QUrl("http://localhost:8080/game/move"));
-//    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-//
-//    QNetworkAccessManager* manager = new QNetworkAccessManager(this);
-//    QNetworkReply* reply = manager->post(request, QJsonDocument(requestData).toJson());
-//
-//    connect(reply, &QNetworkReply::finished, [this, reply]() {
-//        QByteArray responseData = reply->readAll();
-//        QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
-//        qDebug() << "[DEBUG] Server response for movePlayer:" << jsonResponse;
-//
-//        // Actualizează pozițiile celorlalți jucători
-//        if (jsonResponse.contains("players")) {
-//            QJsonArray playersArray = jsonResponse["players"].toArray();
-//            for (const auto& playerValue : playersArray) {
-//                QJsonObject playerObj = playerValue.toObject();
-//                QString username = playerObj["username"].toString();
-//                int x = playerObj["x"].toInt();
-//                int y = playerObj["y"].toInt();
-//                playerPositions[username] = QPoint(x, y);
-//                mapData[x][y] = 0;
-//                
-//            }
-//            update();  // Re-desenăm harta
-//        }
-//
-//        reply->deleteLater();
-//        });
-//
-//    update();  // Re-desenăm harta imediat
-//}
 
 
 void GameMapWidget::movePlayer(const QString& direction) {
-    // Trimite cererea către server pentru sincronizare
     QJsonObject requestData;
     requestData["sessionId"] = sessionId;
     requestData["username"] = username;
@@ -711,31 +483,30 @@ void GameMapWidget::movePlayer(const QString& direction) {
         QJsonObject jsonResponse = QJsonDocument::fromJson(responseData).object();
         qDebug() << "[DEBUG] Server response for movePlayer:" << jsonResponse;
 
-        // Procesăm pozițiile jucătorilor returnate de server
         if (jsonResponse.contains("players")) {
             QJsonArray playersArray = jsonResponse["players"].toArray();
 
-            // Curățăm harta de pozițiile vechi
+         
             for (int row = 0; row < mapData.size(); ++row) {
                 for (int col = 0; col < mapData[row].size(); ++col) {
-                    if (mapData[row][col] == 0) {  // Presupunând că 2 reprezintă un jucător
-                        mapData[row][col] = 1;    // Setăm celula ca liberă
+                    if (mapData[row][col] == 0) {  
+                        mapData[row][col] = 1;   
                     }
                 }
             }
 
-            // Actualizăm pozițiile primite de la server
+            
             for (const auto& playerValue : playersArray) {
                 QJsonObject playerObj = playerValue.toObject();
                 QString username = playerObj["username"].toString();
                 int x = playerObj["x"].toInt();
                 int y = playerObj["y"].toInt();
 
-                playerPositions[username] = QPoint(x, y);  // Actualizăm poziția locală
-                mapData[x][y] = 0;  // Actualizăm harta
+                playerPositions[username] = QPoint(x, y);  
+                mapData[x][y] = 0; 
                 qDebug() << "[DEBUG] Updated player position for " << username << ": (" << x << ", " << y << ")";
             }
-            update();  // Re-desenăm harta
+            update();  
         }
         else {
             qDebug() << "[ERROR] No 'players' data in server response.";

@@ -1,60 +1,49 @@
 ﻿#include "Player.h"
 #include <conio.h>
-#include "Game.h"
 
-Player::Player(const std::string& name, std::unique_ptr<Weapon> weapon, std::pair<int, int> position)
+Player::Player(const std::string& name, std::unique_ptr<Weapon> weapon, std::pair<uint16_t, uint16_t> position)
 	: name(name), weapon(std::move(weapon)), position(position), initialPosition(position){
 }
  char Player::GetDirection() const
 {
 	return direction;
 }
-void Player::Login()
+
+
+void Player::Movement(const Map& mapMatrix, char direction) 
 {
-	std::cout << "Player :" << name << "logged in" << std::endl;
-}
-
-
-void Player::Movement(const Map& mapMatrix, char direction) {
 	int newX = position.first;
 	int newY = position.second;
 	this->direction = direction;
+
+	auto updatePosition = [&](int dx, int dy) {
+		newX += dx;
+		newY += dy;
+		};
+
 	switch (direction) {
-	case 'w': newX -= 1; break;  
-	case 's': newX += 1; break;  
-	case 'a': newY -= 1; break;  
-	case 'd': newY += 1; break;  
+	case 'w': updatePosition(-1, 0); break;
+	case 's': updatePosition(1, 0); break;
+	case 'a': updatePosition(0, -1); break;
+	case 'd': updatePosition(0, 1); break;
+	default: std::cout << "Invalid direction!\n"; return;
 	}
 
-	if (newX >= 0 && newX < mapMatrix.GetHeight()&&newY >= 0 && newY < mapMatrix.GetWidth())
-		    {
-		        if (mapMatrix.IsMovable(newX, newY))
-		        {
-		            position.first = newX;
-		            position.second = newY;
-		            std::cout << "Player " << name << " moved to position ("
-		                << position.first << ", " << position.second << ")\n";
-		        }
-		        else
-		        {
-		            std::cout << "Cannot move to wall or occupied space!\n";
-		        }
-		    }
-		    else
-		    {
-		        std::cout << "Cannot move outside map boundaries!\n";
-		    }
-}
-
-
-
-
-
-void Player::Shoot(Game& game) {
-	if (weapon->CanShoot()) {
-		weapon->Shoot();  
+	if (newX >= 0 && newX < mapMatrix.GetHeight() && newY >= 0 && newY < mapMatrix.GetWidth()) {
+		if (mapMatrix.IsMovable(newX, newY)) {
+			position = { newX, newY };
+			std::cout << "Player " << name << " moved to position ("
+				<< position.first << ", " << position.second << ")\n";
+		}
+		else {
+			std::cout << "Cannot move to wall or occupied space!\n";
+		}
+	}
+	else {
+		std::cout << "Cannot move outside map boundaries!\n";
 	}
 }
+
 
 void Player::ResetPosition()
 {
@@ -91,11 +80,8 @@ int Player::GetPoints() const
 	return points;
 }
 
-std::pair<int, int> Player::GetPosition() const {
-	if (!this) {
-		std::cerr << "GetPosition called on null Player object!" << std::endl;
-		throw std::runtime_error("Null Player object");
-	}
+std::pair<int, int> Player::GetPosition() const 
+{
 	return position;
 }
 
@@ -135,7 +121,7 @@ Weapon& Player::GetWeapon()
 	return *weapon; 
 }
 
-void Player::SetPosition(std::pair<int, int> pos) {
+void Player::SetPosition(std::pair<uint16_t, uint16_t> pos) {
 	position = pos; 
 }
 
@@ -149,11 +135,13 @@ void Player::Eliminate() {
 	std::cout << "Player " << name << " has been eliminated.\n";
 }
 
-void Player::SetInitialPosition(const std::pair<int, int>& position) {
+void Player::SetInitialPosition(const std::pair<uint16_t, uint16_t>& position)
+{
 	initialPosition = position;
 }
 
-void Player::AddPoints(int points) {
+void Player::AddPoints(int points) 
+{
 	this->points += points;
 	std::cout << "[DEBUG] Player " << GetName() << " gained " << points << " points. Total: " << score << "\n";
 }

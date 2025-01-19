@@ -23,40 +23,44 @@ std::string GameSessionManager::CreateSession(int requiredPlayers) {
 
     sessions[sessionId] = session;
 
-    std::cout << "Sesiune creată cu ID: " << sessionId << " și " << requiredPlayers << " jucători necesari.\n";
+    std::cout << "Created session with ID: " << sessionId << " and " << requiredPlayers << " required players.\n";
     return sessionId;
 }
 
 
 bool GameSessionManager::JoinSession(const std::string& sessionId, const std::string& username) {
     auto it = sessions.find(sessionId);
-    if (it != sessions.end() && !it->second->isReady) { 
+    if (it != sessions.end() && !it->second->isReady) {
         auto session = it->second;
 
-        if (session->players.find(username) == session->players.end()) {
-            auto weapon = std::make_unique<Weapon>();
-            auto player = std::make_unique<Player>(username, std::move(weapon), std::make_pair(0, 0));
-            session->players[username] = std::move(player);
-
-            session->lastJoinedPlayer = username;
-            session->lastLeftPlayer = "";
-
-            std::cout << "Jucătorul " << username << " s-a alăturat sesiunii " << sessionId << "\n";
-
-            if (session->players.size() >= session->requiredPlayers) {
-                session->isReady = true;
-            }
-            return true;
+        if (session->players.contains(username)) {
+            std::cerr << std::format("Player {} is already in the session.\n", username);
+            return false;
         }
+
+        auto player = std::make_unique<Player>(username, std::make_unique<Weapon>(), std::make_pair(0, 0));
+        session->players[username] = std::move(player);
+
+        session->lastJoinedPlayer = username;
+        session->lastLeftPlayer.clear();
+
+        std::cout << std::format("Player {} joined session {}\n", username, sessionId);
+
+        if (session->players.size() >= session->requiredPlayers) {
+            session->isReady = true;
+        }
+        return true;
+    }
         else {
             std::cerr << "Jucătorul " << username << " este deja în sesiune.\n";
         }
-    }
-    else {
-        std::cerr << "Sesiunea " << sessionId << " nu este disponibilă sau este deja completă.\n";
-    }
+    
+    std::cerr << std::format("Session {} not found or already full.\n", sessionId);
     return false;
+   
 }
+
+
 
 
 void GameSessionManager::CreateMatch(std::array<std::unique_ptr<WaitingPlayer>, 4> players) {
@@ -100,7 +104,7 @@ void GameSessionManager::LeaveSession(const std::string& sessionId, const std::s
         session->lastLeftPlayer = username;
         session->lastJoinedPlayer = "";
 
-        std::cout << "Jucătorul " << username << " a părăsit sesiunea " << sessionId << "\n";
+        std::cout << std::format("Player {} left session {}\n", username, sessionId);
 
         if (session->players.size() < session->requiredPlayers) {
             session->isReady = false;
@@ -123,7 +127,7 @@ const GameSession& GameSessionManager::GetSessionStatus(const std::string& sessi
     if (it != sessions.end()) {
         return *(it->second);
     }
-    throw std::out_of_range("Sesiunea nu a fost găsită.");
+    throw std::out_of_range("Session not found\n");
 }
 
 std::map<std::string, std::shared_ptr<GameSession>>& GameSessionManager::GetSessions()
@@ -161,9 +165,6 @@ void GameSessionManager::MatchPlayers() {
         }
     }
 }
-
-
-
 
 
 void GameSessionManager::ManageSession(const std::string& sessionId) {

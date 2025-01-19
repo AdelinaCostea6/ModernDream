@@ -7,7 +7,6 @@
 
 MapGenerator::MapGenerator() {
 
-    // Generate random dimensions in constructor
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> heightDist(kMinHeight, kMaxHeight);
@@ -112,16 +111,19 @@ void MapGenerator::PlaceConnectorWalls() {
 
     for (int x = 1; x < MapGenerator::currentHeight - 1; x++) {
         for (int y = 1; y < MapGenerator::currentWidth - 1; y++) {
-            if (mapMatrix[x][y] == FreeSpace) {
-                bool hasNearbyWalls = false;
-                for (int dx = -1; dx <= 1; dx++) {
-                    for (int dy = -1; dy <= 1; dy++) {
-                        if (mapMatrix[x + dx][y + dy] == DestructibleWall) {
-                            hasNearbyWalls = true;
-                            break;
+                if (mapMatrix[x][y] == FreeSpace) {
+                    bool hasNearbyWalls = false;
+                    for (int dx = -1; dx <= 1; dx++) {
+                        for (int dy = -1; dy <= 1; dy++) {
+                            if (x + dx >= 0 && x + dx < MapGenerator::currentHeight && y + dy >= 0 && y + dy < MapGenerator::currentWidth) {
+                                if (mapMatrix[x + dx][y + dy] == DestructibleWall) {
+                                    hasNearbyWalls = true;
+                                    break;
+                                }
+                            }
                         }
                     }
-                }
+                
                 if (hasNearbyWalls && connectorDist(gen) == 0) {
                     mapMatrix[y][x] = DestructibleWall;
                     bool isDestructible = (wallTypeDist(gen) == 1);

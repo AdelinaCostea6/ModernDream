@@ -1,9 +1,8 @@
 #include "Weapon.h"
 #include "Bullet.h"
 
-Weapon::Weapon(float speed) : speed(speed)
-{
-}
+Weapon::Weapon(float speed) :waitingTime(waitingTime)
+{}
 
 void Weapon::Shoot()
 {
@@ -21,20 +20,8 @@ bool Weapon::CanShoot() const
 
 void Weapon::UpgradeWaitingTime(float reduction)
 {
-	waitingTime -= reduction;
-	if (waitingTime < 1.0f)
-	{
-		waitingTime = 1.0f;
-	}
-}
-void Weapon::UpgradeSpeed(float increase)
-{
-	speed += increase;
-}
-
-float Weapon::GetSpeed() const
-{
-	return speed;
+	waitingTime = std::max(1.0f, waitingTime - reduction);
+	std::cout << std::format("Waiting time upgraded. New waiting time: {:.2f} seconds\n", waitingTime);
 }
 
 float Weapon::GetWaitingTime() const

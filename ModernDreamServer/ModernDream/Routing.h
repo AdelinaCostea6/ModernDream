@@ -18,8 +18,13 @@ namespace http {
         crow::response GetSessionStatusRoute(const std::string& sessionId); 
         crow::response GenerateMapRoute(const crow::request& req);
         crow::response MovePlayerRoute(const crow::request& req);
-        crow::response SyncBulletsRoute(const crow::request& req);
-        crow::response ShootBulletRoute(const crow::request& req);
+        crow::response ShootBulletRoute(const crow::request& req, GameSessionManager& gameSessionManager);
+        crow::response SyncBulletsRoute(const crow::request& req, GameSessionManager& gameSessionManager);
+        crow::response UpdateWallsRoute(const crow::request& req, GameSessionManager& gameSessionManager);
+        crow::response UpdateJoinQueueRoute(const crow::request& req, GameSessionManager& gameSessionManager);
+        crow::response HandleQueueRoute(const crow::request& req, GameSessionManager& gameSessionManager);
+        crow::response HandleMatchmakingStatusRoute(const std::string& sessionId, GameSessionManager& gameSessionManager);
+        crow::response HandleSyncPlayersRoute(const crow::request& req, GameSessionManager& gameSessionManager);
 
 
 

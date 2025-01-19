@@ -25,22 +25,20 @@ private:
 public:
     Map();
     Map(MapGenerator& generator);
-    Map(size_t h, size_t w);
-
-    bool IsPositionFree(std::pair<int, int> position) const;
-    bool IsMovable(int x, int y) const;
+    bool IsPositionFree(std::pair<uint16_t, uint16_t> position) const;
+    bool IsMovable(uint16_t x, uint16_t y) const;
     const std::vector<std::unique_ptr<Wall>>& GetWalls();
     const std::array<std::unique_ptr<Bomb>, 3>& GetBombs();
     size_t GetHeight() const;
     size_t GetWidth() const;
-    Wall* GetWallAt(int x, int y);
-    std::unique_ptr<Bomb>* GetBombAt(int x, int y);
-    void SetFreePosition(int x, int y);
+    Wall* GetWallAt(uint16_t x, uint16_t y);
+    std::unique_ptr<Bomb>* GetBombAt(uint16_t x, uint16_t y);
+    void SetFreePosition(uint16_t x, uint16_t y);
     void SetWalls(std::vector<std::unique_ptr<Wall>> newWalls);
     void SetBombs(const std::array<std::unique_ptr<Bomb>, 3>& newBombs);
     const std::vector<std::vector<int>>& GetMapMatrix() const;
-    std::vector<std::pair<int, int>> GetPlayerStartPositions() const;
-    int GetCellValue(int x, int y) const; 
-    void SetCellValue(int x, int y, int value); 
+    std::vector<std::pair<uint16_t, uint16_t>> GetPlayerStartPositions() const;
+    int GetCellValue(uint16_t x, uint16_t y) const;
+    void SetCellValue(uint16_t x, uint16_t y, uint16_t value);
 
 };

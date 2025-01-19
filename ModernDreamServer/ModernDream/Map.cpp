@@ -1,14 +1,7 @@
 ﻿#include "Map.h"
 
 
-Map::Map() : height(18), width(30) {
-    mapMatrix.resize(height, std::vector<int>(width, 1));
-}
-
-Map::Map(size_t h, size_t w) : height(h), width(w) {
-    mapMatrix.resize(height, std::vector<int>(width, 1));
-}
-
+Map::Map(){}
 
 Map::Map(MapGenerator& generator) {
     height = generator.GetHeightG();
@@ -46,8 +39,8 @@ Map::Map(MapGenerator& generator) {
     }
 }
  
-std::vector<std::pair<int, int>> Map::GetPlayerStartPositions() const {
-    std::vector<std::pair<int, int>> startPositions;
+std::vector<std::pair<uint16_t, uint16_t>> Map::GetPlayerStartPositions() const {
+    std::vector<std::pair<uint16_t, uint16_t>> startPositions;
     for (size_t i = 0; i < mapMatrix.size(); ++i) {
         for (size_t j = 0; j < mapMatrix[i].size(); ++j) {
             if (mapMatrix[i][j] == 0) { 
@@ -59,7 +52,7 @@ std::vector<std::pair<int, int>> Map::GetPlayerStartPositions() const {
 }
 
 
-bool Map::IsPositionFree(std::pair<int, int> position) const 
+bool Map::IsPositionFree(std::pair<uint16_t, uint16_t> position) const
 {
     for (const auto& wall : walls) { 
         if (wall->GetPosition() == position && wall->GetDurability() < 0) {
@@ -74,7 +67,7 @@ const std::vector<std::vector<int>>& Map::GetMapMatrix() const {
 }
 
 
-bool Map::IsMovable(int x, int y) const 
+bool Map::IsMovable(uint16_t x, uint16_t y) const
 {
     if (x < 0 || x >= height || y < 0 || y >= width) { 
         return false;
@@ -107,7 +100,7 @@ size_t Map::GetWidth() const
 }
 
 
-Wall* Map::GetWallAt(int x, int y) {
+Wall* Map::GetWallAt(uint16_t x, uint16_t y) {
     for (auto& wall : walls) {
         if (wall->GetPosition() == std::make_pair(x, y)) {
             return wall.get();  
@@ -116,7 +109,7 @@ Wall* Map::GetWallAt(int x, int y) {
     return nullptr;
 }
 
-std::unique_ptr<Bomb>* Map::GetBombAt(int x, int y)
+std::unique_ptr<Bomb>* Map::GetBombAt(uint16_t x, uint16_t y)
 {
     for (auto& bomb : bombs)
     {
@@ -128,7 +121,7 @@ std::unique_ptr<Bomb>* Map::GetBombAt(int x, int y)
     return nullptr;
 }
 
-void Map::SetFreePosition(int x, int y)
+void Map::SetFreePosition(uint16_t x, uint16_t y)
 {
     mapMatrix[x][y] = 1;
 }
@@ -147,15 +140,15 @@ void Map::SetBombs(const std::array<std::unique_ptr<Bomb>, 3>& newBombs)
 }
 
 
-int Map::GetCellValue(int x, int y) const {
+int Map::GetCellValue(uint16_t x, uint16_t y) const {
     if (x < 0 || x >= height || y < 0 || y >= width) {
         return -1;  
     }
     return mapMatrix[x][y];
 }
 
-void Map::SetCellValue(int x, int y, int value) {
+void Map::SetCellValue(uint16_t x, uint16_t y, uint16_t value) {
     if (x >= 0 && x < height && y >= 0 && y < width) {
         mapMatrix[x][y] = value;
-    }
+    } 
 }

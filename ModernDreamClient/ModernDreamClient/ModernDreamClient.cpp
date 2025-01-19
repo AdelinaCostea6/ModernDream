@@ -6,36 +6,22 @@
 #include <QKeyEvent>
 #include <QDockWidget>
 
-//QString ModernDreamClient::sharedSessionId = "";
-
 ModernDreamClient::ModernDreamClient(QWidget* parent)
     : QMainWindow(parent), mainStack(new QStackedWidget(this)), httpClient(new HttpClient(this)) {
     resize(1400, 800);
 
     setupWaitingRoom();
     qDebug() << "setupWaitingRoom initialized waitingRoomWidget:" << waitingRoomWidget;
-
-   
-
-    //gameWidget = new QWidget(this);
-   // QVBoxLayout* layout = new QVBoxLayout(gameWidget);
-    /*QLabel* gameLabel = new QLabel("Game is starting...", gameWidget);
-    layout->addWidget(gameLabel);*/
-   // mainStack->addWidget(gameWidget);
-    //qDebug() << "gameWidget created and added to mainStack:" << gameWidget;
-
     
     tabWidget = new QTabWidget(this);
     QWidget* gameSetupTab = new QWidget();
     QVBoxLayout* setupLayout = new QVBoxLayout(gameSetupTab);
 
-    /*QLabel* playerCountLabel = new QLabel("Number of Players: ", this);*/
     playerCountSpinBox = new QSpinBox(this);
     playerCountSpinBox->setRange(1, 4);
 
     startGameButton = new QPushButton("Start Game", this);
 
-    //setupLayout->addWidget(playerCountLabel);
     setupLayout->addWidget(playerCountSpinBox);
     setupLayout->addWidget(startGameButton);
 
@@ -48,8 +34,6 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     setCentralWidget(mainStack);
 
     qDebug() << "HttpClient instance:" << httpClient;
-    //qDebug() << "GameMapWidget instance:" << mapWidget;
-
 
     
     connect(startGameButton, &QPushButton::clicked, this, [this]() {
@@ -61,54 +45,11 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
     connect(httpClient, &HttpClient::gameReady, this, &ModernDreamClient::onGameReady); 
     connect(httpClient, &HttpClient::playerJoined, this, &ModernDreamClient::onPlayerJoined);
     connect(httpClient, &HttpClient::playerLeft, this, &ModernDreamClient::onPlayerLeft);
-   // connect(httpClient, &HttpClient::playerMoved, this, &ModernDreamClient::updatePlayerPosition);
-   /* bool success = connect(httpClient, &HttpClient::playerMoved, this, &ModernDreamClient::updatePlayerPosition);
-    if (!success) {
-        qDebug() << "Eroare: `connect` a esuat!";
-    }*/
-    
-  
-
-   // connect(httpClient, &HttpClient::bulletsUpdated, mapWidget, &GameMapWidget::updateBullets); 
-   
-   //httpClient->syncBullets(currentSessionId);
-       
-
-
-      // Sync bullets every second
-    // QTimer* bulletSyncTimer = new QTimer(this);
-    //connect(bulletSyncTimer, &QTimer::timeout, [this]() {
-    //    if (httpClient && !currentSessionId.isEmpty()) {
-    //        httpClient->syncBullets(currentSessionId);  // Request bullet synchronization
-    //    }
-    //    });
-    //bulletSyncTimer->start(3000);
-
-
-
-   // QDockWidget* dock = new QDockWidget("Controls", this);
-   // QWidget* dockWidget = new QWidget();
-   // QVBoxLayout* dockLayout = new QVBoxLayout(dockWidget);
-
-   // QPushButton* syncButton = new QPushButton("Manual Sync", this);
-   // layout->addWidget(syncButton);
-   // connect(syncButton, &QPushButton::clicked, [this]() {
-   //     httpClient->syncBullets(currentSessionId);
-   //     });
-   //syncButton->setFocusPolicy(Qt::NoFocus);
-
-   //dockLayout->addWidget(syncButton);
-   //dockWidget->setLayout(dockLayout);
-   //dock->setWidget(dockWidget);
-
-   //addDockWidget(Qt::TopDockWidgetArea, dock);
 
 
     connect(httpClient, &HttpClient::queueJoinedSuccess, this, [this](const QString& sessionId) {
         currentSessionId = sessionId;
         qDebug() << "[DEBUG] User connected to session:" << sessionId;
-
-        // Trimite utilizatorul în sala de așteptare
         if (sessionId.isEmpty()) {
             qDebug() << "[ERROR] Received empty session ID.";
             return;
@@ -116,22 +57,13 @@ ModernDreamClient::ModernDreamClient(QWidget* parent)
         mainStack->setCurrentWidget(waitingRoomWidget);
         waitingStatusLabel->setText("Waiting for players...");
         });
-
-    // Alte conexiuni și inițializări...
-    //connect(startGameButton, &QPushButton::clicked, this, [this]() {
-    //    QString username = currentUsername.isEmpty() ? "default_user" : currentUsername;
-    //    startMatchmaking(username, 100, GameMap::CAR);  // Exemplu
-    //    });
-
     qDebug() << "ModernDreamClient initialized successfully.";
 }
 
 
 ModernDreamClient::~ModernDreamClient() {
     qDebug() << "ModernDreamClient destroyed.";
-   /* if (gameWidget) {
-        qDebug() << "gameWidget still exists in destructor:" << gameWidget;
-    }*/
+  
 }
 
 void ModernDreamClient::setupWaitingRoom() {
@@ -233,52 +165,13 @@ void ModernDreamClient::OnStartGame(GameMap mapType, const QString& username) {
     case GameMap::HELICOPTER: mapTypeStr = "helicopter"; break;
     case GameMap::BOAT: mapTypeStr = "boat"; break;
     }
-
-    //httpClient->joinGame(username, mapTypeStr, playerCountSpinBox->value());
-   // mainStack->setCurrentWidget(waitingRoomWidget);
-  
-
-    //if (sharedSessionId.isEmpty()) {
-    //    // Creează sesiunea dacă este primul jucător
-    //    httpClient->createGame(4); // Exemplu: sesiune pentru 4 jucători
-    //    connect(httpClient, &HttpClient::joinGameSuccess, this, [this](const QString& sessionId, int current, int required) {
-    //        sharedSessionId = sessionId; 
-    //        currentSessionId = sessionId;
-    //        httpClient->joinGame(currentUsername, "mapType", 4);
-    //        updateWaitingRoom(current, required);
-    //        });
-
-    //}
-    //else {
-    //    // Alătură-te sesiunii partajate
-    //    httpClient->joinGame(username, mapTypeStr, 4);
-    //    currentSessionId = sharedSessionId;
-    //}
-    //mainStack->setCurrentWidget(waitingRoomWidget);
-
-
-    //mainStack->setCurrentWidget(waitingRoomWidget);
-
-    //if (currentSessionId.isEmpty()) {
-    //    httpClient->createGame(playerCountSpinBox->value());
-    //    connect(httpClient, &HttpClient::joinGameSuccess, this, [this, mapTypeStr](const QString& sessionId, int current, int required) {
-    //        currentSessionId = sessionId;
-    //        httpClient->joinGame(sessionId, currentUsername, mapTypeStr); // Include username
-    //        httpClient->joinQueue(currentUsername, 100);
-    //        updateWaitingRoom(current, required);
-    //        });
-    //}
-    //else {
-    //    httpClient->joinGame(currentSessionId, currentUsername, mapTypeStr);
-    //    httpClient->joinQueue(currentUsername, 100);
-    //}
+   
     mainStack->setCurrentWidget(waitingRoomWidget);
     waitingStatusLabel->setText("Waiting for players...");
-   // playerList->clear();
     playerProgress->setValue(0);
 
-    // Adaugă utilizatorul în coadă și începe matchmaking-ul
-    httpClient->joinQueue(username, 100);  // Exemplu: Scorul utilizatorului este 100
+   
+    httpClient->joinQueue(username, 100);  
     startMatchmaking(username, 100, mapType);
 }
 
@@ -304,7 +197,6 @@ void ModernDreamClient::onJoinGameSuccess(const QString& sessionId, int current,
 
 void ModernDreamClient::onPlayerJoined(const QString& username, int current, int required) {
     qDebug() << "Player joined:" << username;
-    // Verifică dacă utilizatorul este deja în listă
     bool exists = false;
     for (int i = 0; i < playerList->count(); ++i) {
         if (i >= playerList->count()) {
@@ -320,7 +212,6 @@ void ModernDreamClient::onPlayerJoined(const QString& username, int current, int
             playerList->addItem(username);
         }
         updateWaitingRoom(current, required);
-        //playerList->addItem(username);
 
     }
 }
@@ -341,70 +232,6 @@ void ModernDreamClient::updateWaitingRoom(int current, int required) {
     playerProgress->setValue(current);
 }
 
-
-
-//void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
-//    static bool gameStarted = false;
-//    if (gameStarted) {
-//        qDebug() << "Game already started, ignoring additional calls.";
-//        return;
-//    }
-//    gameStarted = true;
-//
-//    qDebug() << "onGameReady called. Session ID:" << sessionId;
-//
-//    if (!gameWidget) {
-//        qDebug() << "Error: gameWidget is nullptr!";
-//        return;
-//    }
-//
-//    QVBoxLayout* layout = new QVBoxLayout(gameWidget);
-//    layout->setContentsMargins(0, 0, 0, 0);
-//
-//
-//    if (!mapWidget) {
-//        mapWidget = new GameMapWidget(gameWidget);
-//        qDebug() << "Instantiere noua\n";
-//        mapWidget->setSessionId(currentSessionId);
-//    }
-//    else {
-//        qDebug() << "Reutilizare instanță mapWidget.\n";
-//    }
-//    mapWidget->setSessionId(currentSessionId);
-//
-//    qDebug() << "Using existing mapWidget:" << mapWidget;
-//    layout->addWidget(mapWidget, 1);
-//
-//    
-//    // Cerere de generare a hărții
-//    QByteArray response = httpClient->requestMapGeneration(sessionId, players.size());
-//    QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
-//    QJsonObject jsonObj = jsonDoc.object();
-//
-//    if (jsonObj.contains("map")) {
-//        QJsonArray mapArray = jsonObj["map"].toArray();
-//        QVector<QVector<int>> mapData;
-//
-//        for (const QJsonValue& row : mapArray) {
-//            QVector<int> rowData;
-//            QJsonArray rowArray = row.toArray();
-//            for (const QJsonValue& cell : rowArray) {
-//                rowData.push_back(cell.toInt());
-//            }
-//            mapData.push_back(rowData);
-//        }
-//
-//        mapWidget->initializeMap(mapData);
-//    }
-//
-//    gameWidget->setLayout(layout);
-//    if (mainStack->indexOf(gameWidget) == -1) {
-//        mainStack->addWidget(gameWidget);
-//    }
-//    mainStack->setCurrentWidget(gameWidget);
-//    qDebug() << "Switched to gameWidget successfully.";
-//    
-//}
 void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& players) {
     static bool gameStarted = false;
     if (gameStarted) {
@@ -415,14 +242,14 @@ void ModernDreamClient::onGameReady(const QString& sessionId, const QJsonArray& 
 
     qDebug() << "Game is ready. Session ID:" << sessionId;
 
-    // Create and show GameMapWidget
+   
     if (!gameMapWidget)
     {
         gameMapWidget = new GameMapWidget(sessionId, currentUsername, this);
     }
     gameMapWidget->show();
 
-    // Hide the current client window
+    
     this->hide();   
   
 }
@@ -439,33 +266,7 @@ void ModernDreamClient::onLeaveGame()
     }
 }
 
-//void ModernDreamClient::startMatchmaking(const QString& username, int score) {
-//    httpClient->joinQueue(username, score);
-//
-//    QTimer* matchmakingTimer = new QTimer(this);
-//    connect(matchmakingTimer, &QTimer::timeout, [this, matchmakingTimer]() {
-//        QJsonObject status = httpClient->checkMatchStatus(currentSessionId);
-//
-//        if (status.contains("status") && status["status"].toString() == "ready") {
-//            matchmakingTimer->stop();  // Stop polling
-//            QString sessionId = status["sessionId"].toString();
-//
-//            // Join the session and use onGameReady for the transition
-//            httpClient->joinGame(sessionId, currentUsername);
-//            onGameReady(sessionId, QJsonArray());
-//        }
-//        else {
-//            qDebug() << "Matchmaking status:" << status;
-//        }
-//        });
-//
-//    matchmakingTimer->start(5000);  // Poll every 5 seconds
-//    mainStack->setCurrentWidget(waitingRoomWidget);
-//}
-//
-//
-//
-//
+
 
 
 void ModernDreamClient::startMatchmaking(const QString& username, int score, GameMap mapType) {
@@ -480,19 +281,17 @@ void ModernDreamClient::startMatchmaking(const QString& username, int score, Gam
         << ", score:" << score
         << ", mapType:" << mapTypeStr;
 
-    // Creează un timer pentru a verifica statusul matchmaking-ului
     QTimer* matchmakingTimer = new QTimer(this);
     connect(matchmakingTimer, &QTimer::timeout, [this, matchmakingTimer]() {
         QJsonObject status = httpClient->checkMatchStatus(currentSessionId);
 
-        QString sessionId = currentSessionId;  // currentSessionId este deja valid
+        QString sessionId = currentSessionId;  
         if (!status["sessionId"].toString().isEmpty()) {
             sessionId = status["sessionId"].toString();
         }
         if (status.contains("players")) {
             QJsonArray players = status["players"].toArray();
 
-            // Actualizează lista jucătorilor
             playerList->clear();
             for (const auto& player : players) {
                 playerList->addItem(player.toString());
@@ -512,7 +311,7 @@ void ModernDreamClient::startMatchmaking(const QString& username, int score, Gam
             qDebug() << "[DEBUG] Matchmaking status:" << status;
         }
         });
-    matchmakingTimer->start(5000);  // Verifică statusul la fiecare 5 secunde
+    matchmakingTimer->start(5000);  
 
 }
 

@@ -77,10 +77,10 @@
     <ClInclude Include="Routing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DataUser.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="GameSessionManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataUser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

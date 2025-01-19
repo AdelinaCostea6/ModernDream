@@ -1,4 +1,3 @@
-
 #pragma once
 #include <cstdint>
 #include <optional>
@@ -13,12 +12,6 @@ enum  WallType : std::uint8_t
 };
 
 class Wall {
-private:
-    std::pair<std::uint16_t, std::uint16_t> position;
-    WallType type;
-    std::uint16_t durability;
-    bool destructible;
-    std::optional<Bomb> bomb;
 
 public:
     Wall(std::pair<std::uint16_t, std::uint16_t> position, WallType type, std::uint16_t durability, bool destructible, std::optional<Bomb> bomb = std::nullopt);
@@ -33,4 +26,10 @@ public:
 
     bool HasBomb() const noexcept;
     const std::optional<Bomb>& GetBomb() const noexcept;
+private:
+    std::pair<std::uint16_t, std::uint16_t> position;
+    WallType type;
+    std::uint16_t durability;
+    bool destructible;
+    std::optional<Bomb> bomb;
 };

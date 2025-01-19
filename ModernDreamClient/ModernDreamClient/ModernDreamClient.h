@@ -26,12 +26,21 @@ public:
     explicit ModernDreamClient(QWidget* parent = nullptr);
     ~ModernDreamClient();
 
-protected:
-    //void paintEvent(QPaintEvent* event) override;
-    /*{
-       gameWidget->update();
-    }*/
 
+
+public:
+    void setupWaitingRoom();
+
+
+public slots:
+    void OnStartGame(GameMap mapType, const QString& username);
+    void onJoinGameSuccess(const QString& sessionId, int current, int required);
+    void onPlayerJoined(const QString& username, int current, int required);
+    void onPlayerLeft(const QString& username, int current, int required);
+    void onGameReady(const QString& sessionId, const QJsonArray& players);
+    void onLeaveGame();
+    void updateWaitingRoom(int current, int required);
+    void startMatchmaking(const QString& username, int score, GameMap mapType);
 
 private:
     QTabWidget* tabWidget;          
@@ -40,8 +49,7 @@ private:
     QPushButton* startGameButton;  
 
       
-    QWidget* waitingRoomWidget;     
-   // QWidget* gameWidget;            
+    QWidget* waitingRoomWidget;               
 
     QLabel* waitingStatusLabel;  
     QProgressBar* playerProgress;   
@@ -56,28 +64,5 @@ private:
     QStackedWidget* mainStack;
     GameMapWidget* gameMapWidget;
     QString currentDirection;
-    void setupWaitingRoom();       
-   
-   // bool isSyncing = false;
 
-protected:
-    //void keyPressEvent(QKeyEvent* event) override; 
-    
-
-public:
-    //static QString sharedSessionId;
-public slots:
-    void OnStartGame(GameMap mapType, const QString& username);
-    void onJoinGameSuccess(const QString& sessionId, int current, int required);
-    void onPlayerJoined(const QString& username, int current, int required);
-    void onPlayerLeft(const QString& username, int current, int required);
-    void onGameReady(const QString& sessionId, const QJsonArray& players);
-    //void onGameReady(const QString& sessionId, const QJsonArray& players, const QJsonObject& mapData); 
-    void onLeaveGame(); 
-    void updateWaitingRoom(int current, int required);
-    
-    //void updatePlayerPosition(int x, int y);
-
-    //void onShootButtonPressed(const QString& direction);
-    void startMatchmaking(const QString& username, int score, GameMap mapType);
 };
