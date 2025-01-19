@@ -15,15 +15,12 @@ namespace http {
         crow::response CreateSessionRoute(const crow::request& req);
         crow::response JoinSessionRoute(const crow::request& req);
         crow::response LeaveSessionRoute(const crow::request& req);
-        //crow::response GetSessionStatusRoute(const crow::request& req);
         crow::response GetSessionStatusRoute(const std::string& sessionId); 
         crow::response GenerateMapRoute(const crow::request& req);
         crow::response MovePlayerRoute(const crow::request& req);
         crow::response SyncBulletsRoute(const crow::request& req);
         crow::response ShootBulletRoute(const crow::request& req);
 
-        //crow::response TriggerBombRoute(const crow::request& req);
-        //crow::response GetUpdatesRoute(const crow::request& req); 
 
 
     private:

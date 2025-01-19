@@ -36,27 +36,16 @@ void Bullet::SetDoubleSpeed()
 	speed *= 2;
 }
 
-//void Bullet::Movement()
-//{
-//	/*position.first += 1;
-//	position.second += 1;*/
-//	switch (direction) {
-//	case 'w': position.first -= 1; break;  
-//	case 's': position.first += 1; break;  
-//	case 'a': position.second -= 1; break; 
-//	case 'd': position.second += 1; break;  
-//	}
-//
-//}
+
 
 void Bullet::Movement(int maxHeight, int maxWidth) {
 	if (isActive == true)
 	{
 		switch (direction) {
-		case 'w': position.first -= 1; break;  // Sus
-		case 's': position.first += 1; break;  // Jos
-		case 'a': position.second -= 1; break; // Stânga
-		case 'd': position.second += 1; break; // Dreapta
+		case 'w': position.first -= 1; break; 
+		case 's': position.first += 1; break;  
+		case 'a': position.second -= 1; break; 
+		case 'd': position.second += 1; break; 
 		}
 	}
 
@@ -114,24 +103,7 @@ bool Bullet::CheckCollisionwithWalls(std::vector<std::unique_ptr<Wall>>& walls)
 		});
 }
 
-//void Bullet::CheckCollisionwithBullets(std::vector<std::unique_ptr<Bullet>>& bullets)
-//{
-//	if (bullets.size() <= 1)
-//		return;
-//
-//	for (auto it1 = bullets.begin(); it1 != bullets.end(); ++it1)
-//	{
-//		for (auto it2 = it1 + 1; it2 != bullets.end(); ++it2)
-//		{
-//			if ((*it1)->isActive && (*it2)->isActive && (*it1)->GetPosition() == (*it2)->GetPosition())
-//			{
-//				std::cout << "Two bullets collided\n";
-//				(*it1)->SetIsInactive();
-//				(*it2)->SetIsInactive();
-//			}
-//		}
-//	}
-//}
+
 void Bullet::CheckCollisionwithBullets(std::vector<std::unique_ptr<Bullet>>& bullets) {
 	if (bullets.size() <= 1) return;
 

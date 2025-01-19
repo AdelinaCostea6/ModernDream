@@ -6,7 +6,6 @@
 
 
 MapGenerator::MapGenerator() {
-   // InitializeMapMatrix(); 
 
     // Generate random dimensions in constructor
     std::random_device rd;
@@ -20,14 +19,6 @@ MapGenerator::MapGenerator() {
 
 void MapGenerator::GenerateMap(int numPlayers)
 {
-     //Generate new random dimensions for this map
-    /*std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> heightDist(kMinHeight, kMaxHeight);
-    std::uniform_int_distribution<> widthDist(kMinWidth, kMaxWidth);
-
-    currentHeight = heightDist(gen);
-    currentWidth = widthDist(gen);*/
 
     std::cout << "Inițializăm matricea cu dimensiunea: (" << currentHeight << ", " << currentWidth << ")\n";
 
@@ -49,57 +40,18 @@ void MapGenerator::InitializeMapMatrix() {
 
     mapMatrix.resize(currentHeight, std::vector<int>(currentWidth, FreeSpace));
 }
-//void MapGenerator::GenerateNonDestructibleWalls() {
-//    std::random_device rd;
-//    std::mt19937 gen(rd());
-//    std::uniform_int_distribution<> dist(0, 100);
-//
-//    // Add border walls
-//    for (size_t i = 0; i < kHeightG; ++i) {
-//        mapMatrix[i][0] = NonDestructibleWall;
-//        mapMatrix[i][kWidthG - 1] = NonDestructibleWall;
-//        wallPositions.emplace_back(std::make_pair(i, 0));
-//        wallPositions.emplace_back(std::make_pair(i, kWidthG - 1));
-//        wallDurabilities.push_back(999);  // High durability for non-destructible walls
-//        wallDurabilities.push_back(999);
-//        wallDestructibleFlags.push_back(false);
-//        wallDestructibleFlags.push_back(false);
-//    }
-//    for (size_t j = 0; j < kWidthG; ++j) {
-//        mapMatrix[0][j] = NonDestructibleWall;
-//        mapMatrix[kHeightG - 1][j] = NonDestructibleWall;
-//        wallPositions.emplace_back(std::make_pair(0, j));
-//        wallPositions.emplace_back(std::make_pair(kHeightG - 1, j));
-//        wallDurabilities.push_back(999);
-//        wallDurabilities.push_back(999);
-//        wallDestructibleFlags.push_back(false);
-//        wallDestructibleFlags.push_back(false);
-//    }
-//
-//    // Add some non-destructible walls in a grid pattern
-//    for (size_t i = 3; i < kHeightG - 3; i += 3) {
-//        for (size_t j = 3; j < kWidthG - 3; j += 3) {
-//            if (dist(gen) < 40) {  // 40% chance for non-destructible wall
-//                mapMatrix[i][j] = NonDestructibleWall;
-//                wallPositions.emplace_back(std::make_pair(i, j));
-//                wallDurabilities.push_back(999);
-//                wallDestructibleFlags.push_back(false);
-//            }
-//        }
-//    }
-//}
+
 void MapGenerator::GenerateNonDestructibleWalls() { 
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dist(0, 100);
 
-    // Add some non-destructible walls in a grid pattern
-    for (size_t i = 1; i < currentHeight - 1; ++i) {  // Avoid the borders
-        for (size_t j = 1; j < currentWidth - 1; ++j) {  // Avoid the borders
-            if (dist(gen) < 10) {  // 40% chance for non-destructible wall
+    for (size_t i = 1; i < currentHeight - 1; ++i) {
+        for (size_t j = 1; j < currentWidth - 1; ++j) { 
+            if (dist(gen) < 10) {  
                 mapMatrix[i][j] = NonDestructibleWall;
                 wallPositions.emplace_back(std::make_pair(i, j));
-                wallDurabilities.push_back(99999);  // High durability for non-destructible walls
+                wallDurabilities.push_back(99999); 
                 wallDestructibleFlags.push_back(false);
             }
         }
@@ -137,12 +89,8 @@ void MapGenerator::GenerateClusters() {
                 for (int y = startY; y < startY + clusterHeight && y < MapGenerator::currentWidth - 1; y++) {
                     if (!isHollow || x == startX || x == startX + clusterWidth - 1 ||
                         y == startY || y == startY + clusterHeight - 1) {
-                        /*mapMatrix[x][y] = DestructibleWall;
-                        bool isDestructible = (wallTypeDist(gen) == 1);
-                        wallPositions.emplace_back(std::make_pair(x, y)); 
-                        wallDurabilities.push_back(1); 
-                        wallDestructibleFlags.push_back(isDestructible); */
-                        if (wallTypeDist(gen) < 90) {  // 80% chance for wall placement
+
+                        if (wallTypeDist(gen) < 90) {  
                             mapMatrix[x][y] = DestructibleWall;
                             wallPositions.emplace_back(std::make_pair(x, y));
                             wallDurabilities.push_back(1);

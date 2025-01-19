@@ -10,7 +10,7 @@ void Weapon::Shoot()
 	if (CanShoot())
 	{
 		lastShot = (float)std::time(nullptr);
-		// playerBullets.emplace_back(new Bullet(position));
+
 	}
 }
 

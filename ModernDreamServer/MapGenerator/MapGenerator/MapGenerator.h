@@ -25,11 +25,8 @@ private:
     void PlaceBombs(); 
     void GenerateNonDestructibleWalls();
 
-    /*static const size_t kHeightG = 18;
-    static const size_t kWidthG = 30;
-    std::array<std::array<int, kWidthG>, kHeightG> mapMatrix;*/
-    static const size_t kMinHeight = 12;
-    static const size_t kMaxHeight = 24;
+    static const size_t kMinHeight = 13;
+    static const size_t kMaxHeight = 25;
     static const size_t kMinWidth = 20;
     static const size_t kMaxWidth = 40;
     size_t currentHeight;

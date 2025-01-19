@@ -5,7 +5,6 @@
 #include "Weapon.h"
 #include "Map.h" 
 
-//class Weapon;
 class Game;
 
 class Player
@@ -27,7 +26,6 @@ public:
     void SetDirection(char newDirection) { direction = newDirection; }
     char GetDirection() const;
     void Login();
-   // void Movement(Map& mapMatrix);
     void Shoot(Game& game);
     void ResetPosition();
     void Hit();

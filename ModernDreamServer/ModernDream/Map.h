@@ -7,14 +7,13 @@
 #include <array>
 #include "Wall.h"
 #include "../MapGenerator/MapGenerator/MapGenerator.h"
-//import bomb;
+
 
 
 class Map
 {
 private:
-    /*static const size_t kHeight = 18;
-    static const size_t kWidth = 30;*/
+
     size_t height;
     size_t width;
 
@@ -32,7 +31,6 @@ public:
     bool IsMovable(int x, int y) const;
     const std::vector<std::unique_ptr<Wall>>& GetWalls();
     const std::array<std::unique_ptr<Bomb>, 3>& GetBombs();
-    /*std::pair<int, int> GetSize();*/
     size_t GetHeight() const;
     size_t GetWidth() const;
     Wall* GetWallAt(int x, int y);
@@ -42,7 +40,7 @@ public:
     void SetBombs(const std::array<std::unique_ptr<Bomb>, 3>& newBombs);
     const std::vector<std::vector<int>>& GetMapMatrix() const;
     std::vector<std::pair<int, int>> GetPlayerStartPositions() const;
-    int GetCellValue(int x, int y) const;  // Obține valoarea celulei
-    void SetCellValue(int x, int y, int value);  // Setează o valoare pentru celulă
+    int GetCellValue(int x, int y) const; 
+    void SetCellValue(int x, int y, int value); 
 
 };
